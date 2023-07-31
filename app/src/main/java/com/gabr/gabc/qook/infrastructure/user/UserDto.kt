@@ -5,7 +5,7 @@ import com.gabr.gabc.qook.domain.user.User
 data class UserDto(
     val name: String,
     val email: String,
-    val avatar: String,
+    val avatar: String?,
     val beginningWeekDay: Int,
 )
 

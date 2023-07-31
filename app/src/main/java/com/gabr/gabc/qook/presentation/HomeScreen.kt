@@ -16,4 +16,6 @@ class HomeScreen : ComponentActivity() {
             }
         }
     }
+
+    // TODO: https://insert-koin.io/docs/quickstart/android-compose/#injecting-viewmodel-in-compose
 }
