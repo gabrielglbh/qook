@@ -6,8 +6,9 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.auth.User
 import com.gabr.gabc.qook.domain.user.User as domainUser
 import kotlinx.coroutines.tasks.await
+import javax.inject.Inject
 
-class UserRepositoryImpl(private val auth: FirebaseAuth, private val db: FirebaseFirestore) : UserRepository {
+class UserRepositoryImpl @Inject constructor (private val auth: FirebaseAuth, private val db: FirebaseFirestore) : UserRepository {
     override suspend fun signInUser(email: String, password: String) {
         auth.createUserWithEmailAndPassword(email, password).await()
     }

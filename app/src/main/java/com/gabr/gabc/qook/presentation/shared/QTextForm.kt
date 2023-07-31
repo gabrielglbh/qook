@@ -12,6 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import com.gabr.gabc.qook.R
 
@@ -23,7 +25,8 @@ fun QTextForm(
     singleLine: Boolean = true,
     onValueChange: (String) -> Unit,
     imeAction: ImeAction = ImeAction.Done,
-    trailingIcon: @Composable (() -> Unit)? = null
+    trailingIcon: @Composable (() -> Unit)? = null,
+    obscured: Boolean = false,
 ) {
     return OutlinedTextField(
         value = value,
@@ -36,7 +39,8 @@ fun QTextForm(
         keyboardOptions = KeyboardOptions.Default.copy(
             imeAction = imeAction
         ),
-        trailingIcon = trailingIcon
+        trailingIcon = trailingIcon,
+        visualTransformation = if (obscured) PasswordVisualTransformation() else VisualTransformation.None
     )
 }
 
