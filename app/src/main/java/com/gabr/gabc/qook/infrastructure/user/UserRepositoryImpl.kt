@@ -8,13 +8,16 @@ import com.gabr.gabc.qook.domain.user.User as domainUser
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
-class UserRepositoryImpl @Inject constructor (private val auth: FirebaseAuth, private val db: FirebaseFirestore) : UserRepository {
+class UserRepositoryImpl @Inject constructor (
+    private val auth: FirebaseAuth,
+    private val db: FirebaseFirestore
+) : UserRepository {
     override suspend fun signInUser(email: String, password: String) {
-        auth.createUserWithEmailAndPassword(email, password).await()
+        TODO("Not yet implemented")
     }
 
     override suspend fun signOut() {
-        auth.signOut()
+        TODO("Not yet implemented")
     }
 
     override suspend fun changePassword(oldPassword: String, newPassword: String, user: User) {
@@ -26,14 +29,7 @@ class UserRepositoryImpl @Inject constructor (private val auth: FirebaseAuth, pr
     }
 
     override suspend fun createUser(name: String) {
-        auth.currentUser?.let {
-            db.collection("USERS").document().set(UserDto(
-                name,
-                it.email!!,
-                null,
-                1
-            )).await()
-        }
+        TODO("Not yet implemented")
     }
 
     override suspend fun removeUser(user: domainUser) {
