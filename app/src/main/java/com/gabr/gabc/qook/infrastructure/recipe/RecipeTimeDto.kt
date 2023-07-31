@@ -10,3 +10,5 @@ data class RecipeTimeDto(
 fun RecipeTimeDto.toDomain(): RecipeTime {
     return RecipeTime(time, measure)
 }
+
+

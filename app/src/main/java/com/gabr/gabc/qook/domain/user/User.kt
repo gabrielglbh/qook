@@ -1,4 +1,4 @@
-package com.gabr.gabc.qook.domain
+package com.gabr.gabc.qook.domain.user
 
 data class User(
     val name: String,

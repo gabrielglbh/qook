@@ -1,6 +1,6 @@
-package com.gabr.gabc.qook.infrastructure
+package com.gabr.gabc.qook.infrastructure.user
 
-import com.gabr.gabc.qook.domain.User
+import com.gabr.gabc.qook.domain.user.User
 
 data class UserDto(
     val name: String,

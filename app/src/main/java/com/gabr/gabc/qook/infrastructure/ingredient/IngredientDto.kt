@@ -1,6 +1,6 @@
-package com.gabr.gabc.qook.infrastructure
+package com.gabr.gabc.qook.infrastructure.ingredient
 
-import com.gabr.gabc.qook.domain.Ingredient
+import com.gabr.gabc.qook.domain.ingredient.Ingredient
 
 data class IngredientDto(
     val name: String,

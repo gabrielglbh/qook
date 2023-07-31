@@ -1,4 +1,4 @@
-package com.gabr.gabc.qook.domain
+package com.gabr.gabc.qook.domain.tag
 
 data class Tag(
     val text: String,

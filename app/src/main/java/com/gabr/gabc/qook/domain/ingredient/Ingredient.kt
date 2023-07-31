@@ -1,4 +1,4 @@
-package com.gabr.gabc.qook.domain
+package com.gabr.gabc.qook.domain.ingredient
 
 data class Ingredient(
     val name: String,

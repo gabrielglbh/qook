@@ -1,7 +1,7 @@
 package com.gabr.gabc.qook.domain.recipe
 
-import com.gabr.gabc.qook.domain.Ingredient
-import com.gabr.gabc.qook.domain.Tag
+import com.gabr.gabc.qook.domain.ingredient.Ingredient
+import com.gabr.gabc.qook.domain.tag.Tag
 import java.util.Date
 
 data class Recipe(
