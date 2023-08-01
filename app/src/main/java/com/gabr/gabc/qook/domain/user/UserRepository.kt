@@ -12,4 +12,5 @@ interface UserRepository {
     suspend fun removeUser(user: domainUser)
     suspend fun updateUser(user: domainUser)
     suspend fun getUser(): domainUser
+    suspend fun updateAvatar(image: String)
 }
