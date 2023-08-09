@@ -5,13 +5,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
@@ -27,6 +28,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -63,6 +66,7 @@ class LoginScreen : ComponentActivity() {
         var visibilityText by remember { mutableStateOf(false) }
         var visibilityForm by remember { mutableStateOf(false) }
         val focusManager = LocalFocusManager.current
+        val configuration = LocalConfiguration.current
 
         LaunchedEffect(key1 = Unit, block = {
             delay(500)
@@ -71,16 +75,24 @@ class LoginScreen : ComponentActivity() {
             visibilityForm = true
         })
 
+        val alphaForm by animateFloatAsState(if (visibilityForm) { 1f } else { 0f }, tween(1000),
+            label = "alphaForm"
+        )
+
         return Box {
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight()
+                    .fillMaxSize()
                     .background(MaterialTheme.colorScheme.background),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                AnimatedVisibility(visible = visibilityText, enter = fadeIn(tween(1000))) {
+                AnimatedVisibility(
+                    visible = visibilityText,
+                    enter = slideInVertically(tween(1000)) {
+                        configuration.screenHeightDp.dp.value.toInt() / 2
+                    }
+                ) {
                     Text(
                         getString(R.string.app_name),
                         style = MaterialTheme.typography.headlineLarge.copy(
@@ -89,11 +101,13 @@ class LoginScreen : ComponentActivity() {
                         modifier = Modifier.padding(bottom = 48.dp)
                     )
                 }
-                AnimatedVisibility(visible = visibilityForm, enter = fadeIn(tween(1000))) {
-                    LoginForm(viewModel, state) {
-                        focusManager.clearFocus()
-                        CoroutineScope(Dispatchers.Main).launch { viewModel.signInUser(state) }
-                    }
+                LoginForm(
+                    viewModel,
+                    state,
+                    Modifier.padding(horizontal = 32.dp).alpha(alphaForm)
+                ) {
+                    focusManager.clearFocus()
+                    CoroutineScope(Dispatchers.Main).launch { viewModel.signInUser(state) }
                 }
             }
             if (viewModel.isSigningIn) QLoadingScreen()
@@ -104,11 +118,11 @@ class LoginScreen : ComponentActivity() {
     fun LoginForm(
         viewModel: LoginViewModel,
         state: LoginState,
-        onSubmit: () -> Unit
+        modifier: Modifier,
+        onSubmit: () -> Unit,
     ) {
         return Column(
-            modifier = Modifier
-                .padding(horizontal = 32.dp),
+            modifier = modifier,
             verticalArrangement = Arrangement.spacedBy(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
