@@ -25,6 +25,10 @@ class LoginViewModel @Inject constructor(private val repository: UserRepository)
         isSigningIn = value
     }
 
+    fun updateLoginState(state: LoginState) {
+        _loginState.value = state
+    }
+
     suspend fun signInUser(state: LoginState) {
         updateIsSigningIn(true)
         delay(4000)
