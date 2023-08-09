@@ -1,10 +1,12 @@
 package com.gabr.gabc.qook.presentation.loginPage
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,10 +19,15 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -34,6 +41,7 @@ import com.gabr.gabc.qook.presentation.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -51,6 +59,18 @@ class LoginScreen : ComponentActivity() {
     fun LoginScreenView() {
         val viewModel: LoginViewModel by viewModels()
         val state by viewModel.loginState.collectAsState()
+
+        var visibilityText by remember { mutableStateOf(false) }
+        var visibilityForm by remember { mutableStateOf(false) }
+        val focusManager = LocalFocusManager.current
+
+        LaunchedEffect(key1 = Unit, block = {
+            delay(500)
+            visibilityText = true
+            delay(1000)
+            visibilityForm = true
+        })
+
         return Box {
             Column(
                 modifier = Modifier
@@ -58,17 +78,22 @@ class LoginScreen : ComponentActivity() {
                     .fillMaxHeight()
                     .background(MaterialTheme.colorScheme.background),
                 verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Text(getString(R.string.app_name),
-                    style = MaterialTheme.typography.headlineLarge.copy(
-                        color = MaterialTheme.colorScheme.inversePrimary
-                    ),
-                    modifier = Modifier.padding(bottom = 48.dp)
-                )
-                LoginForm(viewModel, state) {
-                    Log.i("LOGGER", "UserInfo ${state.name}, ${state.email}, ${state.password}")
-                    CoroutineScope(Dispatchers.Main).launch { viewModel.signInUser(state) }
+                AnimatedVisibility(visible = visibilityText, enter = fadeIn(tween(1000))) {
+                    Text(
+                        getString(R.string.app_name),
+                        style = MaterialTheme.typography.headlineLarge.copy(
+                            color = MaterialTheme.colorScheme.inversePrimary
+                        ),
+                        modifier = Modifier.padding(bottom = 48.dp)
+                    )
+                }
+                AnimatedVisibility(visible = visibilityForm, enter = fadeIn(tween(1000))) {
+                    LoginForm(viewModel, state) {
+                        focusManager.clearFocus()
+                        CoroutineScope(Dispatchers.Main).launch { viewModel.signInUser(state) }
+                    }
                 }
             }
             if (viewModel.isSigningIn) QLoadingScreen()
@@ -118,11 +143,14 @@ class LoginScreen : ComponentActivity() {
                 obscured = true
             )
             Button(
-                modifier = Modifier.fillMaxWidth().padding(top = 12.dp, start = 24.dp, end = 24.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 12.dp, start = 24.dp, end = 24.dp),
                 onClick = onSubmit
             ) {
                 Text(stringResource(R.string.login_button))
             }
+
         }
     }
 }
