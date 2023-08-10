@@ -4,6 +4,7 @@ plugins {
     id("com.google.gms.google-services")
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
+    id("org.jetbrains.kotlin.plugin.serialization")
 }
 
 android {
@@ -91,6 +92,9 @@ dependencies {
     // Coil for images
     implementation("io.coil-kt:coil-compose:2.2.2")
     implementation("io.coil-kt:coil-gif:2.2.2")
+
+    // Serialization
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0-RC")
 
     implementation("androidx.core:core-ktx:1.10.1")
     implementation("androidx.appcompat:appcompat:1.6.1")

@@ -1,7 +1,11 @@
 <resources>
     <string name="app_name">Qook</string>
+
     <string name="login_email">Email</string>
     <string name="login_password">Password</string>
     <string name="login_name">Name</string>
     <string name="login_button">Sign In</string>
+    <string name="register_button">Register</string>
+    <string name="register_toggle_1">I do not have an account</string>
+    <string name="register_toggle_2">I already have an account</string>
 </resources>

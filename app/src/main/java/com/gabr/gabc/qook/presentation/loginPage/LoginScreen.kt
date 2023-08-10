@@ -9,6 +9,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,12 +30,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.presentation.loginPage.viewModel.LoginState
 import com.gabr.gabc.qook.presentation.loginPage.viewModel.LoginViewModel
@@ -65,7 +69,6 @@ class LoginScreen : ComponentActivity() {
 
         var visibilityText by remember { mutableStateOf(false) }
         var visibilityForm by remember { mutableStateOf(false) }
-        val focusManager = LocalFocusManager.current
         val configuration = LocalConfiguration.current
 
         LaunchedEffect(key1 = Unit, block = {
@@ -105,10 +108,7 @@ class LoginScreen : ComponentActivity() {
                     viewModel,
                     state,
                     Modifier.padding(horizontal = 32.dp).alpha(alphaForm)
-                ) {
-                    focusManager.clearFocus()
-                    CoroutineScope(Dispatchers.Main).launch { viewModel.signInUser(state) }
-                }
+                )
             }
             if (viewModel.isSigningIn) QLoadingScreen()
         }
@@ -119,8 +119,12 @@ class LoginScreen : ComponentActivity() {
         viewModel: LoginViewModel,
         state: LoginState,
         modifier: Modifier,
-        onSubmit: () -> Unit,
     ) {
+        val focusManager = LocalFocusManager.current
+        val colors = MaterialTheme.colorScheme
+
+        var isRememberMode by remember { mutableStateOf(false) }
+
         return Column(
             modifier = modifier,
             verticalArrangement = Arrangement.spacedBy(24.dp),
@@ -156,15 +160,44 @@ class LoginScreen : ComponentActivity() {
                 value = state.password,
                 obscured = true
             )
+            if (state.error.isNotEmpty()) Text(
+                state.error,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp),
+            )
             Button(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 12.dp, start = 24.dp, end = 24.dp),
-                onClick = onSubmit
+                    .padding(horizontal = 24.dp, vertical = 12.dp),
+                onClick = {
+                    focusManager.clearFocus()
+                    CoroutineScope(Dispatchers.Main).launch {
+                        if (isRememberMode) viewModel.createUser()
+                        else viewModel.signInUser()
+                    }
+                }
             ) {
-                Text(stringResource(R.string.login_button))
+                Text(stringResource(if (isRememberMode) { R.string.register_button } else { R.string.login_button }))
             }
-
+            Text(
+                stringResource(if (isRememberMode) { R.string.register_toggle_2 } else { R.string.register_toggle_1 }),
+                modifier = Modifier
+                    .clickable {
+                        isRememberMode = !isRememberMode
+                    }
+                    .drawBehind {
+                        val strokeWidthPx = 1.dp.toPx()
+                        val verticalOffset = size.height - 2.sp.toPx()
+                        drawLine(
+                            color = colors.onBackground,
+                            strokeWidth = strokeWidthPx,
+                            start = Offset(0f, verticalOffset),
+                            end = Offset(size.width, verticalOffset)
+                        )
+                    },
+            )
         }
     }
 }
