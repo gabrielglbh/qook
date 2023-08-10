@@ -46,10 +46,7 @@ import com.gabr.gabc.qook.presentation.shared.QLoadingScreen
 import com.gabr.gabc.qook.presentation.shared.QTextForm
 import com.gabr.gabc.qook.presentation.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class LoginScreen : ComponentActivity() {
@@ -173,10 +170,8 @@ class LoginScreen : ComponentActivity() {
                     .padding(horizontal = 24.dp, vertical = 12.dp),
                 onClick = {
                     focusManager.clearFocus()
-                    CoroutineScope(Dispatchers.Main).launch {
-                        if (isRememberMode) viewModel.createUser()
-                        else viewModel.signInUser()
-                    }
+                    if (isRememberMode) viewModel.createUser()
+                    else viewModel.signInUser()
                 }
             ) {
                 Text(stringResource(if (isRememberMode) { R.string.register_button } else { R.string.login_button }))

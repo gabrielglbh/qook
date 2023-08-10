@@ -4,17 +4,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.gabr.gabc.qook.application.LoginService
 import com.gabr.gabc.qook.domain.user.User
-import com.gabr.gabc.qook.domain.user.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class LoginViewModel @Inject constructor(private val repository: UserRepository) : ViewModel() {
-
+class LoginViewModel @Inject constructor(private val service: LoginService) : ViewModel() {
     private val _loginState = MutableStateFlow(LoginState())
     val loginState: StateFlow<LoginState> = _loginState.asStateFlow()
 
@@ -29,24 +30,28 @@ class LoginViewModel @Inject constructor(private val repository: UserRepository)
         _loginState.value = state
     }
 
-    suspend fun signInUser() {
-        val state = _loginState.value
-        updateIsSigningIn(true)
-        val (_, error) = repository.signInUser(state.email, state.password)
-        if (error.isNotEmpty()) _loginState.value = state.copy(error = error)
-        updateIsSigningIn(false)
+    fun signInUser() {
+        viewModelScope.launch {
+            val state = _loginState.value
+            updateIsSigningIn(true)
+            val (_, error) = service.signInUser(state.email, state.password)
+            if (error.isNotEmpty()) _loginState.value = state.copy(error = error)
+            updateIsSigningIn(false)
+        }
     }
 
-    suspend fun createUser() {
-        val state = _loginState.value
-        updateIsSigningIn(true)
-        val (user, error) = repository.createUser(state.email, state.password)
-        if (user != null) {
-            val errorDB = repository.createUserInDB(User(state.name, state.email))
-            if (errorDB.isNotEmpty()) _loginState.value = state.copy(error = errorDB)
-        } else {
-            _loginState.value = state.copy(error = error)
+    fun createUser() {
+        viewModelScope.launch {
+            val state = _loginState.value
+            updateIsSigningIn(true)
+            val (user, error) = service.createUser(state.email, state.password)
+            if (user != null) {
+                val errorDB = service.createUserInDB(User(state.name, state.email))
+                if (errorDB.isNotEmpty()) _loginState.value = state.copy(error = errorDB)
+            } else {
+                _loginState.value = state.copy(error = error)
+            }
+            updateIsSigningIn(false)
         }
-        updateIsSigningIn(false)
     }
 }
