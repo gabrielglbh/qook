@@ -1,5 +1,9 @@
 package com.gabr.gabc.qook.infrastructure.user
 
+import arrow.core.Either
+import arrow.core.Either.Left
+import arrow.core.Either.Right
+import com.gabr.gabc.qook.domain.user.UserFailure
 import com.gabr.gabc.qook.domain.user.UserRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
@@ -9,30 +13,48 @@ import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.auth.User
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.storage.FirebaseStorage
-import com.gabr.gabc.qook.domain.user.User as domainUser
 import kotlinx.coroutines.tasks.await
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import javax.inject.Inject
+import com.gabr.gabc.qook.domain.user.User as domainUser
 
-class UserRepositoryImpl @Inject constructor (
+class UserRepositoryImpl @Inject constructor(
     private val auth: FirebaseAuth,
     private val db: FirebaseFirestore,
     private val storage: FirebaseStorage,
 ) : UserRepository {
-    override suspend fun signInUser(email: String, password: String): Pair<FirebaseUser?, String> {
-        return try {
-            Pair(auth.signInWithEmailAndPassword(email, password).await().user, "")
+    override suspend fun getCurrentUser(): FirebaseUser? = auth.currentUser
+
+    override suspend fun signInUser(
+        email: String,
+        password: String
+    ): Either<UserFailure, FirebaseUser> {
+        try {
+            auth.signInWithEmailAndPassword(email, password).await().user?.let {
+                return Right(it)
+            }
+            return Left(UserFailure.SignInFailed("Sign in failed. Try again"))
         } catch (err: FirebaseAuthException) {
-            Pair(null, "ERR(${err.errorCode}): Sign in failed")
+            return Left(UserFailure.SignInFailed("${err.errorCode}: Sign in failed. Try again"))
+        } catch (err: IllegalArgumentException) {
+            return Left(UserFailure.SignInFailed("Fill in the form correctly and try again"))
         }
     }
 
-    override suspend fun createUser(email: String, password: String): Pair<FirebaseUser?, String> {
-        return try {
-            Pair(auth.createUserWithEmailAndPassword(email, password).await().user, "")
+    override suspend fun createUser(
+        email: String,
+        password: String
+    ): Either<UserFailure, FirebaseUser> {
+        try {
+            auth.createUserWithEmailAndPassword(email, password).await().user?.let {
+                return Right(it)
+            }
+            return Left(UserFailure.UserCreationFailed("Creation failed. Try again"))
         } catch (err: FirebaseAuthException) {
-            Pair(null, "ERR(${err.errorCode}): Sign in failed")
+            return Left(UserFailure.UserCreationFailed("${err.errorCode}: Creation failed. Try again"))
+        } catch (err: IllegalArgumentException) {
+            return Left(UserFailure.UserCreationFailed("Fill in the form correctly and try again"))
         }
     }
 
@@ -48,18 +70,18 @@ class UserRepositoryImpl @Inject constructor (
         TODO("Not yet implemented")
     }
 
-    override suspend fun createUserInDB(user: domainUser): String {
-        return try {
+    override suspend fun createUserInDB(user: domainUser): Either<UserFailure, Unit> {
+        try {
             auth.currentUser?.let {
                 db.collection("USERS")
                     .document(it.uid)
                     .set(Json.encodeToJsonElement(domainUser))
                     .await()
-                ""
+                return Right(Unit)
             }
-            "ERR(Auth): Not authenticated"
+            return Left(UserFailure.NotAuthenticated("Your user is not authenticated. Try again"))
         } catch (err: FirebaseFirestoreException) {
-            "ERR(${err.code}): User creation failed"
+            return Left(UserFailure.UserCreationFailed("${err.code}: User creation failed"))
         }
     }
 
@@ -71,22 +93,21 @@ class UserRepositoryImpl @Inject constructor (
         TODO("Not yet implemented")
     }
 
-    override suspend fun getUser(): Pair<domainUser?, String> {
-        return try {
+    override suspend fun getUser(): Either<UserFailure, domainUser> {
+        try {
             auth.currentUser?.let {
                 val ref = db.collection("USERS").document(it.uid).get().await()
-                if (!ref.exists()) Pair(null, "ERR(Auth): User does not exist")
+                if (!ref.exists()) Left(UserFailure.UserDoesNotExist("Your user does not exist"))
                 else {
-                    ref.toObject<UserDto>()?.let {dto ->
-                        Pair(dto.toDomain(), "")
+                    ref.toObject<UserDto>()?.let { dto ->
+                        return Right(dto.toDomain())
                     }
-                    Pair(null, "ERR(Auth): Error translating object")
+                    return Left(UserFailure.UserTranslationFailed("Your user is corrupted. Try again"))
                 }
             }
-
-            Pair(null, "ERR(Auth): Not authenticated")
+            return Left(UserFailure.NotAuthenticated("Your user is not authenticated. Try again"))
         } catch (err: FirebaseFirestoreException) {
-            Pair(null, "ERR(${err.code}): User retrieval failed")
+            return Left(UserFailure.UserDoesNotExist("${err.code}: Could not get user"))
         }
     }
 

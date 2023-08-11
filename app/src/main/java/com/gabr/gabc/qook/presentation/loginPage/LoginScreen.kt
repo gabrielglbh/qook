@@ -37,6 +37,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gabr.gabc.qook.R
@@ -75,7 +76,12 @@ class LoginScreen : ComponentActivity() {
             visibilityForm = true
         })
 
-        val alphaForm by animateFloatAsState(if (visibilityForm) { 1f } else { 0f }, tween(1000),
+        val alphaForm by animateFloatAsState(
+            if (visibilityForm) {
+                1f
+            } else {
+                0f
+            }, tween(1000),
             label = "alphaForm"
         )
 
@@ -104,7 +110,9 @@ class LoginScreen : ComponentActivity() {
                 LoginForm(
                     viewModel,
                     state,
-                    Modifier.padding(horizontal = 32.dp).alpha(alphaForm)
+                    Modifier
+                        .padding(horizontal = 32.dp)
+                        .alpha(alphaForm)
                 )
             }
             if (viewModel.isSigningIn) QLoadingScreen()
@@ -160,6 +168,7 @@ class LoginScreen : ComponentActivity() {
             if (state.error.isNotEmpty()) Text(
                 state.error,
                 color = MaterialTheme.colorScheme.error,
+                textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 24.dp),
@@ -167,17 +176,31 @@ class LoginScreen : ComponentActivity() {
             Button(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 24.dp, vertical = 12.dp),
+                    .padding(horizontal = 24.dp),
                 onClick = {
                     focusManager.clearFocus()
                     if (isRememberMode) viewModel.createUser()
                     else viewModel.signInUser()
                 }
             ) {
-                Text(stringResource(if (isRememberMode) { R.string.register_button } else { R.string.login_button }))
+                Text(
+                    stringResource(
+                        if (isRememberMode) {
+                            R.string.register_button
+                        } else {
+                            R.string.login_button
+                        }
+                    )
+                )
             }
             Text(
-                stringResource(if (isRememberMode) { R.string.register_toggle_2 } else { R.string.register_toggle_1 }),
+                stringResource(
+                    if (isRememberMode) {
+                        R.string.register_toggle_2
+                    } else {
+                        R.string.register_toggle_1
+                    }
+                ),
                 modifier = Modifier
                     .clickable {
                         isRememberMode = !isRememberMode
