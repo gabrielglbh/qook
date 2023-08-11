@@ -43,8 +43,8 @@ import androidx.compose.ui.unit.sp
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.presentation.loginPage.viewModel.LoginState
 import com.gabr.gabc.qook.presentation.loginPage.viewModel.LoginViewModel
-import com.gabr.gabc.qook.presentation.shared.QLoadingScreen
-import com.gabr.gabc.qook.presentation.shared.QTextForm
+import com.gabr.gabc.qook.presentation.shared.components.QLoadingScreen
+import com.gabr.gabc.qook.presentation.shared.components.QTextForm
 import com.gabr.gabc.qook.presentation.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay

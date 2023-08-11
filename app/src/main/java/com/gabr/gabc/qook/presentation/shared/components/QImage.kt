@@ -1,6 +1,7 @@
-package com.gabr.gabc.qook.presentation.shared
+package com.gabr.gabc.qook.presentation.shared.components
 
 import android.os.Build.VERSION.SDK_INT
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.wrapContentSize
@@ -29,7 +30,7 @@ enum class QImageType {
 fun QImage(
     modifier: Modifier = Modifier,
     uri: String? = null,
-    resource: Int? = null,
+    @DrawableRes resource: Int? = null,
     type: QImageType = QImageType.NETWORK,
 ) {
     if ((type == QImageType.ASSET || type == QImageType.GIF) && resource == null) {
@@ -53,6 +54,7 @@ fun QImage(
                 )
             }
         }
+
         QImageType.GIF -> {
             val imageLoader = ImageLoader.Builder(LocalContext.current)
                 .components {
@@ -73,6 +75,7 @@ fun QImage(
                 modifier = modifier,
             )
         }
+
         else -> {
             return SubcomposeAsyncImage(
                 model = uri!!,

@@ -1,4 +1,4 @@
-package com.gabr.gabc.qook.presentation.shared
+package com.gabr.gabc.qook.presentation.shared.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

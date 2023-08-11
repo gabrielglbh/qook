@@ -8,4 +8,12 @@
     <string name="register_button">Register</string>
     <string name="register_toggle_1">I do not have an account</string>
     <string name="register_toggle_2">I already have an account</string>
+
+    <string name="error_sign_in_failed">Sign in failed. Try again</string>
+    <string name="error_empty_form">Fill in the form correctly and try again</string>
+    <string name="error_register_failed">Creation failed. Try again</string>
+    <string name="error_user_not_auth">Your user is not authenticated. Try again</string>
+    <string name="error_user_does_not_exist">Your user does not exist</string>
+    <string name="error_user_corrupted">Your user is corrupted. Try again</string>
+    <string name="error_user_retrieval">Could not get user</string>
 </resources>

@@ -1,4 +1,4 @@
-package com.gabr.gabc.qook.presentation.shared
+package com.gabr.gabc.qook.presentation.shared.components
 
 import android.util.Log
 import androidx.compose.foundation.layout.fillMaxWidth

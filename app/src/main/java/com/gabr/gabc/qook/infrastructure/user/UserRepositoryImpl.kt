@@ -3,8 +3,10 @@ package com.gabr.gabc.qook.infrastructure.user
 import arrow.core.Either
 import arrow.core.Either.Left
 import arrow.core.Either.Right
+import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.user.UserFailure
 import com.gabr.gabc.qook.domain.user.UserRepository
+import com.gabr.gabc.qook.presentation.shared.providers.StringResourcesProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseUser
@@ -23,6 +25,7 @@ class UserRepositoryImpl @Inject constructor(
     private val auth: FirebaseAuth,
     private val db: FirebaseFirestore,
     private val storage: FirebaseStorage,
+    private val res: StringResourcesProvider
 ) : UserRepository {
     override suspend fun getCurrentUser(): FirebaseUser? = auth.currentUser
 
@@ -30,15 +33,16 @@ class UserRepositoryImpl @Inject constructor(
         email: String,
         password: String
     ): Either<UserFailure, FirebaseUser> {
+        val signInFailed = res.getString(R.string.error_sign_in_failed)
         try {
             auth.signInWithEmailAndPassword(email, password).await().user?.let {
                 return Right(it)
             }
-            return Left(UserFailure.SignInFailed("Sign in failed. Try again"))
+            return Left(UserFailure.SignInFailed(signInFailed))
         } catch (err: FirebaseAuthException) {
-            return Left(UserFailure.SignInFailed("${err.errorCode}: Sign in failed. Try again"))
+            return Left(UserFailure.SignInFailed("${err.errorCode}: $signInFailed"))
         } catch (err: IllegalArgumentException) {
-            return Left(UserFailure.SignInFailed("Fill in the form correctly and try again"))
+            return Left(UserFailure.SignInFailed(res.getString(R.string.error_empty_form)))
         }
     }
 
@@ -46,15 +50,16 @@ class UserRepositoryImpl @Inject constructor(
         email: String,
         password: String
     ): Either<UserFailure, FirebaseUser> {
+        val creationFailed = res.getString(R.string.error_register_failed)
         try {
             auth.createUserWithEmailAndPassword(email, password).await().user?.let {
                 return Right(it)
             }
-            return Left(UserFailure.UserCreationFailed("Creation failed. Try again"))
+            return Left(UserFailure.UserCreationFailed(creationFailed))
         } catch (err: FirebaseAuthException) {
-            return Left(UserFailure.UserCreationFailed("${err.errorCode}: Creation failed. Try again"))
+            return Left(UserFailure.UserCreationFailed("${err.errorCode}: $creationFailed"))
         } catch (err: IllegalArgumentException) {
-            return Left(UserFailure.UserCreationFailed("Fill in the form correctly and try again"))
+            return Left(UserFailure.UserCreationFailed(res.getString(R.string.error_empty_form)))
         }
     }
 
@@ -79,9 +84,14 @@ class UserRepositoryImpl @Inject constructor(
                     .await()
                 return Right(Unit)
             }
-            return Left(UserFailure.NotAuthenticated("Your user is not authenticated. Try again"))
+            return Left(UserFailure.NotAuthenticated(res.getString(R.string.error_user_not_auth)))
         } catch (err: FirebaseFirestoreException) {
-            return Left(UserFailure.UserCreationFailed("${err.code}: User creation failed"))
+            return Left(
+                UserFailure.UserCreationFailed(
+                    "${err.code}: " +
+                            res.getString(R.string.error_register_failed)
+                )
+            )
         }
     }
 
@@ -97,17 +107,30 @@ class UserRepositoryImpl @Inject constructor(
         try {
             auth.currentUser?.let {
                 val ref = db.collection("USERS").document(it.uid).get().await()
-                if (!ref.exists()) Left(UserFailure.UserDoesNotExist("Your user does not exist"))
+                if (!ref.exists()) Left(
+                    UserFailure.UserDoesNotExist(
+                        res.getString(R.string.error_user_does_not_exist)
+                    )
+                )
                 else {
                     ref.toObject<UserDto>()?.let { dto ->
                         return Right(dto.toDomain())
                     }
-                    return Left(UserFailure.UserTranslationFailed("Your user is corrupted. Try again"))
+                    return Left(
+                        UserFailure.UserTranslationFailed(
+                            res.getString(R.string.error_user_corrupted)
+                        )
+                    )
                 }
             }
-            return Left(UserFailure.NotAuthenticated("Your user is not authenticated. Try again"))
+            return Left(UserFailure.NotAuthenticated(res.getString(R.string.error_user_not_auth)))
         } catch (err: FirebaseFirestoreException) {
-            return Left(UserFailure.UserDoesNotExist("${err.code}: Could not get user"))
+            return Left(
+                UserFailure.UserDoesNotExist(
+                    "${err.code}: " +
+                            res.getString(R.string.error_user_retrieval)
+                )
+            )
         }
     }
 
