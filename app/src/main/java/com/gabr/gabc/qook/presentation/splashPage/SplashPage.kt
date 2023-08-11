@@ -41,7 +41,7 @@ class SplashPage : ComponentActivity() {
         val viewModel: SplashViewModel by viewModels()
 
         LaunchedEffect(key1 = Unit) {
-            delay(2000)
+            delay(2500)
             viewModel.checkIfUserIsSignedIn(
                 ifUserExists = {
                     startActivity(Intent(this@SplashPage, HomePage::class.java))
@@ -55,12 +55,12 @@ class SplashPage : ComponentActivity() {
         AppTheme {
             Box(
                 modifier = Modifier
-                    .background(MaterialTheme.colorScheme.background)
+                    .background(MaterialTheme.colorScheme.inversePrimary)
                     .fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
                 QImage(
-                    resource = R.drawable.loading,
+                    resource = R.drawable.splash,
                     type = QImageType.GIF,
                     modifier = Modifier.padding(horizontal = 24.dp)
                 )
