@@ -32,7 +32,7 @@ class LoginViewModel @Inject constructor(private val repository: UserRepository)
         _formState.value = state
     }
 
-    fun signInUser() {
+    fun signInUser(ifRight: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) {
                 setIsLoading(true)
@@ -43,7 +43,9 @@ class LoginViewModel @Inject constructor(private val repository: UserRepository)
                 ifLeft = {
                     _formState.value = state.copy(error = it.error, password = "")
                 },
-                ifRight = {}
+                ifRight = {
+                    ifRight()
+                }
             )
             withContext(Dispatchers.Main) {
                 setIsLoading(false)
@@ -51,7 +53,7 @@ class LoginViewModel @Inject constructor(private val repository: UserRepository)
         }
     }
 
-    fun createUser() {
+    fun createUser(ifRight: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) {
                 setIsLoading(true)
@@ -68,7 +70,9 @@ class LoginViewModel @Inject constructor(private val repository: UserRepository)
                         ifLeft = {
                             _formState.value = state.copy(error = it.error, password = "")
                         },
-                        ifRight = {}
+                        ifRight = {
+                            ifRight()
+                        }
                     )
                 }
             )

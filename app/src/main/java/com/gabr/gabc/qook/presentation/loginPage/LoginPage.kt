@@ -1,5 +1,6 @@
 package com.gabr.gabc.qook.presentation.loginPage
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -16,6 +17,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -41,6 +44,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gabr.gabc.qook.R
+import com.gabr.gabc.qook.presentation.homePage.HomePage
 import com.gabr.gabc.qook.presentation.loginPage.viewModel.LoginFormState
 import com.gabr.gabc.qook.presentation.loginPage.viewModel.LoginViewModel
 import com.gabr.gabc.qook.presentation.shared.components.QLoadingScreen
@@ -50,18 +54,18 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 
 @AndroidEntryPoint
-class LoginScreen : ComponentActivity() {
+class LoginPage : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             AppTheme {
-                LoginScreenView()
+                LoginView()
             }
         }
     }
 
     @Composable
-    fun LoginScreenView() {
+    fun LoginView() {
         val viewModel: LoginViewModel by viewModels()
         val form by viewModel.formState.collectAsState()
 
@@ -131,8 +135,8 @@ class LoginScreen : ComponentActivity() {
         var isRememberMode by remember { mutableStateOf(false) }
 
         return Column(
-            modifier = modifier,
-            verticalArrangement = Arrangement.spacedBy(24.dp),
+            modifier = modifier.verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             QTextForm(
@@ -179,8 +183,12 @@ class LoginScreen : ComponentActivity() {
                     .padding(horizontal = 24.dp),
                 onClick = {
                     focusManager.clearFocus()
-                    if (isRememberMode) viewModel.createUser()
-                    else viewModel.signInUser()
+                    if (isRememberMode) viewModel.createUser {
+                        startActivity(Intent(this@LoginPage, HomePage::class.java))
+                    }
+                    else viewModel.signInUser {
+                        startActivity(Intent(this@LoginPage, HomePage::class.java))
+                    }
                 }
             ) {
                 Text(
