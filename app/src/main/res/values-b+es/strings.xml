@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Qook</string>
+
+    <string name="login_email">Email</string>
+    <string name="login_password">Contraseña</string>
+    <string name="login_name">Nombre</string>
+    <string name="login_button">Iniciar sesión</string>
+    <string name="register_button">Registrar</string>
+    <string name="register_toggle_1">No tengo una cuenta</string>
+    <string name="register_toggle_2">Ya tengo cuenta</string>
+
+    <string name="error_sign_in_failed">El inicio de sesión ha fallado, prueba otra vez</string>
+    <string name="error_empty_form">Rellena el formulario y prueba otra vez</string>
+    <string name="error_register_failed">La creación del usuario ha fallado, prueba otra vez</string>
+    <string name="error_user_not_auth">Tu usuario no está autenticado, prueba otra vez</string>
+    <string name="error_user_does_not_exist">El usuario no existe</string>
+    <string name="error_user_corrupted">El usuario está corrupto</string>
+    <string name="error_user_retrieval">No se ha podido devolver el usuario</string>
+</resources>
