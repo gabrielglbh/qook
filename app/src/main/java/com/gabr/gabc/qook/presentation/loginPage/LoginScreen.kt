@@ -41,7 +41,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gabr.gabc.qook.R
-import com.gabr.gabc.qook.presentation.loginPage.viewModel.LoginState
+import com.gabr.gabc.qook.presentation.loginPage.viewModel.LoginFormState
 import com.gabr.gabc.qook.presentation.loginPage.viewModel.LoginViewModel
 import com.gabr.gabc.qook.presentation.shared.components.QLoadingScreen
 import com.gabr.gabc.qook.presentation.shared.components.QTextForm
@@ -63,7 +63,7 @@ class LoginScreen : ComponentActivity() {
     @Composable
     fun LoginScreenView() {
         val viewModel: LoginViewModel by viewModels()
-        val state by viewModel.loginState.collectAsState()
+        val form by viewModel.formState.collectAsState()
 
         var visibilityText by remember { mutableStateOf(false) }
         var visibilityForm by remember { mutableStateOf(false) }
@@ -109,20 +109,20 @@ class LoginScreen : ComponentActivity() {
                 }
                 LoginForm(
                     viewModel,
-                    state,
+                    form,
                     Modifier
                         .padding(horizontal = 32.dp)
                         .alpha(alphaForm)
                 )
             }
-            if (viewModel.isSigningIn) QLoadingScreen()
+            if (viewModel.isLoading) QLoadingScreen()
         }
     }
 
     @Composable
     fun LoginForm(
         viewModel: LoginViewModel,
-        state: LoginState,
+        form: LoginFormState,
         modifier: Modifier,
     ) {
         val focusManager = LocalFocusManager.current
@@ -138,17 +138,17 @@ class LoginScreen : ComponentActivity() {
             QTextForm(
                 labelId = R.string.login_name,
                 onValueChange = {
-                    viewModel.updateLoginState(state.copy(name = it))
+                    viewModel.updateLoginState(form.copy(name = it, error = ""))
                 },
-                value = state.name,
+                value = form.name,
                 imeAction = ImeAction.Next
             )
             QTextForm(
                 labelId = R.string.login_email,
                 onValueChange = {
-                    viewModel.updateLoginState(state.copy(email = it))
+                    viewModel.updateLoginState(form.copy(email = it, error = ""))
                 },
-                value = state.email,
+                value = form.email,
                 trailingIcon = {
                     Icon(
                         painter = painterResource(id = R.drawable.email),
@@ -160,13 +160,13 @@ class LoginScreen : ComponentActivity() {
             QTextForm(
                 labelId = R.string.login_password,
                 onValueChange = {
-                    viewModel.updateLoginState(state.copy(password = it))
+                    viewModel.updateLoginState(form.copy(password = it, error = ""))
                 },
-                value = state.password,
+                value = form.password,
                 obscured = true
             )
-            if (state.error.isNotEmpty()) Text(
-                state.error,
+            if (form.error.isNotEmpty()) Text(
+                form.error,
                 color = MaterialTheme.colorScheme.error,
                 textAlign = TextAlign.Center,
                 modifier = Modifier

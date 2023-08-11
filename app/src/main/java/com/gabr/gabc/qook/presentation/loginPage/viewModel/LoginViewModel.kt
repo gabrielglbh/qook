@@ -18,63 +18,62 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(private val repository: UserRepository) : ViewModel() {
-    private val _loginState = MutableStateFlow(LoginState())
-    val loginState: StateFlow<LoginState> = _loginState.asStateFlow()
+    private val _formState = MutableStateFlow(LoginFormState())
+    val formState: StateFlow<LoginFormState> = _formState.asStateFlow()
 
-    var isSigningIn by mutableStateOf(false)
+    var isLoading by mutableStateOf(false)
         private set
 
-    private fun updateIsSigningIn(value: Boolean) {
-        isSigningIn = value
+    private fun setIsLoading(value: Boolean) {
+        isLoading = value
     }
 
-    fun updateLoginState(state: LoginState) {
-        _loginState.value = state
+    fun updateLoginState(state: LoginFormState) {
+        _formState.value = state
     }
 
     fun signInUser() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) {
-                updateIsSigningIn(true)
+                setIsLoading(true)
             }
-            val state = _loginState.value
+            val state = _formState.value
             val result = repository.signInUser(state.email, state.password)
             result.fold(
                 ifLeft = {
-                    _loginState.value = state.copy(error = it.error)
+                    _formState.value = state.copy(error = it.error, password = "")
                 },
-                ifRight = {
-                    withContext(Dispatchers.Main) {
-                        updateIsSigningIn(false)
-                    }
-                }
+                ifRight = {}
             )
+            withContext(Dispatchers.Main) {
+                setIsLoading(false)
+            }
         }
     }
 
     fun createUser() {
         viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) {
-                updateIsSigningIn(true)
+                setIsLoading(true)
             }
-            val state = _loginState.value
+            val state = _formState.value
             val userCreation = repository.createUser(state.email, state.password)
             userCreation.fold(
                 ifLeft = {
-                    _loginState.value = state.copy(error = it.error)
+                    _formState.value = state.copy(error = it.error, password = "")
                 },
                 ifRight = {
                     val userCreationInDB = repository.createUserInDB(User(state.name, state.email))
                     userCreationInDB.fold(
                         ifLeft = {
-                            _loginState.value = state.copy(error = it.error)
+                            _formState.value = state.copy(error = it.error, password = "")
                         },
                         ifRight = {}
                     )
                 }
             )
             withContext(Dispatchers.Main) {
-                updateIsSigningIn(false)
+                setIsLoading(false)
             }
         }
     }
