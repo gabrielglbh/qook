@@ -25,7 +25,7 @@ val typography = Typography(
     ),
     headlineSmall = TextStyle(
         fontFamily = Avenir,
-        fontWeight = FontWeight.SemiBold,
+        fontWeight = FontWeight.Bold,
         fontSize = 24.sp,
         lineHeight = 32.sp,
         letterSpacing = 0.sp

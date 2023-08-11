@@ -16,4 +16,7 @@
     <string name="error_user_does_not_exist">Your user does not exist</string>
     <string name="error_user_corrupted">Your user is corrupted</string>
     <string name="error_user_retrieval">Could not get user</string>
+    <string name="home_shopping_bnb">Shopping</string>
+    <string name="home_add_recipe_bnb">Add recipe</string>
+    <string name="home_recipes_bnb">Recipes</string>
 </resources>

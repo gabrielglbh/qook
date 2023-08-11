@@ -28,6 +28,5 @@ fun QLoadingScreen() {
             type = QImageType.GIF,
             modifier = Modifier.padding(horizontal = 64.dp)
         )
-
     }
 }

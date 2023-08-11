@@ -4,12 +4,14 @@ import android.os.Build.VERSION.SDK_INT
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -28,10 +30,11 @@ enum class QImageType {
 
 @Composable
 fun QImage(
-    modifier: Modifier = Modifier,
     uri: String? = null,
     @DrawableRes resource: Int? = null,
     type: QImageType = QImageType.NETWORK,
+    assetColor: Color = MaterialTheme.colorScheme.onSurface,
+    modifier: Modifier = Modifier
 ) {
     if ((type == QImageType.ASSET || type == QImageType.GIF) && resource == null) {
         throw Exception("Should provide a resource such as R.drawable.xxx with type ASSET")
@@ -49,8 +52,8 @@ fun QImage(
                 Image(
                     painter = painterResource(resource!!),
                     contentDescription = null,
-                    modifier = modifier,
-                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
+                    colorFilter = ColorFilter.tint(assetColor),
+                    modifier = modifier
                 )
             }
         }
@@ -72,7 +75,7 @@ fun QImage(
                         .build(), imageLoader = imageLoader
                 ),
                 contentDescription = null,
-                modifier = modifier,
+                modifier = modifier
             )
         }
 
