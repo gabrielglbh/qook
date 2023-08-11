@@ -1,14 +1,13 @@
 package com.gabr.gabc.qook.infrastructure.user
 
 import com.gabr.gabc.qook.domain.user.User
-import kotlinx.serialization.Serializable
+import com.google.firebase.firestore.PropertyName
 
-@Serializable
 data class UserDto(
-    val name: String,
-    val email: String,
-    val beginningWeekDay: Int = 1,
-    val avatar: String? = null,
+    @PropertyName("name") val name: String,
+    @PropertyName("email") val email: String,
+    @PropertyName("beginningWeekDay") val beginningWeekDay: Int = 1,
+    @PropertyName("avatar") val avatar: String? = null,
 )
 
 fun UserDto.toDomain(): User {

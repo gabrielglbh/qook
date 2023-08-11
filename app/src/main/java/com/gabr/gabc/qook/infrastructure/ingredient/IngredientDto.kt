@@ -1,10 +1,11 @@
 package com.gabr.gabc.qook.infrastructure.ingredient
 
 import com.gabr.gabc.qook.domain.ingredient.Ingredient
+import com.google.firebase.firestore.PropertyName
 
 data class IngredientDto(
-    val name: String,
-    val measure: String
+    @PropertyName("name") val name: String,
+    @PropertyName("measure") val measure: String
 )
 
 fun IngredientDto.toDomain(): Ingredient {

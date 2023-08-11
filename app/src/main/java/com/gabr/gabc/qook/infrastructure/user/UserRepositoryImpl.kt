@@ -6,6 +6,7 @@ import arrow.core.Either.Right
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.user.UserFailure
 import com.gabr.gabc.qook.domain.user.UserRepository
+import com.gabr.gabc.qook.domain.user.toDto
 import com.gabr.gabc.qook.presentation.shared.providers.StringResourcesProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
@@ -16,8 +17,6 @@ import com.google.firebase.firestore.auth.User
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.encodeToJsonElement
 import javax.inject.Inject
 import com.gabr.gabc.qook.domain.user.User as domainUser
 
@@ -80,7 +79,7 @@ class UserRepositoryImpl @Inject constructor(
             auth.currentUser?.let {
                 db.collection("USERS")
                     .document(it.uid)
-                    .set(Json.encodeToJsonElement(domainUser))
+                    .set(user.toDto())
                     .await()
                 return Right(Unit)
             }
