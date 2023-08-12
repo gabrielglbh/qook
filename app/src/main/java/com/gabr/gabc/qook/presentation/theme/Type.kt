@@ -23,6 +23,13 @@ val typography = Typography(
         lineHeight = 32.sp,
         letterSpacing = 0.sp
     ),
+    headlineMedium = TextStyle(
+        fontFamily = Avenir,
+        fontWeight = FontWeight.Bold,
+        fontSize = 32.sp,
+        lineHeight = 32.sp,
+        letterSpacing = 0.sp
+    ),
     headlineSmall = TextStyle(
         fontFamily = Avenir,
         fontWeight = FontWeight.Bold,

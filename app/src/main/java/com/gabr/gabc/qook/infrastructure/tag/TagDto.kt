@@ -6,9 +6,9 @@ import com.google.firebase.firestore.PropertyName
 import android.graphics.Color as UIColor
 
 data class TagDto(
-    @PropertyName("text") val text: String,
-    @PropertyName("textColor") val textColor: String,
-    @PropertyName("color") val color: String
+    @PropertyName("text") val text: String = "",
+    @PropertyName("textColor") val textColor: String = " ",
+    @PropertyName("color") val color: String = " "
 )
 
 fun TagDto.toDomain(): Tag {

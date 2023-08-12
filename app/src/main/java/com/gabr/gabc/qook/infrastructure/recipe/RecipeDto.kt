@@ -10,15 +10,15 @@ import com.google.firebase.firestore.PropertyName
 import java.util.Date
 
 data class RecipeDto(
-    @PropertyName("name") val name: String,
-    @PropertyName("creationDate") val creationDate: Date,
-    @PropertyName("updateDate") val updateDate: Date,
-    @PropertyName("easiness") val easiness: String,
-    @PropertyName("time") val time: RecipeTimeDto,
-    @PropertyName("photo") val photo: String,
-    @PropertyName("description") val description: String,
-    @PropertyName("ingredients") val ingredients: List<IngredientDto>,
-    @PropertyName("tags") val tags: List<TagDto>,
+    @PropertyName("name") val name: String = "",
+    @PropertyName("creationDate") val creationDate: Date = Date(),
+    @PropertyName("updateDate") val updateDate: Date = Date(),
+    @PropertyName("easiness") val easiness: String = "",
+    @PropertyName("time") val time: RecipeTimeDto = RecipeTimeDto(),
+    @PropertyName("photo") val photo: String = "",
+    @PropertyName("description") val description: String = "",
+    @PropertyName("ingredients") val ingredients: List<IngredientDto> = listOf(),
+    @PropertyName("tags") val tags: List<TagDto> = listOf(),
 )
 
 fun RecipeDto.toDomain(): Recipe {

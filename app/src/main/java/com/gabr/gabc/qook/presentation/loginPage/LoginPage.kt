@@ -19,6 +19,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -37,7 +39,6 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
@@ -50,6 +51,7 @@ import com.gabr.gabc.qook.presentation.loginPage.viewModel.LoginViewModel
 import com.gabr.gabc.qook.presentation.shared.components.QLoadingScreen
 import com.gabr.gabc.qook.presentation.shared.components.QTextForm
 import com.gabr.gabc.qook.presentation.theme.AppTheme
+import com.gabr.gabc.qook.presentation.theme.seed
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 
@@ -106,7 +108,7 @@ class LoginPage : ComponentActivity() {
                     Text(
                         getString(R.string.app_name),
                         style = MaterialTheme.typography.headlineLarge.copy(
-                            color = MaterialTheme.colorScheme.inversePrimary
+                            color = seed
                         ),
                         modifier = Modifier.padding(bottom = 48.dp)
                     )
@@ -155,8 +157,8 @@ class LoginPage : ComponentActivity() {
                 value = form.email,
                 trailingIcon = {
                     Icon(
-                        painter = painterResource(id = R.drawable.email),
-                        contentDescription = "Email Icon",
+                        Icons.Outlined.Email,
+                        contentDescription = null
                     )
                 },
                 imeAction = ImeAction.Next

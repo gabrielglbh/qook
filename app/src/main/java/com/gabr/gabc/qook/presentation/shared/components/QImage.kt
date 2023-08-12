@@ -3,15 +3,9 @@ package com.gabr.gabc.qook.presentation.shared.components
 import android.os.Build.VERSION.SDK_INT
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -23,41 +17,27 @@ import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
 import coil.request.ImageRequest
 import com.gabr.gabc.qook.R
+import com.gabr.gabc.qook.presentation.theme.seed
 
 enum class QImageType {
-    ASSET, NETWORK, GIF
+    NETWORK, GIF
 }
 
 @Composable
 fun QImage(
+    modifier: Modifier = Modifier,
     uri: String? = null,
     @DrawableRes resource: Int? = null,
     type: QImageType = QImageType.NETWORK,
-    assetColor: Color = MaterialTheme.colorScheme.onSurface,
-    modifier: Modifier = Modifier
 ) {
-    if ((type == QImageType.ASSET || type == QImageType.GIF) && resource == null) {
-        throw Exception("Should provide a resource such as R.drawable.xxx with type ASSET")
+    if (type == QImageType.GIF && resource == null) {
+        throw Exception("Should provide a resource such as R.drawable.xxx with type GIF")
     }
     if (type == QImageType.NETWORK && uri == null) {
         throw Exception("Should provide a resource such as https://domain.es/image.png with type NETWORK")
     }
 
     when (type) {
-        QImageType.ASSET -> {
-            return Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier.wrapContentSize()
-            ) {
-                Image(
-                    painter = painterResource(resource!!),
-                    contentDescription = null,
-                    colorFilter = ColorFilter.tint(assetColor),
-                    modifier = modifier
-                )
-            }
-        }
-
         QImageType.GIF -> {
             val imageLoader = ImageLoader.Builder(LocalContext.current)
                 .components {
@@ -89,7 +69,7 @@ fun QImage(
                     Image(
                         painter = painterResource(R.drawable.no_image),
                         contentDescription = null,
-                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.inversePrimary)
+                        colorFilter = ColorFilter.tint(seed)
                     )
                 },
                 contentDescription = "",
@@ -97,12 +77,6 @@ fun QImage(
             )
         }
     }
-}
-
-@Preview
-@Composable
-fun QImageAssetPreview() {
-    return QImage(resource = R.drawable.no_image, type = QImageType.ASSET)
 }
 
 @Preview

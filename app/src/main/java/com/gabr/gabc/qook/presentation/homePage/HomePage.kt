@@ -3,37 +3,60 @@ package com.gabr.gabc.qook.presentation.homePage
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.annotation.DrawableRes
+import androidx.activity.viewModels
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.AccountCircle
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material.icons.outlined.ShoppingCart
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
+import com.gabr.gabc.qook.presentation.homePage.viewModel.HomeViewModel
+import com.gabr.gabc.qook.presentation.homePage.viewModel.UserState
 import com.gabr.gabc.qook.presentation.shared.components.QImage
-import com.gabr.gabc.qook.presentation.shared.components.QImageType
 import com.gabr.gabc.qook.presentation.theme.AppTheme
+import com.gabr.gabc.qook.presentation.theme.seed
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class HomePage : ComponentActivity() {
@@ -50,26 +73,43 @@ class HomePage : ComponentActivity() {
     @Preview
     @Composable
     fun HomeView() {
+        val viewModel: HomeViewModel by viewModels()
+        val state = viewModel.userState.collectAsState()
+
+        val snackbarHostState = SnackbarHostState()
+
+        LaunchedEffect(key1 = Unit) {
+            viewModel.getUser { errorMessage ->
+                CoroutineScope(Dispatchers.Main).launch {
+                    snackbarHostState.showSnackbar(errorMessage)
+                }
+            }
+        }
+
         Scaffold(
             topBar = {
-                ActionBar()
+                ActionBar(state.value)
             },
             bottomBar = {
                 BottomNavigationBar()
-            }
+            },
         ) {
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(it)
             ) {
-                Text("HOME_SCREEN", modifier = Modifier.padding(it))
+                Body(state.value)
             }
         }
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun ActionBar() {
+    fun ActionBar(
+        state: UserState
+    ) {
         return Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -78,7 +118,7 @@ class HomePage : ComponentActivity() {
         ) {
             Text(
                 stringResource(R.string.app_name),
-                style = MaterialTheme.typography.headlineLarge,
+                style = MaterialTheme.typography.headlineMedium,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -90,13 +130,79 @@ class HomePage : ComponentActivity() {
                 onClick = {},
                 shape = MaterialTheme.shapes.extraLarge,
                 color = Color.Transparent,
-                border = BorderStroke(1.dp, color = MaterialTheme.colorScheme.inversePrimary)
+                border = BorderStroke(1.dp, color = seed)
             ) {
-                QImage(
-                    resource = R.drawable.anonymous,
-                    type = QImageType.ASSET,
-                    modifier = Modifier.fillMaxSize()
+                if (state.avatarUrl == null) {
+                    Icon(
+                        Icons.Outlined.AccountCircle,
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else {
+                    QImage(
+                        uri = state.avatarUrl,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+            }
+        }
+    }
+
+    @Composable
+    fun Body(
+        state: UserState
+    ) {
+        val configuration = LocalConfiguration.current
+        val buttonSize = configuration.screenWidthDp.dp / 1.5f
+
+        return Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Top
+        ) {
+            if (state.error.isEmpty() && state.name.isNotEmpty()) {
+                Text(
+                    String.format(stringResource(R.string.home_welcome_message), state.name),
+                    style = MaterialTheme.typography.headlineSmall,
+                    modifier = Modifier.padding(horizontal = 64.dp, vertical = 32.dp),
+                    textAlign = TextAlign.Center
                 )
+            }
+            OutlinedButton(
+                onClick = { },
+                modifier = Modifier
+                    .width(buttonSize)
+                    .height(buttonSize),
+                shape = CircleShape,
+                border = BorderStroke(2.dp, seed),
+                contentPadding = PaddingValues(0.dp),
+                colors = ButtonDefaults.outlinedButtonColors(containerColor = seed)
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .width(128.dp)
+                            .height(128.dp)
+                            .padding(bottom = 12.dp),
+                    ) {
+                        Image(
+                            painter = painterResource(R.drawable.random),
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize(),
+                            colorFilter = ColorFilter.tint(Color.White)
+                        )
+                    }
+                    Text(
+                        stringResource(R.string.home_get_random_recipe),
+                        textAlign = TextAlign.Center,
+                        color = Color.White,
+                        modifier = Modifier
+                            .width(buttonSize)
+                            .padding(horizontal = 24.dp)
+                    )
+                }
             }
         }
     }
@@ -115,20 +221,18 @@ class HomePage : ComponentActivity() {
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             BottomNavButton(
-                icon = R.drawable.shopping,
+                icon = Icons.Outlined.ShoppingCart,
                 text = stringResource(R.string.home_shopping_bnb),
-                modifier = Modifier.padding(start = 32.dp),
                 onClick = {}
             )
             BottomNavButton(
-                icon = R.drawable.add,
+                icon = Icons.Outlined.Add,
                 text = stringResource(R.string.home_add_recipe_bnb),
                 onClick = {}
             )
             BottomNavButton(
-                icon = R.drawable.recipes,
+                icon = Icons.Outlined.Search,
                 text = stringResource(R.string.home_recipes_bnb),
-                modifier = Modifier.padding(end = 32.dp),
                 onClick = {}
             )
         }
@@ -137,26 +241,28 @@ class HomePage : ComponentActivity() {
     @Composable
     fun BottomNavButton(
         onClick: () -> Unit,
-        @DrawableRes icon: Int,
-        text: String,
-        modifier: Modifier = Modifier
+        icon: ImageVector,
+        text: String
     ) {
+        val configuration = LocalConfiguration.current
+
         return Column(
-            modifier = modifier.clickable { onClick() },
+            modifier = Modifier
+                .clickable { onClick() }
+                .width(configuration.screenWidthDp.dp / 3),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Surface(
+            Icon(
+                icon, contentDescription = null,
                 modifier = Modifier
-                    .width(36.dp)
-                    .height(36.dp),
-            ) {
-                QImage(
-                    resource = icon,
-                    type = QImageType.ASSET,
-                    modifier = Modifier.fillMaxSize()
+                    .width(32.dp)
+                    .height(32.dp),
+            )
+            Text(
+                text, style = MaterialTheme.typography.bodySmall.copy(
+                    color = MaterialTheme.colorScheme.outline
                 )
-            }
-            Text(text)
+            )
         }
     }
 }

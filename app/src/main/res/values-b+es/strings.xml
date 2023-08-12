@@ -17,7 +17,10 @@
     <string name="error_user_does_not_exist">El usuario no existe</string>
     <string name="error_user_corrupted">El usuario está corrupto</string>
     <string name="error_user_retrieval">No se ha podido devolver el usuario</string>
+
     <string name="home_shopping_bnb">Carrito</string>
     <string name="home_add_recipe_bnb">Añadir receta</string>
     <string name="home_recipes_bnb">Recetas</string>
+    <string name="home_welcome_message">Hola %1$s, ¿qué cocinamos hoy?</string>
+    <string name="home_get_random_recipe">Prepara una receta aleatoria de tu lista</string>
 </resources>
