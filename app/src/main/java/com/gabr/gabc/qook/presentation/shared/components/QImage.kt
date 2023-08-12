@@ -48,7 +48,7 @@ fun QImage(
                     }
                 }
                 .build()
-            return Image(
+            Image(
                 painter = rememberAsyncImagePainter(
                     ImageRequest.Builder(LocalContext.current)
                         .data(resource)
@@ -60,7 +60,7 @@ fun QImage(
         }
 
         else -> {
-            return SubcomposeAsyncImage(
+            SubcomposeAsyncImage(
                 model = uri!!,
                 loading = {
                     CircularProgressIndicator()
@@ -82,11 +82,11 @@ fun QImage(
 @Preview
 @Composable
 fun QImageGIFPreview() {
-    return QImage(resource = R.drawable.loading, type = QImageType.GIF)
+    QImage(resource = R.drawable.loading, type = QImageType.GIF)
 }
 
 @Preview
 @Composable
 fun QImageNetworkPreview() {
-    return QImage(uri = "https://avatars.githubusercontent.com/u/26835924?v=4")
+    QImage(uri = "https://avatars.githubusercontent.com/u/26835924?v=4")
 }

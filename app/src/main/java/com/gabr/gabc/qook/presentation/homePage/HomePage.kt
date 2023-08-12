@@ -46,6 +46,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -55,6 +56,7 @@ import com.gabr.gabc.qook.presentation.homePage.viewModel.UserState
 import com.gabr.gabc.qook.presentation.profilePage.ProfilePage
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.shared.components.QImage
+import com.gabr.gabc.qook.presentation.shared.components.QShimmer
 import com.gabr.gabc.qook.presentation.theme.AppTheme
 import com.gabr.gabc.qook.presentation.theme.seed
 import dagger.hilt.android.AndroidEntryPoint
@@ -136,21 +138,24 @@ class HomePage : ComponentActivity() {
         val configuration = LocalConfiguration.current
         val buttonSize = configuration.screenWidthDp.dp / 1.5f
 
-        return Column(
+        Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
-            Text(
-                String.format(stringResource(R.string.home_welcome_message), state.name),
-                style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.padding(horizontal = 64.dp, vertical = 32.dp),
-                textAlign = TextAlign.Center
-            )
+            QShimmer(controller = state.name.isNotEmpty()) {
+                Text(
+                    String.format(stringResource(R.string.home_welcome_message), state.name),
+                    style = MaterialTheme.typography.headlineSmall,
+                    modifier = it.padding(horizontal = 64.dp, vertical = 32.dp),
+                    textAlign = TextAlign.Center
+                )
+            }
             OutlinedButton(
                 onClick = { },
                 modifier = Modifier
                     .width(buttonSize)
-                    .height(buttonSize),
+                    .height(buttonSize)
+                    .weight(1f, fill = false),
                 shape = CircleShape,
                 border = BorderStroke(2.dp, seed),
                 contentPadding = PaddingValues(0.dp),
@@ -177,6 +182,7 @@ class HomePage : ComponentActivity() {
                         stringResource(R.string.home_get_random_recipe),
                         textAlign = TextAlign.Center,
                         color = Color.White,
+                        fontWeight = FontWeight.Bold,
                         modifier = Modifier
                             .width(buttonSize)
                             .padding(horizontal = 24.dp)
@@ -188,7 +194,7 @@ class HomePage : ComponentActivity() {
 
     @Composable
     fun BottomNavigationBar() {
-        return Row(
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(64.dp)
@@ -225,7 +231,7 @@ class HomePage : ComponentActivity() {
     ) {
         val configuration = LocalConfiguration.current
 
-        return Column(
+        Column(
             modifier = Modifier
                 .clickable { onClick() }
                 .width(configuration.screenWidthDp.dp / 3),

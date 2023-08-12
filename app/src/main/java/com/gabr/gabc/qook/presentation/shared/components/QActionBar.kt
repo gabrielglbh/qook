@@ -37,7 +37,7 @@ fun QActionBar(
         throw Exception("You must provide action and actionBehaviour")
     }
 
-    return Row(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
             .height(64.dp),

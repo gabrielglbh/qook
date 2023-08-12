@@ -47,13 +47,13 @@ import com.gabr.gabc.qook.presentation.profilePage.components.ProfileRow
 import com.gabr.gabc.qook.presentation.profilePage.viewModel.ProfileViewModel
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.shared.components.QImage
+import com.gabr.gabc.qook.presentation.shared.components.QShimmer
 import com.gabr.gabc.qook.presentation.theme.AppTheme
 import com.gabr.gabc.qook.presentation.theme.seed
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-
 
 @AndroidEntryPoint
 class ProfilePage : ComponentActivity() {
@@ -159,13 +159,17 @@ class ProfilePage : ComponentActivity() {
                     )
                 }
             }
-            Text(
-                user?.email ?: "",
-                style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.padding(top = 12.dp)
-            )
+            QShimmer(controller = user != null) {
+                Text(
+                    user?.email ?: "",
+                    style = MaterialTheme.typography.headlineSmall,
+                    modifier = it.padding(top = 12.dp)
+                )
+            }
             Settings()
-            user?.let { Account(it) }
+            QShimmer(controller = user != null) { modifier ->
+                user?.let { u -> Account(u, modifier) }
+            }
         }
     }
 
@@ -195,11 +199,11 @@ class ProfilePage : ComponentActivity() {
     }
 
     @Composable
-    fun Account(user: User) {
+    fun Account(user: User, modifier: Modifier) {
         Column(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Start,
-            modifier = Modifier.padding(top = 24.dp)
+            modifier = modifier.padding(top = 24.dp)
         ) {
             Text(
                 stringResource(R.string.profile_account_label),

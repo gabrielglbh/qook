@@ -33,7 +33,7 @@ fun QTextForm(
     obscured: Boolean = false,
     focusedColor: Color = MaterialTheme.colorScheme.primary
 ) {
-    return OutlinedTextField(
+    OutlinedTextField(
         value = value,
         singleLine = singleLine,
         modifier = Modifier
@@ -58,7 +58,7 @@ fun QTextForm(
 @Preview
 @Composable
 fun PreviewQTextForm() {
-    return QTextForm(
+    QTextForm(
         labelId = R.string.app_name,
         onValueChange = {
             Log.i("LOGGER", it)

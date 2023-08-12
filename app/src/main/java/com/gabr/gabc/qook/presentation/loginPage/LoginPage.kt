@@ -6,8 +6,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -34,7 +35,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalConfiguration
@@ -49,6 +49,7 @@ import com.gabr.gabc.qook.presentation.homePage.HomePage
 import com.gabr.gabc.qook.presentation.loginPage.viewModel.LoginFormState
 import com.gabr.gabc.qook.presentation.loginPage.viewModel.LoginViewModel
 import com.gabr.gabc.qook.presentation.shared.components.QLoadingScreen
+import com.gabr.gabc.qook.presentation.shared.components.QShimmer
 import com.gabr.gabc.qook.presentation.shared.components.QTextForm
 import com.gabr.gabc.qook.presentation.theme.AppTheme
 import com.gabr.gabc.qook.presentation.theme.seed
@@ -82,16 +83,7 @@ class LoginPage : ComponentActivity() {
             visibilityForm = true
         })
 
-        val alphaForm by animateFloatAsState(
-            if (visibilityForm) {
-                1f
-            } else {
-                0f
-            }, tween(1000),
-            label = "alphaForm"
-        )
-
-        return Box {
+        Box {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -113,13 +105,13 @@ class LoginPage : ComponentActivity() {
                         modifier = Modifier.padding(bottom = 48.dp)
                     )
                 }
-                LoginForm(
-                    viewModel,
-                    form,
-                    Modifier
-                        .padding(horizontal = 32.dp)
-                        .alpha(alphaForm)
-                )
+                QShimmer(controller = visibilityForm) {
+                    LoginForm(
+                        viewModel,
+                        form,
+                        it.padding(horizontal = 32.dp)
+                    )
+                }
             }
             if (viewModel.isLoading) QLoadingScreen()
         }
@@ -134,21 +126,27 @@ class LoginPage : ComponentActivity() {
         val focusManager = LocalFocusManager.current
         val colors = MaterialTheme.colorScheme
 
-        var isRememberMode by remember { mutableStateOf(false) }
+        var isRegisterMode by remember { mutableStateOf(false) }
 
-        return Column(
+        Column(
             modifier = modifier.verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            QTextForm(
-                labelId = R.string.login_name,
-                onValueChange = {
-                    viewModel.updateLoginState(form.copy(name = it, error = ""))
-                },
-                value = form.name,
-                imeAction = ImeAction.Next
-            )
+            AnimatedVisibility(
+                visible = isRegisterMode,
+                enter = fadeIn(tween(1000)),
+                exit = fadeOut(tween(1000))
+            ) {
+                QTextForm(
+                    labelId = R.string.login_name,
+                    onValueChange = {
+                        viewModel.updateLoginState(form.copy(name = it, error = ""))
+                    },
+                    value = form.name,
+                    imeAction = ImeAction.Next
+                )
+            }
             QTextForm(
                 labelId = R.string.login_email,
                 onValueChange = {
@@ -185,7 +183,7 @@ class LoginPage : ComponentActivity() {
                     .padding(horizontal = 24.dp),
                 onClick = {
                     focusManager.clearFocus()
-                    if (isRememberMode) viewModel.createUser {
+                    if (isRegisterMode) viewModel.createUser {
                         startActivity(Intent(this@LoginPage, HomePage::class.java))
                     }
                     else viewModel.signInUser {
@@ -195,7 +193,7 @@ class LoginPage : ComponentActivity() {
             ) {
                 Text(
                     stringResource(
-                        if (isRememberMode) {
+                        if (isRegisterMode) {
                             R.string.register_button
                         } else {
                             R.string.login_button
@@ -205,7 +203,7 @@ class LoginPage : ComponentActivity() {
             }
             Text(
                 stringResource(
-                    if (isRememberMode) {
+                    if (isRegisterMode) {
                         R.string.register_toggle_2
                     } else {
                         R.string.register_toggle_1
@@ -213,7 +211,7 @@ class LoginPage : ComponentActivity() {
                 ),
                 modifier = Modifier
                     .clickable {
-                        isRememberMode = !isRememberMode
+                        isRegisterMode = !isRegisterMode
                     }
                     .drawBehind {
                         val strokeWidthPx = 1.dp.toPx()

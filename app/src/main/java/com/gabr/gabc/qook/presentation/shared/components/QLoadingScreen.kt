@@ -16,7 +16,7 @@ import com.gabr.gabc.qook.R
 @Preview
 @Composable
 fun QLoadingScreen() {
-    return Box(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f))
