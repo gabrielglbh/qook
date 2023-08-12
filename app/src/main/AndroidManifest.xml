@@ -34,7 +34,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
+        <activity
+            android:name=".presentation.profilePage.ProfilePage"
+            android:exported="true"
+            android:theme="@style/Theme.Qook"
+            android:windowSoftInputMode="adjustResize" />
     </application>
 
 </manifest>

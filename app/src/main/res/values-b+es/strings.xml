@@ -23,4 +23,12 @@
     <string name="home_recipes_bnb">Recetas</string>
     <string name="home_welcome_message">Hola %1$s, ¿qué cocinamos hoy?</string>
     <string name="home_get_random_recipe">Prepara una receta aleatoria de tu lista</string>
+
+    <string name="profile_settings_label">Ajustes</string>
+    <string name="profile_change_app_theme">Cambiar el tema de la app</string>
+    <string name="profile_about_qook">Sobre Qook</string>
+    <string name="profile_account_label">Cuenta</string>
+    <string name="profile_change_name">Cambiar nombre</string>
+    <string name="profile_change_password">Cambiar contraseña</string>
+    <string name="profile_delete_account">Eliminar cuenta</string>
 </resources>

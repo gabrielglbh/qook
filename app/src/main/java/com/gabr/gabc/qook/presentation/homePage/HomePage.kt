@@ -1,5 +1,6 @@
 package com.gabr.gabc.qook.presentation.homePage
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -10,8 +11,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.consumedWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -30,7 +33,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -50,6 +52,8 @@ import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.presentation.homePage.viewModel.HomeViewModel
 import com.gabr.gabc.qook.presentation.homePage.viewModel.UserState
+import com.gabr.gabc.qook.presentation.profilePage.ProfilePage
+import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.shared.components.QImage
 import com.gabr.gabc.qook.presentation.theme.AppTheme
 import com.gabr.gabc.qook.presentation.theme.seed
@@ -69,7 +73,7 @@ class HomePage : ComponentActivity() {
         }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
     @Preview
     @Composable
     fun HomeView() {
@@ -88,62 +92,39 @@ class HomePage : ComponentActivity() {
 
         Scaffold(
             topBar = {
-                ActionBar(state.value)
+                QActionBar(
+                    actionBehaviour = {
+                        startActivity(Intent(this@HomePage, ProfilePage::class.java))
+                    },
+                    actionBorder = BorderStroke(1.dp, color = seed),
+                    action = {
+                        if (state.value.avatarUrl == null) {
+                            Icon(
+                                Icons.Outlined.AccountCircle,
+                                contentDescription = null,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        } else {
+                            QImage(
+                                uri = state.value.avatarUrl,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
+                    }
+                )
             },
             bottomBar = {
                 BottomNavigationBar()
             },
         ) {
             Box(
-                contentAlignment = Alignment.Center,
+                contentAlignment = Alignment.TopCenter,
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(it)
+                    .consumedWindowInsets(it)
             ) {
                 Body(state.value)
-            }
-        }
-    }
-
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Composable
-    fun ActionBar(
-        state: UserState
-    ) {
-        return Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(64.dp),
-            contentAlignment = Alignment.CenterEnd
-        ) {
-            Text(
-                stringResource(R.string.app_name),
-                style = MaterialTheme.typography.headlineMedium,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
-            Surface(
-                modifier = Modifier
-                    .width(48.dp)
-                    .height(36.dp)
-                    .padding(end = 12.dp),
-                onClick = {},
-                shape = MaterialTheme.shapes.extraLarge,
-                color = Color.Transparent,
-                border = BorderStroke(1.dp, color = seed)
-            ) {
-                if (state.avatarUrl == null) {
-                    Icon(
-                        Icons.Outlined.AccountCircle,
-                        contentDescription = null,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                } else {
-                    QImage(
-                        uri = state.avatarUrl,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
             }
         }
     }
@@ -159,14 +140,12 @@ class HomePage : ComponentActivity() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
-            if (state.error.isEmpty() && state.name.isNotEmpty()) {
-                Text(
-                    String.format(stringResource(R.string.home_welcome_message), state.name),
-                    style = MaterialTheme.typography.headlineSmall,
-                    modifier = Modifier.padding(horizontal = 64.dp, vertical = 32.dp),
-                    textAlign = TextAlign.Center
-                )
-            }
+            Text(
+                String.format(stringResource(R.string.home_welcome_message), state.name),
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.padding(horizontal = 64.dp, vertical = 32.dp),
+                textAlign = TextAlign.Center
+            )
             OutlinedButton(
                 onClick = { },
                 modifier = Modifier
