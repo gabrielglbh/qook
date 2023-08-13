@@ -33,4 +33,8 @@
     <string name="profile_change_password">Cambiar contraseña</string>
     <string name="profile_delete_account">Eliminar cuenta</string>
     <string name="profile_save">Guardar</string>
+    <string name="profile_old_password">Antigua contraseña</string>
+    <string name="profile_new_password">Nueva contraseña</string>
+    <string name="error_profile_password_change">No se ha podido cambiar la contraseña, prueba otra vez</string>
+    <string name="profile_password_change_successful">Tu contraseña ha sido cambiada</string>
 </resources>

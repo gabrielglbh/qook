@@ -27,29 +27,28 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.ExitToApp
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
-import com.gabr.gabc.qook.domain.user.User
 import com.gabr.gabc.qook.presentation.loginPage.LoginPage
 import com.gabr.gabc.qook.presentation.profilePage.components.Account
-import com.gabr.gabc.qook.presentation.profilePage.components.ProfileRow
+import com.gabr.gabc.qook.presentation.profilePage.components.Settings
 import com.gabr.gabc.qook.presentation.profilePage.viewModel.ProfileViewModel
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.shared.components.QImage
@@ -57,8 +56,6 @@ import com.gabr.gabc.qook.presentation.shared.components.QShimmer
 import com.gabr.gabc.qook.presentation.theme.AppTheme
 import com.gabr.gabc.qook.presentation.theme.seed
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -128,16 +125,23 @@ class ProfilePage : ComponentActivity() {
         val viewModel: ProfileViewModel by viewModels()
         val state = viewModel.userState.collectAsState().value
 
-        val snackbarHostState = SnackbarHostState()
+        val scope = rememberCoroutineScope()
+        val snackbarHostState = remember { SnackbarHostState() }
+
+        val configuration = LocalConfiguration.current
+        val buttonSize = configuration.screenWidthDp.dp / 2f
+
+        val passwordChangeSuccessfulMessage =
+            stringResource(R.string.profile_password_change_successful)
 
         LaunchedEffect(key1 = Unit) {
             viewModel.getUser { errorMessage ->
-                CoroutineScope(Dispatchers.Main).launch {
+                scope.launch {
                     snackbarHostState.showSnackbar(errorMessage)
                 }
             }
             viewModel.getAvatar { errorMessage ->
-                CoroutineScope(Dispatchers.Main).launch {
+                scope.launch {
                     snackbarHostState.showSnackbar(errorMessage)
                 }
             }
@@ -167,6 +171,9 @@ class ProfilePage : ComponentActivity() {
                         )
                     },
                 )
+            },
+            snackbarHost = {
+                SnackbarHost(snackbarHostState)
             }
         ) {
             Box(
@@ -183,108 +190,78 @@ class ProfilePage : ComponentActivity() {
                 if (state.error.isNotEmpty()) {
                     Text(stringResource(R.string.error_user_retrieval))
                 } else {
-                    Body(state.user, state.avatarUrl)
-                }
-            }
-        }
-    }
-
-    @Composable
-    fun Body(
-        user: User?,
-        avatarUrl: Uri,
-    ) {
-        val configuration = LocalConfiguration.current
-        val buttonSize = configuration.screenWidthDp.dp / 2f
-
-        Column(
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            OutlinedButton(
-                onClick = {
-                    requestMultiplePermissions.launch(
-                        if (VERSION.SDK_INT >= VERSION_CODES.TIRAMISU) {
-                            arrayOf(
-                                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                                Manifest.permission.READ_MEDIA_IMAGES
-                            )
-                        } else {
-                            arrayOf(
-                                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                                Manifest.permission.READ_EXTERNAL_STORAGE
+                    Column(
+                        verticalArrangement = Arrangement.Top,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        OutlinedButton(
+                            onClick = {
+                                requestMultiplePermissions.launch(
+                                    if (VERSION.SDK_INT >= VERSION_CODES.TIRAMISU) {
+                                        arrayOf(
+                                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                            Manifest.permission.READ_MEDIA_IMAGES
+                                        )
+                                    } else {
+                                        arrayOf(
+                                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                            Manifest.permission.READ_EXTERNAL_STORAGE
+                                        )
+                                    }
+                                )
+                            },
+                            modifier = Modifier
+                                .width(buttonSize)
+                                .height(buttonSize),
+                            shape = CircleShape,
+                            border = BorderStroke(2.dp, seed),
+                            contentPadding = PaddingValues(0.dp),
+                        ) {
+                            if (state.avatarUrl == Uri.EMPTY) {
+                                Icon(
+                                    Icons.Outlined.AccountCircle,
+                                    contentDescription = null,
+                                    modifier = Modifier.fillMaxSize(),
+                                    tint = MaterialTheme.colorScheme.onBackground
+                                )
+                            } else {
+                                QImage(
+                                    uri = state.avatarUrl,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }
+                        }
+                        QShimmer(controller = state.user != null) { modifier ->
+                            Text(
+                                state.user?.email ?: "",
+                                style = MaterialTheme.typography.headlineSmall,
+                                modifier = modifier.padding(top = 12.dp)
                             )
                         }
-                    )
-                },
-                modifier = Modifier
-                    .width(buttonSize)
-                    .height(buttonSize),
-                shape = CircleShape,
-                border = BorderStroke(2.dp, seed),
-                contentPadding = PaddingValues(0.dp),
-            ) {
-                if (avatarUrl == Uri.EMPTY) {
-                    Icon(
-                        Icons.Outlined.AccountCircle,
-                        contentDescription = null,
-                        modifier = Modifier.fillMaxSize(),
-                        tint = MaterialTheme.colorScheme.onBackground
-                    )
-                } else {
-                    QImage(
-                        uri = avatarUrl,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
-            }
-            QShimmer(controller = user != null) {
-                Text(
-                    user?.email ?: "",
-                    style = MaterialTheme.typography.headlineSmall,
-                    modifier = it.padding(top = 12.dp)
-                )
-            }
-            Settings()
-            QShimmer(controller = user != null) { modifier ->
-                val viewModel: ProfileViewModel by viewModels()
-                user?.let { u ->
-                    Account(u, modifier, viewModel) {
-                        hasChangedName = true
+                        Settings()
+                        QShimmer(controller = state.user != null) { modifier ->
+                            state.user?.let { u ->
+                                Account(u, modifier, viewModel,
+                                    onNameUpdated = {
+                                        hasChangedName = true
+                                    },
+                                    onChangePasswordSuccess = {
+                                        scope.launch {
+                                            snackbarHostState.showSnackbar(
+                                                passwordChangeSuccessfulMessage
+                                            )
+                                        }
+                                    },
+                                    onChangePasswordError = {
+                                        scope.launch {
+                                            snackbarHostState.showSnackbar(it)
+                                        }
+                                    }
+                                )
+                            }
+                        }
                     }
                 }
-            }
-        }
-    }
-
-    @Composable
-    fun Settings() {
-        Surface(
-            modifier = Modifier.padding(vertical = 24.dp, horizontal = 12.dp),
-            shape = MaterialTheme.shapes.medium,
-            color = MaterialTheme.colorScheme.secondaryContainer
-        ) {
-            Column(
-                verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.Start
-            ) {
-                Text(
-                    stringResource(R.string.profile_settings_label),
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer
-                    ),
-                    modifier = Modifier.padding(start = 16.dp, top = 12.dp)
-                )
-                ProfileRow(
-                    res = R.drawable.theme,
-                    text = stringResource(R.string.profile_change_app_theme)
-                ) {}
-                ProfileRow(
-                    icon = Icons.Outlined.Info,
-                    text = stringResource(R.string.profile_about_qook),
-                    modifier = Modifier.padding(bottom = 12.dp)
-                ) {}
             }
         }
     }

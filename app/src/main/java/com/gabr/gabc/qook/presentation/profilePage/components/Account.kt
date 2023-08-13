@@ -27,17 +27,36 @@ fun Account(
     user: User,
     modifier: Modifier,
     viewModel: ProfileViewModel,
-    onNameUpdated: () -> Unit
+    onNameUpdated: () -> Unit,
+    onChangePasswordSuccess: () -> Unit,
+    onChangePasswordError: (String) -> Unit,
 ) {
-    val showDialog = remember { mutableStateOf(false) }
+    val showNameDialog = remember { mutableStateOf(false) }
+    val showPasswordDialog = remember { mutableStateOf(false) }
 
-    if (showDialog.value)
-        ChangeNameDialog(setShowDialog = {
-            showDialog.value = it
-        }, onClick = {
-            viewModel.updateUser(user.copy(name = it)) {}
-            onNameUpdated()
-        })
+    if (showNameDialog.value)
+        ChangeNameDialog(
+            setShowDialog = {
+                showNameDialog.value = it
+            },
+            onClick = {
+                viewModel.updateUser(user.copy(name = it)) {}
+                onNameUpdated()
+            }
+        )
+    if (showPasswordDialog.value)
+        ChangePasswordDialog(
+            setShowDialog = {
+                showPasswordDialog.value = it
+            },
+            onClick = { old, new ->
+                viewModel.changePassword(old, new, onSuccess = {
+                    onChangePasswordSuccess()
+                }, onError = {
+                    onChangePasswordError(it)
+                })
+            }
+        )
 
     Surface(
         modifier = modifier.padding(horizontal = 12.dp),
@@ -61,12 +80,14 @@ fun Account(
                 text = stringResource(R.string.profile_change_name),
                 trailingText = user.name
             ) {
-                showDialog.value = true
+                showNameDialog.value = true
             }
             ProfileRow(
                 icon = Icons.Outlined.Lock,
                 text = stringResource(R.string.profile_change_password)
-            ) {}
+            ) {
+                showPasswordDialog.value = true
+            }
             ProfileRow(
                 icon = Icons.Outlined.Delete,
                 text = stringResource(R.string.profile_delete_account),

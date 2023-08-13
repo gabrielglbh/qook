@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
@@ -42,7 +43,8 @@ fun QTextForm(
         label = { Text(stringResource(labelId)) },
         isError = false,
         keyboardOptions = KeyboardOptions.Default.copy(
-            imeAction = imeAction
+            imeAction = imeAction,
+            capitalization = KeyboardCapitalization.Sentences
         ),
         trailingIcon = trailingIcon,
         visualTransformation = if (obscured) PasswordVisualTransformation() else VisualTransformation.None,

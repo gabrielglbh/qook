@@ -9,18 +9,19 @@ import com.gabr.gabc.qook.domain.user.UserFailure
 import com.gabr.gabc.qook.domain.user.UserRepository
 import com.gabr.gabc.qook.domain.user.toDto
 import com.gabr.gabc.qook.presentation.shared.providers.StringResourcesProvider
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
-import com.google.firebase.firestore.auth.User
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
 import java.io.File
 import javax.inject.Inject
 import com.gabr.gabc.qook.domain.user.User as domainUser
+
 
 class UserRepositoryImpl @Inject constructor(
     private val auth: FirebaseAuth,
@@ -68,11 +69,33 @@ class UserRepositoryImpl @Inject constructor(
         auth.signOut()
     }
 
-    override suspend fun changePassword(oldPassword: String, newPassword: String, user: User) {
-        TODO("Not yet implemented")
+    override suspend fun changePassword(
+        oldPassword: String,
+        newPassword: String
+    ): Either<UserFailure, Unit> {
+        try {
+            auth.currentUser?.let { user ->
+                val credential = EmailAuthProvider.getCredential(user.email!!, oldPassword)
+                user.reauthenticate(credential).await()
+                user.updatePassword(newPassword).await()
+                return Right(Unit)
+            }
+            return Left(
+                UserFailure.PasswordChangeFailure(
+                    res.getString(R.string.error_profile_password_change)
+                )
+            )
+        } catch (err: FirebaseAuthException) {
+            return Left(
+                UserFailure.PasswordChangeFailure(
+                    "${err.errorCode}: " +
+                            res.getString(R.string.error_profile_password_change)
+                )
+            )
+        }
     }
 
-    override suspend fun removeAccount(oldPassword: String, newPassword: String, user: User) {
+    override suspend fun removeAccount(oldPassword: String, newPassword: String) {
         TODO("Not yet implemented")
     }
 

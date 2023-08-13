@@ -87,4 +87,23 @@ class ProfileViewModel @Inject constructor(
             )
         }
     }
+
+    fun changePassword(
+        oldPassword: String,
+        newPassword: String,
+        onError: ((String) -> Unit)? = null,
+        onSuccess: (() -> Unit)? = null
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = repository.changePassword(oldPassword, newPassword)
+            result.fold(
+                ifLeft = {
+                    onError?.let { f -> f(it.error) }
+                },
+                ifRight = {
+                    onSuccess?.let { f -> f() }
+                }
+            )
+        }
+    }
 }

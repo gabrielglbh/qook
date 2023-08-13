@@ -35,11 +35,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -75,11 +78,22 @@ class HomePage : ComponentActivity() {
                 val extras = result.data?.extras
                 val viewModel: HomeViewModel by viewModels()
 
+                val scope = CoroutineScope(Dispatchers.Main)
+                val snackbarHostState = SnackbarHostState()
+
                 if (extras?.getBoolean(ProfilePage.HAS_CHANGED_PROFILE_PICTURE) == true) {
-                    viewModel.getAvatar()
+                    viewModel.getAvatar { errorMessage ->
+                        scope.launch {
+                            snackbarHostState.showSnackbar(errorMessage)
+                        }
+                    }
                 }
                 if (extras?.getBoolean(ProfilePage.HAS_CHANGED_NAME) == true) {
-                    viewModel.getUser {}
+                    viewModel.getUser { errorMessage ->
+                        scope.launch {
+                            snackbarHostState.showSnackbar(errorMessage)
+                        }
+                    }
                 }
             }
         }
@@ -100,16 +114,17 @@ class HomePage : ComponentActivity() {
         val viewModel: HomeViewModel by viewModels()
         val state = viewModel.userState.collectAsState()
 
-        val snackbarHostState = SnackbarHostState()
+        val scope = rememberCoroutineScope()
+        val snackbarHostState = remember { SnackbarHostState() }
 
         LaunchedEffect(key1 = Unit) {
             viewModel.getUser { errorMessage ->
-                CoroutineScope(Dispatchers.Main).launch {
+                scope.launch {
                     snackbarHostState.showSnackbar(errorMessage)
                 }
             }
             viewModel.getAvatar { errorMessage ->
-                CoroutineScope(Dispatchers.Main).launch {
+                scope.launch {
                     snackbarHostState.showSnackbar(errorMessage)
                 }
             }
@@ -141,6 +156,9 @@ class HomePage : ComponentActivity() {
             bottomBar = {
                 BottomNavigationBar()
             },
+            snackbarHost = {
+                SnackbarHost(snackbarHostState)
+            }
         ) {
             Box(
                 contentAlignment = Alignment.TopCenter,
