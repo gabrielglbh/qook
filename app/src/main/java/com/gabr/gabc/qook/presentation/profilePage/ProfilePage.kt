@@ -1,9 +1,16 @@
 package com.gabr.gabc.qook.presentation.profilePage
 
+import android.Manifest
 import android.content.Intent
+import android.net.Uri
+import android.os.Build.VERSION
+import android.os.Build.VERSION_CODES
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -55,10 +62,57 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+
 @AndroidEntryPoint
 class ProfilePage : ComponentActivity() {
+    companion object {
+        const val HAS_CHANGED_PROFILE_PICTURE = "HAS_CHANGED_PROFILE_PICTURE"
+    }
+
+    private var hasChangedProfilePicture = false
+    private lateinit var pickMedia: ActivityResultLauncher<PickVisualMediaRequest>
+    private val requestMultiplePermissions =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            permissions.forEach { actionMap ->
+                when (actionMap.key) {
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE -> {
+                        if (!actionMap.value) {
+                            shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        }
+                    }
+
+                    Manifest.permission.READ_EXTERNAL_STORAGE -> {
+                        if (actionMap.value) {
+                            pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                        } else {
+                            shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)
+                        }
+                    }
+
+                    Manifest.permission.READ_MEDIA_IMAGES -> {
+                        if (VERSION.SDK_INT >= VERSION_CODES.TIRAMISU) {
+                            if (actionMap.value) {
+                                pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                            } else {
+                                shouldShowRequestPermissionRationale(Manifest.permission.READ_MEDIA_IMAGES)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        pickMedia =
+            registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+                if (uri != null) {
+                    val viewModel: ProfileViewModel by viewModels()
+                    viewModel.updateAvatar(uri)
+                    hasChangedProfilePicture = true
+                }
+            }
 
         setContent {
             AppTheme {
@@ -81,12 +135,20 @@ class ProfilePage : ComponentActivity() {
                     snackbarHostState.showSnackbar(errorMessage)
                 }
             }
+            viewModel.getAvatar { errorMessage ->
+                CoroutineScope(Dispatchers.Main).launch {
+                    snackbarHostState.showSnackbar(errorMessage)
+                }
+            }
         }
 
         Scaffold(
             topBar = {
                 QActionBar(
                     onBack = {
+                        val resultIntent = Intent()
+                        resultIntent.putExtra(HAS_CHANGED_PROFILE_PICTURE, hasChangedProfilePicture)
+                        setResult(RESULT_OK, resultIntent)
                         finish()
                     },
                     actionBehaviour = {
@@ -119,7 +181,7 @@ class ProfilePage : ComponentActivity() {
                 if (state.error.isNotEmpty()) {
                     Text(stringResource(R.string.error_user_retrieval))
                 } else {
-                    Body(state.user)
+                    Body(state.user, state.avatarUrl)
                 }
             }
         }
@@ -127,7 +189,8 @@ class ProfilePage : ComponentActivity() {
 
     @Composable
     fun Body(
-        user: User?
+        user: User?,
+        avatarUrl: Uri,
     ) {
         val configuration = LocalConfiguration.current
         val buttonSize = configuration.screenWidthDp.dp / 2f
@@ -137,7 +200,21 @@ class ProfilePage : ComponentActivity() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             OutlinedButton(
-                onClick = { },
+                onClick = {
+                    requestMultiplePermissions.launch(
+                        if (VERSION.SDK_INT >= VERSION_CODES.TIRAMISU) {
+                            arrayOf(
+                                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                Manifest.permission.READ_MEDIA_IMAGES
+                            )
+                        } else {
+                            arrayOf(
+                                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                Manifest.permission.READ_EXTERNAL_STORAGE
+                            )
+                        }
+                    )
+                },
                 modifier = Modifier
                     .width(buttonSize)
                     .height(buttonSize),
@@ -145,7 +222,7 @@ class ProfilePage : ComponentActivity() {
                 border = BorderStroke(2.dp, seed),
                 contentPadding = PaddingValues(0.dp),
             ) {
-                if (user?.avatar == null) {
+                if (avatarUrl == Uri.EMPTY) {
                     Icon(
                         Icons.Outlined.AccountCircle,
                         contentDescription = null,
@@ -154,7 +231,7 @@ class ProfilePage : ComponentActivity() {
                     )
                 } else {
                     QImage(
-                        uri = user.avatar,
+                        uri = avatarUrl,
                         modifier = Modifier.fillMaxSize()
                     )
                 }

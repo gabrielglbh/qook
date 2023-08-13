@@ -1,5 +1,6 @@
 package com.gabr.gabc.qook.infrastructure.user
 
+import android.net.Uri
 import arrow.core.Either
 import arrow.core.Either.Left
 import arrow.core.Either.Right
@@ -17,6 +18,7 @@ import com.google.firebase.firestore.auth.User
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
+import java.io.File
 import javax.inject.Inject
 import com.gabr.gabc.qook.domain.user.User as domainUser
 
@@ -98,8 +100,12 @@ class UserRepositoryImpl @Inject constructor(
         TODO("Not yet implemented")
     }
 
-    override suspend fun updateUser(user: domainUser) {
-        TODO("Not yet implemented")
+    override suspend fun updateUser(user: domainUser): Either<UserFailure, Unit> {
+        auth.currentUser?.let {
+            db.collection("USERS").document(it.uid).update(user.toDto().toMap()).await()
+            return Right(Unit)
+        }
+        return Left(UserFailure.NotAuthenticated(res.getString(R.string.error_user_not_auth)))
     }
 
     override suspend fun getUser(): Either<UserFailure, domainUser> {
@@ -133,7 +139,34 @@ class UserRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun updateAvatar(image: String) {
-        TODO("Not yet implemented")
+    override suspend fun updateAvatar(image: String): Either<UserFailure, Uri> {
+        try {
+            auth.currentUser?.let {
+                val file = Uri.fromFile(File(image))
+                val imageRef = storage.reference.child("${it.uid}/avatar/photo.jpg")
+                val uploadTask = imageRef.putFile(file).await()
+
+                if (uploadTask.error != null) {
+                    return Left(UserFailure.UpdateAvatarFailure(res.getString(R.string.error_avatar_update)))
+                }
+
+                return Right(uploadTask.storage.downloadUrl.await())
+            }
+            return Left(UserFailure.NotAuthenticated(res.getString(R.string.error_user_not_auth)))
+        } catch (err: Exception) {
+            return Left(UserFailure.UpdateAvatarFailure(res.getString(R.string.error_avatar_update)))
+        }
+    }
+
+    override suspend fun getAvatar(): Either<UserFailure, Uri> {
+        try {
+            auth.currentUser?.let {
+                val uri = storage.reference.child("${it.uid}/avatar/photo.jpg").downloadUrl.await()
+                return Right(uri)
+            }
+            return Left(UserFailure.NotAuthenticated(res.getString(R.string.error_user_not_auth)))
+        } catch (err: Exception) {
+            return Left(UserFailure.UpdateAvatarFailure(res.getString(R.string.error_avatar_update)))
+        }
     }
 }

@@ -17,6 +17,7 @@
     <string name="error_user_does_not_exist">El usuario no existe</string>
     <string name="error_user_corrupted">El usuario está corrupto</string>
     <string name="error_user_retrieval">No se ha podido devolver el usuario</string>
+    <string name="error_avatar_update">No se ha podido actualizar el avatar, prueba otra vez</string>
 
     <string name="home_shopping_bnb">Carrito</string>
     <string name="home_add_recipe_bnb">Añadir receta</string>

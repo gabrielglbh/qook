@@ -1,5 +1,6 @@
 package com.gabr.gabc.qook.domain.user
 
+import android.net.Uri
 import arrow.core.Either
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.auth.User
@@ -14,7 +15,8 @@ interface UserRepository {
     suspend fun removeAccount(oldPassword: String, newPassword: String, user: User)
     suspend fun createUserInDB(user: domainUser): Either<UserFailure, Unit>
     suspend fun removeUser(user: domainUser)
-    suspend fun updateUser(user: domainUser)
+    suspend fun updateUser(user: domainUser): Either<UserFailure, Unit>
     suspend fun getUser(): Either<UserFailure, domainUser>
-    suspend fun updateAvatar(image: String)
+    suspend fun updateAvatar(image: String): Either<UserFailure, Uri>
+    suspend fun getAvatar(): Either<UserFailure, Uri>
 }

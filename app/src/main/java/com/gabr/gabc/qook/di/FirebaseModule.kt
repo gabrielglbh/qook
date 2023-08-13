@@ -8,6 +8,7 @@ import com.google.firebase.storage.FirebaseStorage
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 
 @Module
@@ -15,7 +16,7 @@ import dagger.hilt.components.SingletonComponent
 object FirebaseModule {
     @Provides
     fun provideFirebaseApp(
-        context: Context
+        @ApplicationContext context: Context
     ): FirebaseApp? {
         return FirebaseApp.initializeApp(context)
     }

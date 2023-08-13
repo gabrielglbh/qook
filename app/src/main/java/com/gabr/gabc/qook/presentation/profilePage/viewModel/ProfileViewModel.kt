@@ -1,8 +1,11 @@
 package com.gabr.gabc.qook.presentation.profilePage.viewModel
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gabr.gabc.qook.domain.user.UserRepository
+import com.gabr.gabc.qook.presentation.shared.ResizeImageUtil.Companion.resizeImageToFile
+import com.gabr.gabc.qook.presentation.shared.providers.ContentResolverProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,7 +15,10 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ProfileViewModel @Inject constructor(private val repository: UserRepository) :
+class ProfileViewModel @Inject constructor(
+    private val repository: UserRepository,
+    private val provider: ContentResolverProvider
+) :
     ViewModel() {
     private val _userState = MutableStateFlow(UserState())
     val userState: StateFlow<UserState> = _userState.asStateFlow()
@@ -33,6 +39,35 @@ class ProfileViewModel @Inject constructor(private val repository: UserRepositor
                 },
                 ifRight = {
                     _userState.value = UserState(user = it)
+                }
+            )
+        }
+    }
+
+    fun getAvatar(onError: ((String) -> Unit)? = null) {
+        viewModelScope.launch {
+            val result = repository.getAvatar()
+            result.fold(
+                ifLeft = {
+                    onError?.let { f -> f(it.error) }
+                },
+                ifRight = {
+                    _userState.value = _userState.value.copy(avatarUrl = it)
+                }
+            )
+        }
+    }
+
+    fun updateAvatar(uri: Uri, onError: ((String) -> Unit)? = null) {
+        viewModelScope.launch {
+            val result =
+                repository.updateAvatar(resizeImageToFile(uri, provider.contentResolver()).path)
+            result.fold(
+                ifLeft = {
+                    onError?.let { f -> f(it.error) }
+                },
+                ifRight = {
+                    _userState.value = _userState.value.copy(avatarUrl = it)
                 }
             )
         }

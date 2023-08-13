@@ -1,9 +1,12 @@
 package com.gabr.gabc.qook.presentation.homePage
 
+import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -66,6 +69,16 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class HomePage : ComponentActivity() {
+    private val resultLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                if (result.data?.extras?.getBoolean(ProfilePage.HAS_CHANGED_PROFILE_PICTURE) == true) {
+                    val viewModel: HomeViewModel by viewModels()
+                    viewModel.getAvatar()
+                }
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -90,17 +103,22 @@ class HomePage : ComponentActivity() {
                     snackbarHostState.showSnackbar(errorMessage)
                 }
             }
+            viewModel.getAvatar { errorMessage ->
+                CoroutineScope(Dispatchers.Main).launch {
+                    snackbarHostState.showSnackbar(errorMessage)
+                }
+            }
         }
 
         Scaffold(
             topBar = {
                 QActionBar(
                     actionBehaviour = {
-                        startActivity(Intent(this@HomePage, ProfilePage::class.java))
+                        resultLauncher.launch(Intent(this@HomePage, ProfilePage::class.java))
                     },
                     actionBorder = BorderStroke(1.dp, color = seed),
                     action = {
-                        if (state.value.avatarUrl == null) {
+                        if (state.value.avatarUrl == Uri.EMPTY) {
                             Icon(
                                 Icons.Outlined.AccountCircle,
                                 contentDescription = null,

@@ -1,15 +1,16 @@
 package com.gabr.gabc.qook.presentation.shared.components
 
+import android.net.Uri
 import android.os.Build.VERSION.SDK_INT
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import coil.ImageLoader
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.rememberAsyncImagePainter
@@ -17,7 +18,6 @@ import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
 import coil.request.ImageRequest
 import com.gabr.gabc.qook.R
-import com.gabr.gabc.qook.presentation.theme.seed
 
 enum class QImageType {
     NETWORK, GIF
@@ -26,14 +26,14 @@ enum class QImageType {
 @Composable
 fun QImage(
     modifier: Modifier = Modifier,
-    uri: String? = null,
+    uri: Uri = Uri.EMPTY,
     @DrawableRes resource: Int? = null,
     type: QImageType = QImageType.NETWORK,
 ) {
     if (type == QImageType.GIF && resource == null) {
         throw Exception("Should provide a resource such as R.drawable.xxx with type GIF")
     }
-    if (type == QImageType.NETWORK && uri == null) {
+    if (type == QImageType.NETWORK && uri == Uri.EMPTY) {
         throw Exception("Should provide a resource such as https://domain.es/image.png with type NETWORK")
     }
 
@@ -61,7 +61,7 @@ fun QImage(
 
         else -> {
             SubcomposeAsyncImage(
-                model = uri!!,
+                model = uri.toString(),
                 loading = {
                     CircularProgressIndicator()
                 },
@@ -69,7 +69,7 @@ fun QImage(
                     Image(
                         painter = painterResource(R.drawable.no_image),
                         contentDescription = null,
-                        colorFilter = ColorFilter.tint(seed)
+                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.outline)
                     )
                 },
                 contentDescription = "",
@@ -77,16 +77,4 @@ fun QImage(
             )
         }
     }
-}
-
-@Preview
-@Composable
-fun QImageGIFPreview() {
-    QImage(resource = R.drawable.loading, type = QImageType.GIF)
-}
-
-@Preview
-@Composable
-fun QImageNetworkPreview() {
-    QImage(uri = "https://avatars.githubusercontent.com/u/26835924?v=4")
 }
