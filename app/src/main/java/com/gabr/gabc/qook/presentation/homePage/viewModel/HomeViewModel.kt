@@ -25,7 +25,7 @@ class HomeViewModel @Inject constructor(private val userRepository: UserReposito
                     onError(it.error)
                 },
                 ifRight = {
-                    _userState.value = _userState.value.copy(name = it.name)
+                    _userState.value = _userState.value.copy(user = it)
                 }
             )
         }

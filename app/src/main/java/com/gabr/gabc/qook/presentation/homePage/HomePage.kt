@@ -30,7 +30,6 @@ import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -72,6 +71,11 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class HomePage : ComponentActivity() {
+    companion object {
+        const val HOME_USER = "HOME_USER"
+        const val HOME_USER_AVATAR = "HOME_USER_AVATAR"
+    }
+
     private val resultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
@@ -107,7 +111,7 @@ class HomePage : ComponentActivity() {
         }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+    @OptIn(ExperimentalLayoutApi::class)
     @Preview
     @Composable
     fun HomeView() {
@@ -130,7 +134,10 @@ class HomePage : ComponentActivity() {
             topBar = {
                 QActionBar(
                     actionBehaviour = {
-                        resultLauncher.launch(Intent(this@HomePage, ProfilePage::class.java))
+                        val intent = Intent(this@HomePage, ProfilePage::class.java)
+                        intent.putExtra(HOME_USER, state.value.user)
+                        intent.putExtra(HOME_USER_AVATAR, state.value.avatarUrl)
+                        resultLauncher.launch(intent)
                     },
                     actionBorder = BorderStroke(1.dp, color = seed),
                     action = {
@@ -179,9 +186,9 @@ class HomePage : ComponentActivity() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
-            QShimmer(controller = state.name.isNotEmpty()) {
+            QShimmer(controller = state.user != null) {
                 Text(
-                    String.format(stringResource(R.string.home_welcome_message), state.name),
+                    String.format(stringResource(R.string.home_welcome_message), state.user?.name),
                     style = MaterialTheme.typography.headlineSmall,
                     modifier = it.padding(horizontal = 64.dp, vertical = 32.dp),
                     textAlign = TextAlign.Center

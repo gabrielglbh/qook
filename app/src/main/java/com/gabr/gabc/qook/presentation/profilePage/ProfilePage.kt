@@ -45,6 +45,8 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
+import com.gabr.gabc.qook.domain.user.User
+import com.gabr.gabc.qook.presentation.homePage.HomePage
 import com.gabr.gabc.qook.presentation.loginPage.LoginPage
 import com.gabr.gabc.qook.presentation.profilePage.components.Account
 import com.gabr.gabc.qook.presentation.profilePage.components.Settings
@@ -102,10 +104,23 @@ class ProfilePage : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val viewModel: ProfileViewModel by viewModels()
+        val user = if (VERSION.SDK_INT >= VERSION_CODES.TIRAMISU) {
+            intent.getParcelableExtra(HomePage.HOME_USER, User::class.java)
+        } else {
+            intent.getParcelableExtra(HomePage.HOME_USER)
+        }
+        val avatar = if (VERSION.SDK_INT >= VERSION_CODES.TIRAMISU) {
+            intent.getParcelableExtra(HomePage.HOME_USER_AVATAR, Uri::class.java)
+        } else {
+            intent.getParcelableExtra(HomePage.HOME_USER_AVATAR)
+        } ?: Uri.EMPTY
+
+        viewModel.setDataForLocalLoading(user, avatar)
+
         pickMedia =
             registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
                 if (uri != null) {
-                    val viewModel: ProfileViewModel by viewModels()
                     viewModel.updateAvatar(uri)
                     hasChangedProfilePicture = true
                 }
@@ -133,13 +148,15 @@ class ProfilePage : ComponentActivity() {
         val passwordChangeSuccessfulMessage =
             stringResource(R.string.profile_password_change_successful)
 
-        LaunchedEffect(key1 = Unit) {
-            viewModel.getUser { errorMessage ->
-                scope.launch {
-                    snackbarHostState.showSnackbar(errorMessage)
+        if (state.user == null || state.avatarUrl == Uri.EMPTY) {
+            LaunchedEffect(key1 = Unit) {
+                viewModel.getUser { errorMessage ->
+                    scope.launch {
+                        snackbarHostState.showSnackbar(errorMessage)
+                    }
                 }
+                viewModel.getAvatar()
             }
-            viewModel.getAvatar()
         }
 
         Scaffold(

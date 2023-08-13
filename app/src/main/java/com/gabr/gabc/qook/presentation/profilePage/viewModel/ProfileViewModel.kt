@@ -24,6 +24,10 @@ class ProfileViewModel @Inject constructor(
     private val _userState = MutableStateFlow(UserState())
     val userState: StateFlow<UserState> = _userState.asStateFlow()
 
+    fun setDataForLocalLoading(user: User?, avatar: Uri) {
+        _userState.value = UserState(user = user, avatarUrl = avatar)
+    }
+
     fun signOut() {
         viewModelScope.launch(Dispatchers.IO) {
             repository.signOut()
