@@ -18,7 +18,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.consumedWindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -26,17 +26,15 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
-import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.ExitToApp
-import androidx.compose.material.icons.outlined.Face
 import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -50,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.user.User
 import com.gabr.gabc.qook.presentation.loginPage.LoginPage
+import com.gabr.gabc.qook.presentation.profilePage.components.Account
 import com.gabr.gabc.qook.presentation.profilePage.components.ProfileRow
 import com.gabr.gabc.qook.presentation.profilePage.viewModel.ProfileViewModel
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
@@ -62,14 +61,16 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-
 @AndroidEntryPoint
 class ProfilePage : ComponentActivity() {
     companion object {
         const val HAS_CHANGED_PROFILE_PICTURE = "HAS_CHANGED_PROFILE_PICTURE"
+        const val HAS_CHANGED_NAME = "HAS_CHANGED_NAME"
     }
 
     private var hasChangedProfilePicture = false
+    private var hasChangedName = false
+
     private lateinit var pickMedia: ActivityResultLauncher<PickVisualMediaRequest>
     private val requestMultiplePermissions =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
@@ -148,6 +149,7 @@ class ProfilePage : ComponentActivity() {
                     onBack = {
                         val resultIntent = Intent()
                         resultIntent.putExtra(HAS_CHANGED_PROFILE_PICTURE, hasChangedProfilePicture)
+                        resultIntent.putExtra(HAS_CHANGED_NAME, hasChangedName)
                         setResult(RESULT_OK, resultIntent)
                         finish()
                     },
@@ -176,7 +178,7 @@ class ProfilePage : ComponentActivity() {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(it)
-                    .consumedWindowInsets(it)
+                    .consumeWindowInsets(it)
             ) {
                 if (state.error.isNotEmpty()) {
                     Text(stringResource(R.string.error_user_retrieval))
@@ -245,64 +247,45 @@ class ProfilePage : ComponentActivity() {
             }
             Settings()
             QShimmer(controller = user != null) { modifier ->
-                user?.let { u -> Account(u, modifier) }
+                val viewModel: ProfileViewModel by viewModels()
+                user?.let { u ->
+                    Account(u, modifier, viewModel) {
+                        hasChangedName = true
+                    }
+                }
             }
         }
     }
 
     @Composable
     fun Settings() {
-        Column(
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.Start,
-            modifier = Modifier.padding(top = 32.dp)
+        Surface(
+            modifier = Modifier.padding(vertical = 24.dp, horizontal = 12.dp),
+            shape = MaterialTheme.shapes.medium,
+            color = MaterialTheme.colorScheme.secondaryContainer
         ) {
-            Text(
-                stringResource(R.string.profile_settings_label),
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.Bold
-                ),
-                modifier = Modifier.padding(start = 16.dp)
-            )
-            ProfileRow(
-                res = R.drawable.theme,
-                text = stringResource(R.string.profile_change_app_theme)
-            ) {}
-            ProfileRow(
-                icon = Icons.Outlined.Info,
-                text = stringResource(R.string.profile_about_qook)
-            ) {}
-        }
-    }
-
-    @Composable
-    fun Account(user: User, modifier: Modifier) {
-        Column(
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.Start,
-            modifier = modifier.padding(top = 24.dp)
-        ) {
-            Text(
-                stringResource(R.string.profile_account_label),
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.Bold
-                ),
-                modifier = Modifier.padding(start = 16.dp)
-            )
-            ProfileRow(
-                icon = Icons.Outlined.Face,
-                text = stringResource(R.string.profile_change_name),
-                trailingText = user.name
-            ) {}
-            ProfileRow(
-                icon = Icons.Outlined.Lock,
-                text = stringResource(R.string.profile_change_password)
-            ) {}
-            ProfileRow(
-                icon = Icons.Outlined.Delete,
-                text = stringResource(R.string.profile_delete_account),
-                textColor = MaterialTheme.colorScheme.error
-            ) {}
+            Column(
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.Start
+            ) {
+                Text(
+                    stringResource(R.string.profile_settings_label),
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    ),
+                    modifier = Modifier.padding(start = 16.dp, top = 12.dp)
+                )
+                ProfileRow(
+                    res = R.drawable.theme,
+                    text = stringResource(R.string.profile_change_app_theme)
+                ) {}
+                ProfileRow(
+                    icon = Icons.Outlined.Info,
+                    text = stringResource(R.string.profile_about_qook),
+                    modifier = Modifier.padding(bottom = 12.dp)
+                ) {}
+            }
         }
     }
 }

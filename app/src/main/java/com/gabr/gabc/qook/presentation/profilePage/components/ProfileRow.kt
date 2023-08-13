@@ -23,9 +23,10 @@ import androidx.compose.ui.unit.dp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileRow(
+    modifier: Modifier = Modifier,
     @DrawableRes res: Int? = null,
     icon: ImageVector? = null,
-    textColor: Color = MaterialTheme.colorScheme.onBackground,
+    textColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
     trailingText: String? = null,
     text: String,
     onClick: () -> Unit,
@@ -36,8 +37,7 @@ fun ProfileRow(
 
     Surface(
         color = Color.Transparent,
-        modifier = Modifier
-            .fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         onClick = onClick
     ) {
         Row(

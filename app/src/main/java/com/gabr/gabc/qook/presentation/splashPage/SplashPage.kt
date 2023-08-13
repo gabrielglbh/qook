@@ -41,7 +41,7 @@ class SplashPage : ComponentActivity() {
         val viewModel: SplashViewModel by viewModels()
 
         LaunchedEffect(key1 = Unit) {
-            delay(2500)
+            delay(2000)
             viewModel.checkIfUserIsSignedIn(
                 ifUserExists = {
                     startActivity(Intent(this@SplashPage, HomePage::class.java))

@@ -68,6 +68,7 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.ui:ui-tooling-preview")
     debugImplementation("androidx.compose.ui:ui-tooling")
+    implementation("androidx.compose.material:material-icons-extended:1.4.0")
 
     // LiveData and ViewModels adapted to Compose
     implementation("androidx.activity:activity-compose:1.7.2")

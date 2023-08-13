@@ -17,7 +17,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.consumedWindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -72,9 +72,14 @@ class HomePage : ComponentActivity() {
     private val resultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
-                if (result.data?.extras?.getBoolean(ProfilePage.HAS_CHANGED_PROFILE_PICTURE) == true) {
-                    val viewModel: HomeViewModel by viewModels()
+                val extras = result.data?.extras
+                val viewModel: HomeViewModel by viewModels()
+
+                if (extras?.getBoolean(ProfilePage.HAS_CHANGED_PROFILE_PICTURE) == true) {
                     viewModel.getAvatar()
+                }
+                if (extras?.getBoolean(ProfilePage.HAS_CHANGED_NAME) == true) {
+                    viewModel.getUser {}
                 }
             }
         }
@@ -142,7 +147,7 @@ class HomePage : ComponentActivity() {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(it)
-                    .consumedWindowInsets(it)
+                    .consumeWindowInsets(it)
             ) {
                 Body(state.value)
             }

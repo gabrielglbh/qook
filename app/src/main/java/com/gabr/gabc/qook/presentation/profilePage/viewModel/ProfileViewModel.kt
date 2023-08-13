@@ -3,6 +3,7 @@ package com.gabr.gabc.qook.presentation.profilePage.viewModel
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gabr.gabc.qook.domain.user.User
 import com.gabr.gabc.qook.domain.user.UserRepository
 import com.gabr.gabc.qook.presentation.shared.ResizeImageUtil.Companion.resizeImageToFile
 import com.gabr.gabc.qook.presentation.shared.providers.ContentResolverProvider
@@ -38,7 +39,21 @@ class ProfileViewModel @Inject constructor(
                     onError(it.error)
                 },
                 ifRight = {
-                    _userState.value = UserState(user = it)
+                    _userState.value = _userState.value.copy(user = it)
+                }
+            )
+        }
+    }
+
+    fun updateUser(user: User, onError: (String) -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = repository.updateUser(user)
+            result.fold(
+                ifLeft = {
+                    onError(it.error)
+                },
+                ifRight = {
+                    _userState.value = _userState.value.copy(user = user)
                 }
             )
         }
