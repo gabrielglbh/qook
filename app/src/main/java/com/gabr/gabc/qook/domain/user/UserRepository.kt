@@ -15,9 +15,8 @@ interface UserRepository {
         newPassword: String
     ): Either<UserFailure, Unit>
 
-    suspend fun removeAccount(oldPassword: String, newPassword: String)
+    suspend fun removeAccount(oldPassword: String, newPassword: String): Either<UserFailure, Unit>
     suspend fun createUserInDB(user: domainUser): Either<UserFailure, Unit>
-    suspend fun removeUser(user: domainUser)
     suspend fun updateUser(user: domainUser): Either<UserFailure, Unit>
     suspend fun getUser(): Either<UserFailure, domainUser>
     suspend fun updateAvatar(image: String): Either<UserFailure, Uri>

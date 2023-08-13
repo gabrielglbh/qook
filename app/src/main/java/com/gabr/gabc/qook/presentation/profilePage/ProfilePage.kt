@@ -256,6 +256,17 @@ class ProfilePage : ComponentActivity() {
                                         scope.launch {
                                             snackbarHostState.showSnackbar(it)
                                         }
+                                    },
+                                    onDeleteAccountSuccess = {
+                                        val intent = Intent(this@ProfilePage, LoginPage::class.java)
+                                        intent.flags =
+                                            Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                        startActivity(intent)
+                                    },
+                                    onDeleteAccountError = {
+                                        scope.launch {
+                                            snackbarHostState.showSnackbar(it)
+                                        }
                                     }
                                 )
                             }

@@ -91,17 +91,36 @@ class ProfileViewModel @Inject constructor(
     fun changePassword(
         oldPassword: String,
         newPassword: String,
-        onError: ((String) -> Unit)? = null,
-        onSuccess: (() -> Unit)? = null
+        onError: (String) -> Unit,
+        onSuccess: () -> Unit
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             val result = repository.changePassword(oldPassword, newPassword)
             result.fold(
                 ifLeft = {
-                    onError?.let { f -> f(it.error) }
+                    onError(it.error)
                 },
                 ifRight = {
-                    onSuccess?.let { f -> f() }
+                    onSuccess()
+                }
+            )
+        }
+    }
+
+    fun deleteAccount(
+        oldPassword: String,
+        newPassword: String,
+        onError: (String) -> Unit,
+        onSuccess: () -> Unit
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = repository.removeAccount(oldPassword, newPassword)
+            result.fold(
+                ifLeft = {
+                    onError(it.error)
+                },
+                ifRight = {
+                    onSuccess()
                 }
             )
         }

@@ -36,4 +36,6 @@
     <string name="profile_new_password">New password</string>
     <string name="error_profile_password_change">Could not update the password, try again</string>
     <string name="profile_password_change_successful">Your password has been changed</string>
+    <string name="profile_delete_account_disclaimer">Your account will be permanently removed with all your recipes, tags and user data. This action cannot be undone</string>
+    <string name="error_profile_delete_account">Could not delete the account, try again</string>
 </resources>

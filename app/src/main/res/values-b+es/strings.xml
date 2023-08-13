@@ -37,4 +37,6 @@
     <string name="profile_new_password">Nueva contraseña</string>
     <string name="error_profile_password_change">No se ha podido cambiar la contraseña, prueba otra vez</string>
     <string name="profile_password_change_successful">Tu contraseña ha sido cambiada</string>
+    <string name="profile_delete_account_disclaimer">Tu cuenta será eliminada junto con todas tus recetas, etiquetas y datos de usuario. Esta acción no se puede deshacer</string>
+    <string name="error_profile_delete_account">No se ha podido eliminar tu cuenta, prueba otra vez</string>
 </resources>

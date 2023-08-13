@@ -8,4 +8,5 @@ sealed class UserFailure(open val error: String) {
     data class UserTranslationFailed(override val error: String) : UserFailure(error)
     data class UpdateAvatarFailure(override val error: String) : UserFailure(error)
     data class PasswordChangeFailure(override val error: String) : UserFailure(error)
+    data class UserRemovalFailure(override val error: String) : UserFailure(error)
 }

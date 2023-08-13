@@ -31,7 +31,8 @@ fun QDialog(
     @StringRes title: Int,
     content: @Composable () -> Unit,
     onSubmit: () -> Unit,
-    @StringRes buttonTitle: Int = R.string.profile_save
+    @StringRes buttonTitle: Int = R.string.profile_save,
+    disclaimer: (@Composable () -> Unit)? = null
 ) {
     Dialog(onDismissRequest = { onDismissRequest(false) }) {
         Surface(
@@ -61,6 +62,7 @@ fun QDialog(
                         )
                     }
                     Spacer(modifier = Modifier.height(20.dp))
+                    disclaimer?.let { it() }
                     content()
                     Spacer(modifier = Modifier.height(20.dp))
                     Box(modifier = Modifier.padding(horizontal = 32.dp)) {

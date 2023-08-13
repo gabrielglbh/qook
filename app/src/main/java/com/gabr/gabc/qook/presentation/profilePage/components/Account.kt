@@ -30,9 +30,12 @@ fun Account(
     onNameUpdated: () -> Unit,
     onChangePasswordSuccess: () -> Unit,
     onChangePasswordError: (String) -> Unit,
+    onDeleteAccountSuccess: () -> Unit,
+    onDeleteAccountError: (String) -> Unit,
 ) {
     val showNameDialog = remember { mutableStateOf(false) }
     val showPasswordDialog = remember { mutableStateOf(false) }
+    val showDeleteAccountDialog = remember { mutableStateOf(false) }
 
     if (showNameDialog.value)
         ChangeNameDialog(
@@ -54,6 +57,19 @@ fun Account(
                     onChangePasswordSuccess()
                 }, onError = {
                     onChangePasswordError(it)
+                })
+            }
+        )
+    if (showDeleteAccountDialog.value)
+        RemoveAccountDialog(
+            setShowDialog = {
+                showDeleteAccountDialog.value = it
+            },
+            onClick = { old, new ->
+                viewModel.deleteAccount(old, new, onSuccess = {
+                    onDeleteAccountSuccess()
+                }, onError = {
+                    onDeleteAccountError(it)
                 })
             }
         )
@@ -93,7 +109,9 @@ fun Account(
                 text = stringResource(R.string.profile_delete_account),
                 textColor = MaterialTheme.colorScheme.error,
                 modifier = Modifier.padding(bottom = 12.dp)
-            ) {}
+            ) {
+                showDeleteAccountDialog.value = true
+            }
         }
     }
 }

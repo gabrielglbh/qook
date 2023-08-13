@@ -95,10 +95,6 @@ class UserRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun removeAccount(oldPassword: String, newPassword: String) {
-        TODO("Not yet implemented")
-    }
-
     override suspend fun createUserInDB(user: domainUser): Either<UserFailure, Unit> {
         try {
             auth.currentUser?.let {
@@ -119,8 +115,24 @@ class UserRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun removeUser(user: domainUser) {
-        TODO("Not yet implemented")
+    override suspend fun removeAccount(
+        oldPassword: String,
+        newPassword: String
+    ): Either<UserFailure, Unit> {
+        try {
+            auth.currentUser?.let { user ->
+                val credential = EmailAuthProvider.getCredential(user.email!!, oldPassword)
+                user.reauthenticate(credential).await()
+                db.collection("USERS").document(user.uid).delete().await()
+                storage.reference.child("${user.uid}/avatar/photo.jpg").delete().await()
+                // TODO: Delete in a transaction RECIPES, TAGS and INGREDIENTS when developed
+                user.delete().await()
+                return Right(Unit)
+            }
+            return Left(UserFailure.NotAuthenticated(res.getString(R.string.error_user_not_auth)))
+        } catch (err: Exception) {
+            return Left(UserFailure.UserRemovalFailure(res.getString(R.string.error_profile_delete_account)))
+        }
     }
 
     override suspend fun updateUser(user: domainUser): Either<UserFailure, Unit> {
