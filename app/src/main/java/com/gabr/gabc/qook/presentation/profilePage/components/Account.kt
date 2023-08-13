@@ -24,9 +24,9 @@ import com.gabr.gabc.qook.presentation.profilePage.viewModel.ProfileViewModel
 
 @Composable
 fun Account(
+    viewModel: ProfileViewModel,
     user: User,
     modifier: Modifier,
-    viewModel: ProfileViewModel,
     onNameUpdated: () -> Unit,
     onChangePasswordSuccess: () -> Unit,
     onChangePasswordError: (String) -> Unit,

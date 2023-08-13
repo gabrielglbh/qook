@@ -25,7 +25,7 @@
     <string name="home_get_random_recipe">Prepare a random recipe from your list</string>
 
     <string name="profile_settings_label">Settings</string>
-    <string name="profile_change_app_theme">Change app theme</string>
+    <string name="profile_change_week_beginning">Plan week from…</string>
     <string name="profile_about_qook">About Qook</string>
     <string name="profile_account_label">Account</string>
     <string name="profile_change_name">Change name</string>
@@ -38,4 +38,11 @@
     <string name="profile_password_change_successful">Your password has been changed</string>
     <string name="profile_delete_account_disclaimer">Your account will be permanently removed with all your recipes, tags and user data. This action cannot be undone</string>
     <string name="error_profile_delete_account">Could not delete the account, try again</string>
+    <string name="monday">Monday</string>
+    <string name="tuesday">Tuesday</string>
+    <string name="wednesday">Wednesday</string>
+    <string name="thursday">Thursday</string>
+    <string name="friday">Friday</string>
+    <string name="saturday">Saturday</string>
+    <string name="sunday">Sunday</string>
 </resources>

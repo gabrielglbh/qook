@@ -27,7 +27,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.ExitToApp
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -119,7 +118,7 @@ class ProfilePage : ComponentActivity() {
         }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+    @OptIn(ExperimentalLayoutApi::class)
     @Composable
     fun ProfileView() {
         val viewModel: ProfileViewModel by viewModels()
@@ -234,10 +233,12 @@ class ProfilePage : ComponentActivity() {
                                 modifier = modifier.padding(top = 12.dp)
                             )
                         }
-                        Settings()
+                        QShimmer(controller = state.user != null) { modifier ->
+                            state.user?.let { u -> Settings(viewModel, u, modifier) }
+                        }
                         QShimmer(controller = state.user != null) { modifier ->
                             state.user?.let { u ->
-                                Account(u, modifier, viewModel,
+                                Account(viewModel, u, modifier,
                                     onNameUpdated = {
                                         hasChangedName = true
                                     },

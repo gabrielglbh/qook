@@ -49,11 +49,13 @@ fun QTextForm(
         ),
         trailingIcon = trailingIcon,
         visualTransformation = if (obscured) PasswordVisualTransformation() else VisualTransformation.None,
-        colors = TextFieldDefaults.textFieldColors(
-            focusedLabelColor = focusedColor,
+        colors = TextFieldDefaults.colors(
+            focusedContainerColor = Color.Transparent,
+            unfocusedContainerColor = Color.Transparent,
+            disabledContainerColor = Color.Transparent,
             focusedIndicatorColor = focusedColor,
             focusedTrailingIconColor = focusedColor,
-            containerColor = Color.Transparent
+            focusedLabelColor = focusedColor,
         )
     )
 }
