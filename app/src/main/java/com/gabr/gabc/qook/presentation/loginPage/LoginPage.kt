@@ -48,6 +48,7 @@ import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.presentation.homePage.HomePage
 import com.gabr.gabc.qook.presentation.loginPage.viewModel.LoginFormState
 import com.gabr.gabc.qook.presentation.loginPage.viewModel.LoginViewModel
+import com.gabr.gabc.qook.presentation.shared.Validators
 import com.gabr.gabc.qook.presentation.shared.components.QLoadingScreen
 import com.gabr.gabc.qook.presentation.shared.components.QShimmer
 import com.gabr.gabc.qook.presentation.shared.components.QTextForm
@@ -127,6 +128,11 @@ class LoginPage : ComponentActivity() {
         val colors = MaterialTheme.colorScheme
 
         var isRegisterMode by remember { mutableStateOf(false) }
+        var errorName by remember { mutableStateOf(false) }
+        var errorEmail by remember { mutableStateOf(false) }
+        var errorPassword by remember { mutableStateOf(false) }
+
+        val errorForm = stringResource(R.string.error_empty_form)
 
         Column(
             modifier = modifier.verticalScroll(rememberScrollState()),
@@ -142,15 +148,18 @@ class LoginPage : ComponentActivity() {
                     labelId = R.string.login_name,
                     onValueChange = {
                         viewModel.updateLoginState(form.copy(name = it, error = ""))
+                        errorName = Validators.isNameInvalid(form.name)
                     },
                     value = form.name,
-                    imeAction = ImeAction.Next
+                    imeAction = ImeAction.Next,
+                    isError = errorName
                 )
             }
             QTextForm(
                 labelId = R.string.login_email,
                 onValueChange = {
                     viewModel.updateLoginState(form.copy(email = it, error = ""))
+                    errorEmail = Validators.isEmailInvalid(form.email)
                 },
                 value = form.email,
                 trailingIcon = {
@@ -159,15 +168,18 @@ class LoginPage : ComponentActivity() {
                         contentDescription = null
                     )
                 },
-                imeAction = ImeAction.Next
+                imeAction = ImeAction.Next,
+                isError = errorEmail
             )
             QTextForm(
                 labelId = R.string.login_password,
                 onValueChange = {
                     viewModel.updateLoginState(form.copy(password = it, error = ""))
+                    errorPassword = Validators.isPasswordInvalid(form.password)
                 },
                 value = form.password,
-                obscured = true
+                obscured = true,
+                isError = errorPassword
             )
             if (form.error.isNotEmpty()) Text(
                 form.error,
@@ -183,11 +195,23 @@ class LoginPage : ComponentActivity() {
                     .padding(horizontal = 24.dp),
                 onClick = {
                     focusManager.clearFocus()
-                    if (isRegisterMode) viewModel.createUser {
-                        startActivity(Intent(this@LoginPage, HomePage::class.java))
-                    }
-                    else viewModel.signInUser {
-                        startActivity(Intent(this@LoginPage, HomePage::class.java))
+
+                    if (isRegisterMode) {
+                        if (errorEmail || errorPassword || errorName) {
+                            viewModel.updateLoginState(form.copy(error = errorForm))
+                        } else {
+                            viewModel.createUser {
+                                startActivity(Intent(this@LoginPage, HomePage::class.java))
+                            }
+                        }
+                    } else {
+                        if (errorEmail || errorPassword) {
+                            viewModel.updateLoginState(form.copy(error = errorForm))
+                        } else {
+                            viewModel.signInUser {
+                                startActivity(Intent(this@LoginPage, HomePage::class.java))
+                            }
+                        }
                     }
                 }
             ) {

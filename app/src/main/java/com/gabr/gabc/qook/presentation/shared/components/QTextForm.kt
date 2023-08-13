@@ -32,7 +32,8 @@ fun QTextForm(
     imeAction: ImeAction = ImeAction.Done,
     trailingIcon: @Composable (() -> Unit)? = null,
     obscured: Boolean = false,
-    focusedColor: Color = MaterialTheme.colorScheme.primary
+    focusedColor: Color = MaterialTheme.colorScheme.primary,
+    isError: Boolean = false,
 ) {
     OutlinedTextField(
         value = value,
@@ -41,7 +42,7 @@ fun QTextForm(
             .fillMaxWidth(),
         onValueChange = onValueChange,
         label = { Text(stringResource(labelId)) },
-        isError = false,
+        isError = isError,
         keyboardOptions = KeyboardOptions.Default.copy(
             imeAction = imeAction,
             capitalization = KeyboardCapitalization.Sentences

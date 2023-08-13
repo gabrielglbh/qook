@@ -140,11 +140,7 @@ class ProfilePage : ComponentActivity() {
                     snackbarHostState.showSnackbar(errorMessage)
                 }
             }
-            viewModel.getAvatar { errorMessage ->
-                scope.launch {
-                    snackbarHostState.showSnackbar(errorMessage)
-                }
-            }
+            viewModel.getAvatar()
         }
 
         Scaffold(

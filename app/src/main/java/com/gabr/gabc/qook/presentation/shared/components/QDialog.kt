@@ -69,7 +69,6 @@ fun QDialog(
                         Button(
                             onClick = {
                                 onSubmit()
-                                onDismissRequest(false)
                             },
                             modifier = Modifier.fillMaxWidth()
                         ) {

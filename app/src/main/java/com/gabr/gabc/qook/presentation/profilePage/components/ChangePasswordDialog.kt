@@ -6,18 +6,23 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
+import com.gabr.gabc.qook.presentation.shared.Validators
 import com.gabr.gabc.qook.presentation.shared.components.QDialog
 import com.gabr.gabc.qook.presentation.shared.components.QTextForm
 
 @Composable
 fun ChangePasswordDialog(setShowDialog: (Boolean) -> Unit, onClick: (String, String) -> Unit) {
-    val oldPasswordField = remember { mutableStateOf("") }
-    val newPasswordField = remember { mutableStateOf("") }
+    var oldPasswordField by remember { mutableStateOf("") }
+    var newPasswordField by remember { mutableStateOf("") }
+    var errorOld by remember { mutableStateOf(false) }
+    var errorNew by remember { mutableStateOf(false) }
 
     QDialog(
         onDismissRequest = { setShowDialog(false) },
@@ -26,26 +31,38 @@ fun ChangePasswordDialog(setShowDialog: (Boolean) -> Unit, onClick: (String, Str
         content = {
             Column {
                 QTextForm(
-                    value = oldPasswordField.value,
+                    value = oldPasswordField,
                     labelId = R.string.profile_old_password,
                     onValueChange = {
-                        oldPasswordField.value = it
+                        oldPasswordField = it
+                        errorOld = Validators.isPasswordInvalid(oldPasswordField)
                     },
-                    obscured = true
+                    obscured = true,
+                    isError = errorOld
                 )
                 Spacer(modifier = Modifier.size(20.dp))
                 QTextForm(
-                    value = newPasswordField.value,
+                    value = newPasswordField,
                     labelId = R.string.profile_new_password,
                     onValueChange = {
-                        newPasswordField.value = it
+                        newPasswordField = it
+                        errorNew = Validators.isPasswordInvalid(newPasswordField)
                     },
-                    obscured = true
+                    obscured = true,
+                    isError = errorNew
                 )
             }
         },
         onSubmit = {
-            onClick(oldPasswordField.value, newPasswordField.value)
+            if (!errorOld && !errorNew && oldPasswordField.trim()
+                    .isNotEmpty() && newPasswordField.trim().isNotEmpty()
+            ) {
+                onClick(oldPasswordField, newPasswordField)
+                setShowDialog(false)
+            } else {
+                errorOld = true
+                errorNew = true
+            }
         }
     )
 }
