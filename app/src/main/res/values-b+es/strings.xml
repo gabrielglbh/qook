@@ -46,4 +46,8 @@
     <string name="friday">Viernes</string>
     <string name="saturday">Sábado</string>
     <string name="sunday">Domingo</string>
+
+    <string name="add_recipe_title">Añadir Receta</string>
+    <string name="add_recipe_next">Next</string>
+    <string name="add_recipe_ready">Ready</string>
 </resources>

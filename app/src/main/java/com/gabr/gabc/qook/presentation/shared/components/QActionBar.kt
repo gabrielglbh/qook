@@ -1,5 +1,6 @@
 package com.gabr.gabc.qook.presentation.shared.components
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -11,7 +12,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.KeyboardArrowLeft
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -25,13 +25,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QActionBar(
     action: (@Composable () -> Unit)? = null,
     actionBehaviour: (() -> Unit)? = null,
     actionBorder: BorderStroke? = null,
-    onBack: (() -> Unit)? = null
+    onBack: (() -> Unit)? = null,
+    @StringRes title: Int = R.string.app_name,
 ) {
     if ((action == null && actionBehaviour != null) || (action != null && actionBehaviour == null)) {
         throw Exception("You must provide action and actionBehaviour")
@@ -63,9 +63,10 @@ fun QActionBar(
             )
         }
         Text(
-            stringResource(R.string.app_name),
+            stringResource(title),
             style = MaterialTheme.typography.headlineMedium,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            modifier = Modifier.weight(1f)
         )
         Surface(
             modifier = Modifier
