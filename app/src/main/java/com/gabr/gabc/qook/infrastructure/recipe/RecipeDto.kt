@@ -1,5 +1,6 @@
 package com.gabr.gabc.qook.infrastructure.recipe
 
+import android.net.Uri
 import com.gabr.gabc.qook.domain.recipe.Easiness
 import com.gabr.gabc.qook.domain.recipe.Recipe
 import com.gabr.gabc.qook.infrastructure.ingredient.IngredientDto
@@ -7,14 +8,14 @@ import com.gabr.gabc.qook.infrastructure.ingredient.toDomain
 import com.gabr.gabc.qook.infrastructure.tag.TagDto
 import com.gabr.gabc.qook.infrastructure.tag.toDomain
 import com.google.firebase.firestore.PropertyName
-import java.util.Date
+import java.time.LocalDate
 
-data class RecipeDto(
+data class RecipeDto constructor(
     @PropertyName("name") val name: String = "",
-    @PropertyName("creationDate") val creationDate: Date = Date(),
-    @PropertyName("updateDate") val updateDate: Date = Date(),
+    @PropertyName("creationDate") val creationDate: LocalDate = LocalDate.now(),
+    @PropertyName("updateDate") val updateDate: LocalDate = LocalDate.now(),
     @PropertyName("easiness") val easiness: String = "",
-    @PropertyName("time") val time: RecipeTimeDto = RecipeTimeDto(),
+    @PropertyName("time") val time: String = "",
     @PropertyName("photo") val photo: String = "",
     @PropertyName("description") val description: String = "",
     @PropertyName("ingredients") val ingredients: List<IngredientDto> = listOf(),
@@ -27,8 +28,8 @@ fun RecipeDto.toDomain(): Recipe {
         creationDate,
         updateDate,
         Easiness.valueOf(easiness),
-        time.toDomain(),
-        photo,
+        time,
+        Uri.parse(photo),
         description,
         ingredients.map { it.toDomain() },
         tags.map { it.toDomain() }

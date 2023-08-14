@@ -23,7 +23,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,6 +40,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -162,12 +162,8 @@ class LoginPage : ComponentActivity() {
                     errorEmail = Validators.isEmailInvalid(form.email)
                 },
                 value = form.email,
-                trailingIcon = {
-                    Icon(
-                        Icons.Outlined.Email,
-                        contentDescription = null
-                    )
-                },
+                keyboardType = KeyboardType.Email,
+                leadingIcon = Icons.Outlined.Email,
                 imeAction = ImeAction.Next,
                 isError = errorEmail
             )
@@ -197,7 +193,9 @@ class LoginPage : ComponentActivity() {
                     focusManager.clearFocus()
 
                     if (isRegisterMode) {
-                        if (errorEmail || errorPassword || errorName) {
+                        if (errorEmail || errorPassword || errorName || form.name.trim()
+                                .isEmpty()
+                        ) {
                             viewModel.updateLoginState(form.copy(error = errorForm))
                         } else {
                             viewModel.createUser {

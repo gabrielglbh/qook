@@ -233,7 +233,7 @@ class ProfilePage : ComponentActivity() {
                                 Icon(
                                     Icons.Outlined.AccountCircle,
                                     contentDescription = null,
-                                    modifier = Modifier.fillMaxSize(),
+                                    modifier = Modifier.align(Alignment.CenterVertically),
                                     tint = MaterialTheme.colorScheme.onBackground
                                 )
                             } else {

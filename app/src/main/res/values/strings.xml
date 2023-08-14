@@ -49,4 +49,10 @@
     <string name="add_recipe_title">Add Recipe</string>
     <string name="add_recipe_next">Next</string>
     <string name="add_recipe_ready">Ready</string>
+    <string name="add_recipe_name">Recipe name</string>
+    <string name="add_recipe_easiness">Easiness</string>
+    <string name="add_recipe_easiness_EASY">Easy</string>
+    <string name="add_recipe_easiness_MEDIUM">Medium</string>
+    <string name="add_recipe_easiness_HARD">Hard</string>
+    <string name="add_recipe_time">Expected time</string>
 </resources>

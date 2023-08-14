@@ -1,19 +1,20 @@
 package com.gabr.gabc.qook.domain.recipe
 
+import android.net.Uri
 import com.gabr.gabc.qook.domain.ingredient.Ingredient
 import com.gabr.gabc.qook.domain.ingredient.toDto
 import com.gabr.gabc.qook.domain.tag.Tag
 import com.gabr.gabc.qook.domain.tag.toDto
 import com.gabr.gabc.qook.infrastructure.recipe.RecipeDto
-import java.util.Date
+import java.time.LocalDate
 
 data class Recipe(
     val name: String,
-    val creationDate: Date,
-    val updateDate: Date,
+    val creationDate: LocalDate,
+    val updateDate: LocalDate,
     val easiness: Easiness,
-    val time: RecipeTime,
-    val photo: String,
+    val time: String,
+    val photo: Uri,
     val description: String,
     val ingredients: List<Ingredient>,
     val tags: List<Tag>
@@ -25,8 +26,8 @@ fun Recipe.toDto(): RecipeDto {
         creationDate,
         updateDate,
         easiness.name,
-        time.toDto(),
-        photo,
+        time,
+        photo.toString(),
         description,
         ingredients.map { it.toDto() },
         tags.map { it.toDto() },

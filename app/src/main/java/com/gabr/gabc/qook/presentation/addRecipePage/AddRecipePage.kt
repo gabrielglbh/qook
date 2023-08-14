@@ -1,8 +1,14 @@
 package com.gabr.gabc.qook.presentation.addRecipePage
 
+import android.Manifest
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,6 +39,8 @@ import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.presentation.addRecipePage.components.RecipeDescription
 import com.gabr.gabc.qook.presentation.addRecipePage.components.RecipeIngredients
 import com.gabr.gabc.qook.presentation.addRecipePage.components.RecipeMetadataForm
+import com.gabr.gabc.qook.presentation.addRecipePage.components.RecipeTags
+import com.gabr.gabc.qook.presentation.addRecipePage.viewModel.AddRecipeViewModel
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.theme.AppTheme
 import com.gabr.gabc.qook.presentation.theme.seed
@@ -40,8 +48,49 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class AddRecipePage : ComponentActivity() {
+    private lateinit var pickMedia: ActivityResultLauncher<PickVisualMediaRequest>
+    private val requestMultiplePermissions =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            permissions.forEach { actionMap ->
+                when (actionMap.key) {
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE -> {
+                        if (!actionMap.value) {
+                            shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        }
+                    }
+
+                    Manifest.permission.READ_EXTERNAL_STORAGE -> {
+                        if (actionMap.value) {
+                            pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                        } else {
+                            shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)
+                        }
+                    }
+
+                    Manifest.permission.READ_MEDIA_IMAGES -> {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            if (actionMap.value) {
+                                pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                            } else {
+                                shouldShowRequestPermissionRationale(Manifest.permission.READ_MEDIA_IMAGES)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val viewModel: AddRecipeViewModel by viewModels()
+
+        pickMedia =
+            registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+                if (uri != null) {
+                    viewModel.updateMetadata(photo = uri)
+                }
+            }
 
         setContent {
             AppTheme {
@@ -53,21 +102,29 @@ class AddRecipePage : ComponentActivity() {
     @OptIn(ExperimentalLayoutApi::class)
     @Composable
     fun AddRecipeView() {
+        val viewModel: AddRecipeViewModel by viewModels()
         val colorScheme = MaterialTheme.colorScheme
 
         var currentPage by remember { mutableStateOf("step1") }
         var bar2Color by remember { mutableStateOf(colorScheme.outlineVariant) }
         var bar3Color by remember { mutableStateOf(colorScheme.outlineVariant) }
+        var bar4Color by remember { mutableStateOf(colorScheme.outlineVariant) }
         val navController = rememberNavController()
 
         navController.addOnDestinationChangedListener { _, dest, _ ->
-            currentPage = dest.navigatorName
-            bar2Color = if (currentPage == "step2" || currentPage == "step3") {
+            currentPage = dest.route ?: "step1"
+            bar2Color =
+                if (currentPage == "step2" || currentPage == "step3" || currentPage == "step4") {
+                    seed
+                } else {
+                    colorScheme.outlineVariant
+                }
+            bar3Color = if (currentPage == "step3" || currentPage == "step4") {
                 seed
             } else {
                 colorScheme.outlineVariant
             }
-            bar3Color = if (currentPage == "step3") {
+            bar4Color = if (currentPage == "step4") {
                 seed
             } else {
                 colorScheme.outlineVariant
@@ -101,16 +158,28 @@ class AddRecipePage : ComponentActivity() {
                 ) {
                     RecipeProgressBar(
                         colorBar2 = bar2Color,
-                        colorBar3 = bar3Color
+                        colorBar3 = bar3Color,
+                        colorBar4 = bar4Color
                     )
                     NavHost(
                         navController = navController,
                         startDestination = "step1",
                         modifier = Modifier.weight(1f)
                     ) {
-                        composable("step1") { RecipeMetadataForm { navController.navigate("step2") } }
-                        composable("step2") { RecipeIngredients { navController.navigate("step3") } }
-                        composable("step3") { RecipeDescription {} }
+                        composable("step1") {
+                            RecipeMetadataForm(
+                                onNavigate = {
+                                    navController.navigate(
+                                        "step2"
+                                    )
+                                },
+                                requestMultiplePermissions = requestMultiplePermissions,
+                                viewModel = viewModel
+                            )
+                        }
+                        composable("step2") { RecipeTags { navController.navigate("step3") } }
+                        composable("step3") { RecipeIngredients { navController.navigate("step4") } }
+                        composable("step4") { RecipeDescription {} }
                     }
                 }
             }
@@ -120,7 +189,8 @@ class AddRecipePage : ComponentActivity() {
     @Composable
     fun RecipeProgressBar(
         colorBar2: Color,
-        colorBar3: Color
+        colorBar3: Color,
+        colorBar4: Color
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -146,6 +216,14 @@ class AddRecipePage : ComponentActivity() {
             Surface(
                 shape = MaterialTheme.shapes.medium,
                 color = colorBar3,
+                modifier = Modifier
+                    .height(6.dp)
+                    .weight(1f)
+            ) {}
+            Spacer(modifier = Modifier.size(8.dp))
+            Surface(
+                shape = MaterialTheme.shapes.medium,
+                color = colorBar4,
                 modifier = Modifier
                     .height(6.dp)
                     .weight(1f)
