@@ -35,6 +35,7 @@ import com.gabr.gabc.qook.presentation.theme.seed
 @Composable
 fun RecipeTags(
     onNavigate: () -> Unit,
+    onTagTap: (Tag) -> Unit,
     viewModel: AddRecipeViewModel
 ) {
     val state = viewModel.recipeState.collectAsState().value
@@ -46,7 +47,7 @@ fun RecipeTags(
     ) {
         Text(
             stringResource(R.string.add_recipe_tags_description),
-            style = MaterialTheme.typography.titleMedium.copy(
+            style = MaterialTheme.typography.titleLarge.copy(
                 fontWeight = FontWeight.Bold,
             ),
             textAlign = TextAlign.Center,
@@ -58,11 +59,42 @@ fun RecipeTags(
             items(state.createdTags.size) { x ->
                 val tag = state.createdTags[x]
                 val selected = state.recipe.tags.contains(tag)
-                TagElementInList(tag, selected) {
-                    if (!state.recipe.tags.contains(tag)) {
-                        viewModel.addTag(tag)
-                    } else {
-                        viewModel.deleteTag(tag)
+
+                Surface(
+                    onClick = {
+                        if (!state.recipe.tags.contains(tag)) {
+                            viewModel.addTag(tag)
+                        } else {
+                            viewModel.deleteTag(tag)
+                        }
+                    }
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(12.dp)
+                    ) {
+                        QTag(tag, enabled = true) {
+                            onTagTap(tag)
+                        }
+                        Spacer(modifier = Modifier.weight(1f))
+                        Surface(
+                            modifier = Modifier.size(24.dp),
+                            shape = CircleShape,
+                            border = if (selected) {
+                                BorderStroke(2.dp, seed)
+                            } else {
+                                BorderStroke(2.dp, MaterialTheme.colorScheme.outline)
+                            }
+                        ) {
+                            if (selected) {
+                                Icon(
+                                    Icons.Default.Check,
+                                    contentDescription = "",
+                                    tint = seed,
+                                    modifier = Modifier.size(12.dp)
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -76,39 +108,6 @@ fun RecipeTags(
                 .padding(top = 8.dp, start = 32.dp, end = 32.dp)
         ) {
             Text(stringResource(R.string.add_recipe_next))
-        }
-    }
-}
-
-@Composable
-fun TagElementInList(tag: Tag, selected: Boolean, onClick: () -> Unit) {
-    Surface(
-        onClick = { onClick() }
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(12.dp)
-        ) {
-            QTag(tag)
-            Spacer(modifier = Modifier.weight(1f))
-            Surface(
-                modifier = Modifier.size(24.dp),
-                shape = CircleShape,
-                border = if (selected) {
-                    BorderStroke(2.dp, seed)
-                } else {
-                    BorderStroke(2.dp, MaterialTheme.colorScheme.outline)
-                }
-            ) {
-                if (selected) {
-                    Icon(
-                        Icons.Default.Check,
-                        contentDescription = "",
-                        tint = seed,
-                        modifier = Modifier.size(12.dp)
-                    )
-                }
-            }
         }
     }
 }

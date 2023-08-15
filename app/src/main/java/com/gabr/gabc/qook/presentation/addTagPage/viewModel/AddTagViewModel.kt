@@ -49,4 +49,20 @@ class AddTagViewModel @Inject constructor(
             withContext(Dispatchers.Main) { setIsLoading(false) }
         }
     }
+
+    fun updateTag(tag: Tag, ifError: (String) -> Unit, ifSuccess: () -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) { setIsLoading(true) }
+            val res = tagsRepository.updateTag(formState.value.previousTag!!.text, tag)
+            res.fold(
+                ifLeft = {
+                    ifError(it.error)
+                },
+                ifRight = {
+                    ifSuccess()
+                }
+            )
+            withContext(Dispatchers.Main) { setIsLoading(false) }
+        }
+    }
 }

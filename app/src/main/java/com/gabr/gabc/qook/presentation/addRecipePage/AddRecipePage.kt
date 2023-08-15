@@ -54,6 +54,10 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class AddRecipePage : ComponentActivity() {
+    companion object {
+        const val UPDATE_TAG = "UPDATE_TAG"
+    }
+
     private lateinit var pickMedia: ActivityResultLauncher<PickVisualMediaRequest>
     private val requestMultiplePermissions =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
@@ -167,7 +171,11 @@ class AddRecipePage : ComponentActivity() {
                     },
                     action = {
                         if (currentPage == "step2") {
-                            Icon(Icons.Outlined.BookmarkAdd, contentDescription = "")
+                            Icon(
+                                Icons.Outlined.BookmarkAdd,
+                                contentDescription = "",
+                                modifier = Modifier.size(16.dp)
+                            )
                         }
                     }
                 )
@@ -207,6 +215,11 @@ class AddRecipePage : ComponentActivity() {
                             RecipeTags(
                                 onNavigate = {
                                     navController.navigate("step3")
+                                },
+                                onTagTap = { tag ->
+                                    val intent = Intent(this@AddRecipePage, AddTagPage::class.java)
+                                    intent.putExtra(UPDATE_TAG, tag)
+                                    resultLauncher.launch(intent)
                                 },
                                 viewModel = viewModel
                             )

@@ -173,8 +173,8 @@ private fun QCanvas(selected: (Float) -> Unit) {
 
     Canvas(
         modifier = Modifier
-            .height(40.dp)
-            .width(300.dp)
+            .height(24.dp)
+            .width(256.dp)
             .clip(RoundedCornerShape(50))
             .dragGesture(interactionSource)
     ) {
