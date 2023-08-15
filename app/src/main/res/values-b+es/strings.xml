@@ -56,4 +56,5 @@
     <string name="add_recipe_easiness_MEDIUM">Medio</string>
     <string name="add_recipe_easiness_HARD">Difícil</string>
     <string name="add_recipe_time">Tiempo esperado</string>
+    <string name="add_recipe_tags_description">Selecciona o añade etiquetas a tus recetas</string>
 </resources>

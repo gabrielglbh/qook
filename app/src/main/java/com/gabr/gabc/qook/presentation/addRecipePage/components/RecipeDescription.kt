@@ -16,7 +16,7 @@ fun RecipeDescription(onNavigate: () -> Unit) {
         onClick = onNavigate,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 32.dp, start = 32.dp, end = 32.dp)
+            .padding(top = 8.dp, start = 32.dp, end = 32.dp)
     ) {
         Text(stringResource(R.string.add_recipe_ready))
     }

@@ -71,8 +71,8 @@ fun RemoveAccountDialog(setShowDialog: (Boolean) -> Unit, onClick: (String, Stri
                 onClick(oldPasswordField, newPasswordField)
                 setShowDialog(false)
             } else {
-                if (!errorOld && oldPasswordField.trim().isNotEmpty()) errorOld = true
-                if (!errorNew && newPasswordField.trim().isNotEmpty()) errorNew = true
+                if (errorOld || oldPasswordField.trim().isEmpty()) errorOld = true
+                if (errorNew || newPasswordField.trim().isEmpty()) errorNew = true
             }
         }
     )

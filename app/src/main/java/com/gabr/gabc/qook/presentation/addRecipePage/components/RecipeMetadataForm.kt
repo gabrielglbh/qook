@@ -62,12 +62,12 @@ fun RecipeMetadataForm(
     val configuration = LocalConfiguration.current
     val buttonSize = configuration.screenWidthDp.dp / 2f
 
-    var nameField by remember { mutableStateOf(state.value.name) }
+    var nameField by remember { mutableStateOf(state.value.recipe.name) }
     var nameFieldError by remember { mutableStateOf(false) }
 
-    val (selectedEasiness, onSelect) = remember { mutableStateOf(state.value.easiness) }
+    val (selectedEasiness, onSelect) = remember { mutableStateOf(state.value.recipe.easiness) }
 
-    var timeField by remember { mutableStateOf(state.value.time) }
+    var timeField by remember { mutableStateOf(state.value.recipe.time) }
     var timeFieldError by remember { mutableStateOf(false) }
 
     Column(
@@ -108,7 +108,7 @@ fun RecipeMetadataForm(
                 border = BorderStroke(2.dp, seed),
                 contentPadding = PaddingValues(0.dp),
             ) {
-                if (state.value.photo == Uri.EMPTY) {
+                if (state.value.recipe.photo == Uri.EMPTY) {
                     Icon(
                         Icons.Outlined.AddAPhoto,
                         contentDescription = null,
@@ -117,7 +117,7 @@ fun RecipeMetadataForm(
                     )
                 } else {
                     QImage(
-                        uri = state.value.photo,
+                        uri = state.value.recipe.photo,
                         modifier = Modifier.fillMaxSize(),
                     )
                 }
@@ -160,13 +160,13 @@ fun RecipeMetadataForm(
                     )
                     onNavigate()
                 } else {
-                    if (nameField.trim().isNotEmpty()) nameFieldError = true
-                    if (timeField.trim().isNotEmpty()) timeFieldError = true
+                    if (nameField.trim().isEmpty()) nameFieldError = true
+                    if (timeField.trim().isEmpty()) timeFieldError = true
                 }
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 16.dp, start = 32.dp, end = 32.dp)
+                .padding(top = 8.dp, start = 32.dp, end = 32.dp)
         ) {
             Text(stringResource(R.string.add_recipe_next))
         }

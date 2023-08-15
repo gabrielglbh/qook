@@ -18,7 +18,21 @@ data class Recipe(
     val description: String,
     val ingredients: List<Ingredient>,
     val tags: List<Tag>
-)
+) {
+    companion object {
+        val EMPTY_RECIPE = Recipe(
+            name = "",
+            creationDate = LocalDate.now(),
+            updateDate = LocalDate.now(),
+            easiness = Easiness.EASY,
+            time = "",
+            photo = Uri.EMPTY,
+            description = "",
+            ingredients = listOf(),
+            tags = listOf()
+        )
+    }
+}
 
 fun Recipe.toDto(): RecipeDto {
     return RecipeDto(

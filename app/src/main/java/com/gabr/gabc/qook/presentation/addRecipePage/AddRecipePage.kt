@@ -24,6 +24,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -131,6 +132,10 @@ class AddRecipePage : ComponentActivity() {
             }
         }
 
+        LaunchedEffect(key1 = Unit) {
+            viewModel.gatherTags()
+        }
+
         Scaffold(
             topBar = {
                 QActionBar(
@@ -177,10 +182,15 @@ class AddRecipePage : ComponentActivity() {
                                 viewModel = viewModel
                             )
                         }
-                        composable("step2") { RecipeTags { navController.navigate("step3") } }
+                        composable("step2") {
+                            RecipeTags(
+                                viewModel = viewModel,
+                                onNavigate = { navController.navigate("step3") })
+                        }
                         composable("step3") { RecipeIngredients { navController.navigate("step4") } }
                         composable("step4") { RecipeDescription {} }
                     }
+                    Spacer(modifier = Modifier.size(8.dp))
                 }
             }
         }
