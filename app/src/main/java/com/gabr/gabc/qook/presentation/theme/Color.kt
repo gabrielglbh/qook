@@ -2,7 +2,9 @@ package com.gabr.gabc.qook.presentation.theme
 
 import androidx.compose.ui.graphics.Color
 
-val md_theme_light_primary = Color(0xFF735C00)
+val seed = Color(0xFFF9CC34)
+
+val md_theme_light_primary = Color(0xFF735C00) // seed
 val md_theme_light_onPrimary = Color(0xFFFFFFFF)
 val md_theme_light_primaryContainer = Color(0xFFFFE088)
 val md_theme_light_onPrimaryContainer = Color(0xFF241A00)
@@ -33,7 +35,7 @@ val md_theme_light_surfaceTint = Color(0xFF735C00)
 val md_theme_light_outlineVariant = Color(0xFFCFC6B4)
 val md_theme_light_scrim = Color(0xFF000000)
 
-val md_theme_dark_primary = Color(0xFFEEC229)
+val md_theme_dark_primary = Color(0xFFEEC229) // seed
 val md_theme_dark_onPrimary = Color(0xFF3C2F00)
 val md_theme_dark_primaryContainer = Color(0xFF574500)
 val md_theme_dark_onPrimaryContainer = Color(0xFFFFE088)
@@ -63,6 +65,3 @@ val md_theme_dark_shadow = Color(0xFF000000)
 val md_theme_dark_surfaceTint = Color(0xFFEEC229)
 val md_theme_dark_outlineVariant = Color(0xFF4C4639)
 val md_theme_dark_scrim = Color(0xFF000000)
-
-
-val seed = Color(0xFFF9CC34)

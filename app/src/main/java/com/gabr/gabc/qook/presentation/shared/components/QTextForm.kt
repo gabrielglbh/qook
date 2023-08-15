@@ -49,13 +49,10 @@ fun QTextForm(
             keyboardType = keyboardType,
             capitalization = KeyboardCapitalization.Sentences
         ),
-        leadingIcon = {
-            leadingIcon?.let {
-                Icon(
-                    leadingIcon,
-                    contentDescription = ""
-                )
-            }
+        leadingIcon = if (leadingIcon == null) {
+            null
+        } else {
+            { Icon(leadingIcon, contentDescription = "") }
         },
         visualTransformation = if (obscured) PasswordVisualTransformation() else VisualTransformation.None,
         colors = TextFieldDefaults.colors(

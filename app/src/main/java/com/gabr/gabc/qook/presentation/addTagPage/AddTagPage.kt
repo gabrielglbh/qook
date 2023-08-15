@@ -169,83 +169,79 @@ class AddTagPage : ComponentActivity() {
                     Column(
                         verticalArrangement = Arrangement.Top,
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .padding(horizontal = 12.dp)
+                            .fillMaxWidth()
                     ) {
-                        Column(
-                            verticalArrangement = Arrangement.Top,
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            QTag(tag = state.tag)
-                            Spacer(modifier = Modifier.size(12.dp))
-                            QTextForm(
-                                labelId = R.string.tag_name,
-                                value = state.tag.text,
-                                onValueChange = { name ->
-                                    viewModel.updateForm(
-                                        state.copy(
-                                            tag = state.tag.copy(
-                                                text = name
-                                            )
+                        QTag(tag = state.tag)
+                        Spacer(modifier = Modifier.size(12.dp))
+                        QTextForm(
+                            labelId = R.string.tag_name,
+                            value = state.tag.text,
+                            onValueChange = { name ->
+                                viewModel.updateForm(
+                                    state.copy(
+                                        tag = state.tag.copy(
+                                            text = name
                                         )
                                     )
-                                    tagError = Validators.isNameInvalid(name)
-                                },
-                                leadingIcon = Icons.Outlined.BookmarkBorder,
-                                modifier = Modifier.padding(horizontal = 12.dp)
-                            )
-                            Spacer(modifier = Modifier.size(12.dp))
-                            QColorPicker(
-                                modifier = Modifier.weight(1f),
-                                initialColor = state.tag.color,
-                                selected = { selectedColor ->
-                                    viewModel.updateForm(
-                                        state.copy(
-                                            tag = state.tag.copy(
-                                                color = selectedColor
-                                            )
+                                )
+                                tagError = Validators.isNameInvalid(name)
+                            },
+                            leadingIcon = Icons.Outlined.BookmarkBorder,
+                        )
+                        Spacer(modifier = Modifier.size(12.dp))
+                        QColorPicker(
+                            modifier = Modifier.weight(1f),
+                            initialColor = state.tag.color,
+                            selected = { selectedColor ->
+                                viewModel.updateForm(
+                                    state.copy(
+                                        tag = state.tag.copy(
+                                            color = selectedColor
                                         )
                                     )
-                                }
-                            )
-                            Spacer(modifier = Modifier.size(12.dp))
-                            if (!state.isUpdate) {
-                                saveButton()
-                            } else {
-                                Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.Center
+                                )
+                            }
+                        )
+                        Spacer(modifier = Modifier.size(12.dp))
+                        if (!state.isUpdate) {
+                            saveButton()
+                        } else {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                OutlinedButton(
+                                    onClick = {
+                                        viewModel.deleteTag(
+                                            ifError = { err -> errorCallback(err) },
+                                            ifSuccess = {
+                                                successCallback(
+                                                    state.tag,
+                                                    AlteredMode.DELETE
+                                                )
+                                            }
+                                        )
+                                    },
+                                    border = BorderStroke(
+                                        1.dp,
+                                        MaterialTheme.colorScheme.error
+                                    ),
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(start = 12.dp, end = 12.dp, bottom = 8.dp),
+                                    colors = ButtonDefaults.outlinedButtonColors(
+                                        containerColor = Color.Transparent,
+                                    )
                                 ) {
-                                    OutlinedButton(
-                                        onClick = {
-                                            viewModel.deleteTag(
-                                                ifError = { err -> errorCallback(err) },
-                                                ifSuccess = {
-                                                    successCallback(
-                                                        state.tag,
-                                                        AlteredMode.DELETE
-                                                    )
-                                                }
-                                            )
-                                        },
-                                        border = BorderStroke(
-                                            1.dp,
-                                            MaterialTheme.colorScheme.error
-                                        ),
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(start = 12.dp, end = 12.dp, bottom = 8.dp),
-                                        colors = ButtonDefaults.outlinedButtonColors(
-                                            containerColor = Color.Transparent,
-                                        )
-                                    ) {
-                                        Text(
-                                            stringResource(R.string.tags_remove_tag),
-                                            color = MaterialTheme.colorScheme.error
-                                        )
-                                    }
-                                    Spacer(modifier = Modifier.size(8.dp))
-                                    saveButton()
+                                    Text(
+                                        stringResource(R.string.tags_remove_tag),
+                                        color = MaterialTheme.colorScheme.error
+                                    )
                                 }
+                                Spacer(modifier = Modifier.size(8.dp))
+                                saveButton()
                             }
                         }
                     }

@@ -64,7 +64,6 @@ import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.shared.components.QImage
 import com.gabr.gabc.qook.presentation.shared.components.QShimmer
 import com.gabr.gabc.qook.presentation.theme.AppTheme
-import com.gabr.gabc.qook.presentation.theme.seed
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -140,7 +139,7 @@ class HomePage : ComponentActivity() {
                         intent.putExtra(HOME_USER_AVATAR, state.value.avatarUrl)
                         resultLauncher.launch(intent)
                     },
-                    actionBorder = BorderStroke(1.dp, color = seed),
+                    actionBorder = BorderStroke(1.dp, color = MaterialTheme.colorScheme.primary),
                     action = {
                         if (state.value.avatarUrl == Uri.EMPTY) {
                             Icon(
@@ -202,9 +201,9 @@ class HomePage : ComponentActivity() {
                     .height(buttonSize)
                     .weight(1f, fill = false),
                 shape = CircleShape,
-                border = BorderStroke(2.dp, seed),
+                border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
                 contentPadding = PaddingValues(0.dp),
-                colors = ButtonDefaults.outlinedButtonColors(containerColor = seed)
+                colors = ButtonDefaults.outlinedButtonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,

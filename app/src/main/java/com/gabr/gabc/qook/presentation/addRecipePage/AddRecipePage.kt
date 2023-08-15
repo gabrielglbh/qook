@@ -51,7 +51,6 @@ import com.gabr.gabc.qook.presentation.addTagPage.AddTagPage
 import com.gabr.gabc.qook.presentation.addTagPage.AlteredMode
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.theme.AppTheme
-import com.gabr.gabc.qook.presentation.theme.seed
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -164,17 +163,17 @@ class AddRecipePage : ComponentActivity() {
             currentPage = dest.route ?: "step1"
             bar2Color =
                 if (currentPage == "step2" || currentPage == "step3" || currentPage == "step4") {
-                    seed
+                    colorScheme.primary
                 } else {
                     colorScheme.outlineVariant
                 }
             bar3Color = if (currentPage == "step3" || currentPage == "step4") {
-                seed
+                colorScheme.primary
             } else {
                 colorScheme.outlineVariant
             }
             bar4Color = if (currentPage == "step4") {
-                seed
+                colorScheme.primary
             } else {
                 colorScheme.outlineVariant
             }
@@ -274,7 +273,7 @@ class AddRecipePage : ComponentActivity() {
         ) {
             Surface(
                 shape = MaterialTheme.shapes.medium,
-                color = seed,
+                color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .height(6.dp)
                     .weight(1f)

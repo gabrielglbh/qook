@@ -7,8 +7,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -31,7 +33,6 @@ import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.tag.Tag
 import com.gabr.gabc.qook.presentation.addRecipePage.viewModel.AddRecipeViewModel
 import com.gabr.gabc.qook.presentation.shared.components.QTag
-import com.gabr.gabc.qook.presentation.theme.seed
 
 @Composable
 fun RecipeTags(
@@ -81,17 +82,20 @@ fun RecipeTags(
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(12.dp)
+                            modifier = Modifier.padding(4.dp)
                         ) {
                             QTag(tag, enabled = true, onClick = {
                                 onTagTap(tag)
                             }, icon = Icons.Outlined.Create)
                             Spacer(modifier = Modifier.weight(1f))
                             Surface(
-                                modifier = Modifier.size(24.dp),
+                                modifier = Modifier
+                                    .width(36.dp)
+                                    .height(24.dp)
+                                    .padding(end = 12.dp),
                                 shape = CircleShape,
                                 border = if (selected) {
-                                    BorderStroke(2.dp, seed)
+                                    BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
                                 } else {
                                     BorderStroke(2.dp, MaterialTheme.colorScheme.outline)
                                 }
@@ -100,7 +104,7 @@ fun RecipeTags(
                                     Icon(
                                         Icons.Default.Check,
                                         contentDescription = "",
-                                        tint = seed,
+                                        tint = MaterialTheme.colorScheme.primary,
                                         modifier = Modifier.size(12.dp)
                                     )
                                 }

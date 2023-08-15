@@ -49,7 +49,6 @@ import com.gabr.gabc.qook.presentation.addRecipePage.viewModel.AddRecipeViewMode
 import com.gabr.gabc.qook.presentation.shared.Validators
 import com.gabr.gabc.qook.presentation.shared.components.QImage
 import com.gabr.gabc.qook.presentation.shared.components.QTextForm
-import com.gabr.gabc.qook.presentation.theme.seed
 
 @Composable
 fun RecipeMetadataForm(
@@ -100,7 +99,7 @@ fun RecipeMetadataForm(
                     .width(buttonSize)
                     .height(buttonSize),
                 shape = CircleShape,
-                border = BorderStroke(2.dp, seed),
+                border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
                 contentPadding = PaddingValues(0.dp),
             ) {
                 if (state.recipe.photo == Uri.EMPTY) {
@@ -193,7 +192,7 @@ fun EasinessComponent(
                         .padding(horizontal = 12.dp)
                         .weight(1f),
                     color = if (easiness == selected) {
-                        seed
+                        MaterialTheme.colorScheme.primary
                     } else {
                         MaterialTheme.colorScheme.background
                     },

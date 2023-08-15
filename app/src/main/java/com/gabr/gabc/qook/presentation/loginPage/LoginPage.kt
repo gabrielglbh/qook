@@ -53,7 +53,6 @@ import com.gabr.gabc.qook.presentation.shared.components.QLoadingScreen
 import com.gabr.gabc.qook.presentation.shared.components.QShimmer
 import com.gabr.gabc.qook.presentation.shared.components.QTextForm
 import com.gabr.gabc.qook.presentation.theme.AppTheme
-import com.gabr.gabc.qook.presentation.theme.seed
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 
@@ -101,7 +100,7 @@ class LoginPage : ComponentActivity() {
                     Text(
                         getString(R.string.app_name),
                         style = MaterialTheme.typography.headlineLarge.copy(
-                            color = seed
+                            color = MaterialTheme.colorScheme.primary
                         ),
                         modifier = Modifier.padding(bottom = 48.dp)
                     )

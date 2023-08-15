@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,7 +43,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toRect
-import com.gabr.gabc.qook.presentation.theme.seed
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -51,7 +51,7 @@ import kotlinx.coroutines.launch
 fun QColorPicker(
     modifier: Modifier = Modifier,
     selected: (Color) -> Unit,
-    initialColor: Color = seed
+    initialColor: Color = MaterialTheme.colorScheme.primary
 ) {
     val focus = LocalFocusManager.current
 

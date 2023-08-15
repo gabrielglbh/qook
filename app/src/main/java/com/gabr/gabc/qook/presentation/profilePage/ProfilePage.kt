@@ -56,7 +56,6 @@ import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.shared.components.QImage
 import com.gabr.gabc.qook.presentation.shared.components.QShimmer
 import com.gabr.gabc.qook.presentation.theme.AppTheme
-import com.gabr.gabc.qook.presentation.theme.seed
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -228,7 +227,7 @@ class ProfilePage : ComponentActivity() {
                                 .width(buttonSize)
                                 .height(buttonSize),
                             shape = CircleShape,
-                            border = BorderStroke(2.dp, seed),
+                            border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
                             contentPadding = PaddingValues(0.dp),
                         ) {
                             if (state.avatarUrl == Uri.EMPTY) {
