@@ -10,31 +10,30 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class Tag(
+    val id: String,
     val text: String,
-    val textColor: Color,
     val color: Color,
 ) : Parcelable {
     companion object : Parceler<Tag> {
         private fun Parcel.writeColor(color: Color) {
-            writeString(String.format("#%08X", color.toArgb()))
+            writeInt(color.toArgb())
         }
 
         private fun Parcel.readColor(): Color {
-            val colorString = readString()
-            return Color(android.graphics.Color.parseColor(colorString))
+            return Color(readInt())
         }
 
         override fun create(parcel: Parcel): Tag {
             return Tag(
                 parcel.readString() ?: "",
+                parcel.readString() ?: "",
                 parcel.readColor(),
-                parcel.readColor()
             )
         }
 
         override fun Tag.write(parcel: Parcel, flags: Int) {
+            parcel.writeString(id)
             parcel.writeString(text)
-            parcel.writeColor(textColor)
             parcel.writeColor(color)
         }
     }
@@ -42,8 +41,8 @@ data class Tag(
 
 fun Tag.toDto(): TagDto {
     return TagDto(
+        id,
         text,
-        String.format("#%08X", textColor.toArgb()),
-        String.format("#%08X", color.toArgb())
+        color.toArgb()
     )
 }

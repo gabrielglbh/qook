@@ -34,6 +34,22 @@ class AddTagViewModel @Inject constructor(
         _formState.value = state
     }
 
+    fun deleteTag(ifError: (String) -> Unit, ifSuccess: () -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) { setIsLoading(true) }
+            val res = tagsRepository.removeTag(_formState.value.tag.id)
+            res.fold(
+                ifLeft = {
+                    ifError(it.error)
+                },
+                ifRight = {
+                    ifSuccess()
+                }
+            )
+            withContext(Dispatchers.Main) { setIsLoading(false) }
+        }
+    }
+
     fun createTag(tag: Tag, ifError: (String) -> Unit, ifSuccess: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) { setIsLoading(true) }
@@ -53,7 +69,7 @@ class AddTagViewModel @Inject constructor(
     fun updateTag(tag: Tag, ifError: (String) -> Unit, ifSuccess: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) { setIsLoading(true) }
-            val res = tagsRepository.updateTag(formState.value.previousTag!!.text, tag)
+            val res = tagsRepository.updateTag(tag)
             res.fold(
                 ifLeft = {
                     ifError(it.error)

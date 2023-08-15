@@ -60,7 +60,9 @@
     <string name="err_tags_creation_failed">Could not create tag, try again</string>
     <string name="err_tags_deletion_failed">Could not delete tag, try again</string>
     <string name="tags_empty">You do not have any tags created, try creating one clicking in the \'+\' button</string>
-    <string name="tags_add_title">Add a custom tag</string>
-    <string name="tag_name">Tag name</string>
-    <string name="tag_save_title">Save tag</string>
+    <string name="tags_add_title">Add tag</string>
+    <string name="tag_name">Name</string>
+    <string name="tag_save_title">Save</string>
+    <string name="tags_modify_title">Modify tag</string>
+    <string name="tags_remove_tag">Remove</string>
 </resources>

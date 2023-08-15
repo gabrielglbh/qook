@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.outlined.Create
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -53,46 +54,56 @@ fun RecipeTags(
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(12.dp)
         )
-        LazyColumn(
-            modifier = Modifier.weight(1f)
-        ) {
-            items(state.createdTags.size) { x ->
-                val tag = state.createdTags[x]
-                val selected = state.recipe.tags.contains(tag)
+        if (state.createdTags.isEmpty()) {
+            Text(
+                stringResource(R.string.tags_empty),
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .padding(12.dp)
+                    .weight(1f)
+            )
+        } else {
+            LazyColumn(
+                modifier = Modifier.weight(1f)
+            ) {
+                items(state.createdTags.size) { x ->
+                    val tag = state.createdTags[x]
+                    val selected = state.recipe.tags.contains(tag)
 
-                Surface(
-                    onClick = {
-                        if (!state.recipe.tags.contains(tag)) {
-                            viewModel.addTag(tag)
-                        } else {
-                            viewModel.deleteTag(tag)
-                        }
-                    }
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(12.dp)
-                    ) {
-                        QTag(tag, enabled = true) {
-                            onTagTap(tag)
-                        }
-                        Spacer(modifier = Modifier.weight(1f))
-                        Surface(
-                            modifier = Modifier.size(24.dp),
-                            shape = CircleShape,
-                            border = if (selected) {
-                                BorderStroke(2.dp, seed)
+                    Surface(
+                        onClick = {
+                            if (!state.recipe.tags.contains(tag)) {
+                                viewModel.addTag(tag)
                             } else {
-                                BorderStroke(2.dp, MaterialTheme.colorScheme.outline)
+                                viewModel.deleteTag(tag)
                             }
+                        }
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(12.dp)
                         ) {
-                            if (selected) {
-                                Icon(
-                                    Icons.Default.Check,
-                                    contentDescription = "",
-                                    tint = seed,
-                                    modifier = Modifier.size(12.dp)
-                                )
+                            QTag(tag, enabled = true, onClick = {
+                                onTagTap(tag)
+                            }, icon = Icons.Outlined.Create)
+                            Spacer(modifier = Modifier.weight(1f))
+                            Surface(
+                                modifier = Modifier.size(24.dp),
+                                shape = CircleShape,
+                                border = if (selected) {
+                                    BorderStroke(2.dp, seed)
+                                } else {
+                                    BorderStroke(2.dp, MaterialTheme.colorScheme.outline)
+                                }
+                            ) {
+                                if (selected) {
+                                    Icon(
+                                        Icons.Default.Check,
+                                        contentDescription = "",
+                                        tint = seed,
+                                        modifier = Modifier.size(12.dp)
+                                    )
+                                }
                             }
                         }
                     }

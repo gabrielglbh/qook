@@ -6,6 +6,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +19,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -31,9 +35,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
@@ -53,7 +55,7 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class AddTagPage : ComponentActivity() {
     companion object {
-        const val HAS_CREATED_TAG = "HAS_CREATED_TAG"
+        const val HAS_ALTERED_TAG = "HAS_ALTERED_TAG"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,8 +70,8 @@ class AddTagPage : ComponentActivity() {
         isUpdate?.let { tag ->
             viewModel.updateForm(
                 viewModel.formState.value.copy(
-                    previousTag = tag,
-                    tag = tag
+                    tag = tag,
+                    isUpdate = true
                 )
             )
         }
@@ -85,45 +87,57 @@ class AddTagPage : ComponentActivity() {
     @Composable
     fun AddTagView() {
         val viewModel: AddTagViewModel by viewModels()
-        val state = viewModel.formState.collectAsState()
-        val focusManager = LocalFocusManager.current
+        val state = viewModel.formState.collectAsState().value
 
         val scope = rememberCoroutineScope()
         val snackbarHostState = remember { SnackbarHostState() }
 
         var tagError by remember { mutableStateOf(false) }
 
+        fun successCallback() {
+            val resultIntent = Intent()
+            resultIntent.putExtra(HAS_ALTERED_TAG, true)
+            setResult(RESULT_OK, resultIntent)
+            finish()
+        }
+
+        fun errorCallback(error: String) {
+            scope.launch {
+                snackbarHostState.showSnackbar(error)
+            }
+        }
+
         fun onSuccess() {
-            if (state.value.previousTag != null) {
+            if (state.isUpdate) {
                 viewModel.updateTag(
-                    state.value.tag,
-                    ifError = {
-                        scope.launch {
-                            snackbarHostState.showSnackbar(it)
-                        }
-                    },
-                    ifSuccess = {
-                        val resultIntent = Intent()
-                        resultIntent.putExtra(HAS_CREATED_TAG, true)
-                        setResult(RESULT_OK, resultIntent)
-                        finish()
-                    }
+                    state.tag,
+                    ifError = { errorCallback(it) },
+                    ifSuccess = { successCallback() }
                 )
             } else {
                 viewModel.createTag(
-                    state.value.tag,
-                    ifError = {
-                        scope.launch {
-                            snackbarHostState.showSnackbar(it)
-                        }
-                    },
-                    ifSuccess = {
-                        val resultIntent = Intent()
-                        resultIntent.putExtra(HAS_CREATED_TAG, true)
-                        setResult(RESULT_OK, resultIntent)
-                        finish()
-                    }
+                    state.tag,
+                    ifError = { errorCallback(it) },
+                    ifSuccess = { successCallback() }
                 )
+            }
+        }
+
+        val saveButton: @Composable () -> Unit = {
+            Button(
+                onClick = {
+                    val text = state.tag.text
+                    if (!tagError && text.trim().isNotEmpty()) {
+                        onSuccess()
+                    } else {
+                        if (tagError || text.trim().isEmpty()) tagError = true
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 12.dp, end = 12.dp, bottom = 8.dp)
+            ) {
+                Text(stringResource(R.string.tag_save_title))
             }
         }
 
@@ -134,7 +148,11 @@ class AddTagPage : ComponentActivity() {
                         onBack = {
                             finish()
                         },
-                        title = R.string.tags_add_title
+                        title = if (state.isUpdate) {
+                            R.string.tags_modify_title
+                        } else {
+                            R.string.tags_add_title
+                        }
                     )
                 },
                 snackbarHost = {
@@ -155,15 +173,15 @@ class AddTagPage : ComponentActivity() {
                             verticalArrangement = Arrangement.Top,
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            QTag(tag = state.value.tag, modifier = Modifier.scale(2f))
+                            QTag(tag = state.tag)
                             Spacer(modifier = Modifier.size(12.dp))
                             QTextForm(
                                 labelId = R.string.tag_name,
-                                value = state.value.tag.text,
+                                value = state.tag.text,
                                 onValueChange = { name ->
                                     viewModel.updateForm(
-                                        state.value.copy(
-                                            tag = state.value.tag.copy(
+                                        state.copy(
+                                            tag = state.tag.copy(
                                                 text = name
                                             )
                                         )
@@ -175,35 +193,52 @@ class AddTagPage : ComponentActivity() {
                             )
                             Spacer(modifier = Modifier.size(12.dp))
                             QColorPicker(
-                                modifier = Modifier.weight(1f)
-                            ) { selectedColor ->
-                                focusManager.clearFocus()
-                                viewModel.updateForm(
-                                    state.value.copy(
-                                        tag = state.value.tag.copy(
-                                            color = selectedColor
+                                modifier = Modifier.weight(1f),
+                                initialColor = state.tag.color,
+                                selected = { selectedColor ->
+                                    viewModel.updateForm(
+                                        state.copy(
+                                            tag = state.tag.copy(
+                                                color = selectedColor
+                                            )
                                         )
                                     )
-                                )
-                            }
+                                }
+                            )
                             Spacer(modifier = Modifier.size(12.dp))
-                            Button(
-                                onClick = {
-                                    val text = state.value.tag.text
-                                    val color = state.value.tag.color
-                                    if (!tagError && text.trim()
-                                            .isNotEmpty() && color != Color.Transparent
+                            if (!state.isUpdate) {
+                                saveButton()
+                            } else {
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    OutlinedButton(
+                                        onClick = {
+                                            viewModel.deleteTag(
+                                                ifError = { err -> errorCallback(err) },
+                                                ifSuccess = { successCallback() }
+                                            )
+                                        },
+                                        border = BorderStroke(
+                                            1.dp,
+                                            MaterialTheme.colorScheme.error
+                                        ),
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(start = 12.dp, end = 12.dp, bottom = 8.dp),
+                                        colors = ButtonDefaults.outlinedButtonColors(
+                                            containerColor = Color.Transparent,
+                                        )
                                     ) {
-                                        onSuccess()
-                                    } else {
-                                        if (tagError || text.trim().isEmpty()) tagError = true
+                                        Text(
+                                            stringResource(R.string.tags_remove_tag),
+                                            color = MaterialTheme.colorScheme.error
+                                        )
                                     }
-                                },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(start = 12.dp, end = 12.dp, bottom = 8.dp)
-                            ) {
-                                Text(stringResource(R.string.tag_save_title))
+                                    Spacer(modifier = Modifier.size(8.dp))
+                                    saveButton()
+                                }
                             }
                         }
                     }

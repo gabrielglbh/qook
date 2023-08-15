@@ -39,14 +39,22 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toRect
+import com.gabr.gabc.qook.presentation.theme.seed
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 // https://proandroiddev.com/color-picker-in-compose-f8c29744705
 @Composable
-fun QColorPicker(modifier: Modifier = Modifier, selected: (Color) -> Unit) {
+fun QColorPicker(
+    modifier: Modifier = Modifier,
+    selected: (Color) -> Unit,
+    initialColor: Color = seed
+) {
+    val focus = LocalFocusManager.current
+
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -54,7 +62,7 @@ fun QColorPicker(modifier: Modifier = Modifier, selected: (Color) -> Unit) {
     ) {
         val hsv = remember {
             val hsv = floatArrayOf(0f, 0f, 0f)
-            colorToHSV(Color.Blue.toArgb(), hsv)
+            colorToHSV(initialColor.toArgb(), hsv)
             mutableStateOf(Triple(hsv[0], hsv[1], hsv[2]))
         }
         val selectedColor = remember(hsv.value) {
@@ -64,10 +72,12 @@ fun QColorPicker(modifier: Modifier = Modifier, selected: (Color) -> Unit) {
 
         QSaturationPanel(hue = hsv.value.first) { sat, value ->
             hsv.value = Triple(hsv.value.first, sat, value)
+            focus.clearFocus()
         }
         Spacer(modifier = Modifier.height(8.dp))
         QCanvas { hue ->
             hsv.value = Triple(hue, hsv.value.second, hsv.value.third)
+            focus.clearFocus()
         }
     }
 }

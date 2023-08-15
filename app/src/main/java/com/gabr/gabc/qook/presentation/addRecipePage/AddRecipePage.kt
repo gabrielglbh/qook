@@ -95,7 +95,7 @@ class AddRecipePage : ComponentActivity() {
                 val extras = result.data?.extras
                 val viewModel: AddRecipeViewModel by viewModels()
 
-                if (extras?.getBoolean(AddTagPage.HAS_CREATED_TAG) == true) {
+                if (extras?.getBoolean(AddTagPage.HAS_ALTERED_TAG) == true) {
                     viewModel.gatherTags()
                 }
             }

@@ -25,7 +25,7 @@ class TagRepositoryImpl @Inject constructor(
         try {
             auth.currentUser?.let {
                 db.collection("USERS").document(it.uid)
-                    .collection("TAGS").document(tag.text)
+                    .collection("TAGS").document()
                     .set(tag.toDto()).await()
                 return Right(tag)
             }
@@ -59,10 +59,10 @@ class TagRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun updateTag(id: String, tag: Tag): Either<TagFailure, Unit> {
+    override suspend fun updateTag(tag: Tag): Either<TagFailure, Unit> {
         auth.currentUser?.let {
             db.collection("USERS").document(it.uid)
-                .collection("TAGS").document(id)
+                .collection("TAGS").document(tag.id)
                 .update(tag.toDto().toMap()).await()
             return Right(Unit)
         }
@@ -75,9 +75,6 @@ class TagRepositoryImpl @Inject constructor(
                 val ref = db
                     .collection("USERS").document(it.uid)
                     .collection("TAGS").get().await()
-                if (ref.isEmpty) {
-                    return Left(TagFailure.TagDoesNotExist(res.getString(R.string.err_tags_retrieve)))
-                }
                 return Right(ref.toObjects<TagDto>().map { dto ->
                     dto.toDomain()
                 })
