@@ -15,7 +15,7 @@ import com.gabr.gabc.qook.domain.tag.Tag
 fun QTag(
     tag: Tag,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true,
+    enabled: Boolean = false,
     onClick: (() -> Unit)? = null
 ) {
     Surface(

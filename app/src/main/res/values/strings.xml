@@ -56,4 +56,11 @@
     <string name="add_recipe_easiness_HARD">Hard</string>
     <string name="add_recipe_time">Expected time</string>
     <string name="add_recipe_tags_description">Select or add tags to the recipe</string>
+    <string name="err_tags_retrieve">Could not retrieve tags</string>
+    <string name="err_tags_creation_failed">Could not create tag, try again</string>
+    <string name="err_tags_deletion_failed">Could not delete tag, try again</string>
+    <string name="tags_empty">You do not have any tags created, try creating one clicking in the \'+\' button</string>
+    <string name="tags_add_title">Add a custom tag</string>
+    <string name="tag_name">Tag name</string>
+    <string name="tag_save_title">Save tag</string>
 </resources>

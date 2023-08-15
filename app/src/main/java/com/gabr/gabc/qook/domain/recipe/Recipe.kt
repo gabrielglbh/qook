@@ -28,8 +28,8 @@ data class Recipe(
             time = "",
             photo = Uri.EMPTY,
             description = "",
-            ingredients = listOf(),
-            tags = listOf()
+            ingredients = mutableListOf(),
+            tags = mutableListOf()
         )
     }
 }

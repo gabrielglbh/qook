@@ -1,6 +1,8 @@
 package com.gabr.gabc.qook.presentation.addRecipePage
 
 import android.Manifest
+import android.app.Activity
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -20,11 +22,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.BookmarkAdd
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,6 +46,7 @@ import com.gabr.gabc.qook.presentation.addRecipePage.components.RecipeIngredient
 import com.gabr.gabc.qook.presentation.addRecipePage.components.RecipeMetadataForm
 import com.gabr.gabc.qook.presentation.addRecipePage.components.RecipeTags
 import com.gabr.gabc.qook.presentation.addRecipePage.viewModel.AddRecipeViewModel
+import com.gabr.gabc.qook.presentation.addTagPage.AddTagPage
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.theme.AppTheme
 import com.gabr.gabc.qook.presentation.theme.seed
@@ -77,6 +82,17 @@ class AddRecipePage : ComponentActivity() {
                             }
                         }
                     }
+                }
+            }
+        }
+    private val resultLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val extras = result.data?.extras
+                val viewModel: AddRecipeViewModel by viewModels()
+
+                if (extras?.getBoolean(AddTagPage.HAS_CREATED_TAG) == true) {
+                    viewModel.gatherTags()
                 }
             }
         }
@@ -132,10 +148,6 @@ class AddRecipePage : ComponentActivity() {
             }
         }
 
-        LaunchedEffect(key1 = Unit) {
-            viewModel.gatherTags()
-        }
-
         Scaffold(
             topBar = {
                 QActionBar(
@@ -145,6 +157,17 @@ class AddRecipePage : ComponentActivity() {
                             navController.popBackStack()
                         } else {
                             finish()
+                        }
+                    },
+                    actionBehaviour = {
+                        if (currentPage == "step2") {
+                            val intent = Intent(this@AddRecipePage, AddTagPage::class.java)
+                            resultLauncher.launch(intent)
+                        }
+                    },
+                    action = {
+                        if (currentPage == "step2") {
+                            Icon(Icons.Outlined.BookmarkAdd, contentDescription = "")
                         }
                     }
                 )
@@ -174,9 +197,7 @@ class AddRecipePage : ComponentActivity() {
                         composable("step1") {
                             RecipeMetadataForm(
                                 onNavigate = {
-                                    navController.navigate(
-                                        "step2"
-                                    )
+                                    navController.navigate("step2")
                                 },
                                 requestMultiplePermissions = requestMultiplePermissions,
                                 viewModel = viewModel
@@ -184,8 +205,11 @@ class AddRecipePage : ComponentActivity() {
                         }
                         composable("step2") {
                             RecipeTags(
-                                viewModel = viewModel,
-                                onNavigate = { navController.navigate("step3") })
+                                onNavigate = {
+                                    navController.navigate("step3")
+                                },
+                                viewModel = viewModel
+                            )
                         }
                         composable("step3") { RecipeIngredients { navController.navigate("step4") } }
                         composable("step4") { RecipeDescription {} }

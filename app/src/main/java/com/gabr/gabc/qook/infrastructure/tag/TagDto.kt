@@ -14,3 +14,11 @@ data class TagDto(
 fun TagDto.toDomain(): Tag {
     return Tag(text, Color(UIColor.parseColor(textColor)), Color(UIColor.parseColor(color)))
 }
+
+fun TagDto.toMap(): Map<String, Any?> {
+    return mapOf(
+        Pair("text", text),
+        Pair("textColor", textColor),
+        Pair("color", color),
+    )
+}

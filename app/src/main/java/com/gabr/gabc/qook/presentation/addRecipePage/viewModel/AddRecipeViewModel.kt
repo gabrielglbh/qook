@@ -1,20 +1,29 @@
 package com.gabr.gabc.qook.presentation.addRecipePage.viewModel
 
 import android.net.Uri
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.gabr.gabc.qook.domain.recipe.Easiness
 import com.gabr.gabc.qook.domain.tag.Tag
+import com.gabr.gabc.qook.domain.tag.TagRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class AddRecipeViewModel @Inject constructor() : ViewModel() {
+class AddRecipeViewModel @Inject constructor(
+    private val tagsRepository: TagRepository
+) : ViewModel() {
     private val _recipeState = MutableStateFlow(AddRecipeState())
     val recipeState: StateFlow<AddRecipeState> = _recipeState.asStateFlow()
+
+    init {
+        gatherTags()
+    }
 
     fun updateMetadata(
         name: String? = null,
@@ -34,35 +43,39 @@ class AddRecipeViewModel @Inject constructor() : ViewModel() {
         )
     }
 
-    fun updateTags(tags: List<Tag>) {
+    fun addTag(tag: Tag) {
         val value = recipeState.value
         _recipeState.value = value.copy(
             recipe = value.recipe.copy(
-                tags = tags,
+                tags = value.recipe.tags + tag,
+            )
+        )
+    }
+
+    fun deleteTag(tag: Tag) {
+        val value = recipeState.value
+        val aux = mutableListOf<Tag>().apply {
+            addAll(value.recipe.tags)
+            remove(tag)
+        }
+        _recipeState.value = value.copy(
+            recipe = value.recipe.copy(
+                tags = aux
             )
         )
     }
 
     fun gatherTags() {
-        _recipeState.value = _recipeState.value.copy(
-            createdTags = listOf(
-                Tag("Burger", Color.White, Color.Black),
-                Tag("Fish", Color.White, Color.Blue),
-                Tag("Veggie", Color.Black, Color.Green),
-                Tag("Lovers Lovers Lovers", Color.White, Color.Red),
-                Tag("Burger", Color.White, Color.Black),
-                Tag("Fish", Color.White, Color.Blue),
-                Tag("Veggie", Color.Black, Color.Green),
-                Tag("Lovers Lovers Lovers", Color.White, Color.Red),
-                Tag("Burger", Color.White, Color.Black),
-                Tag("Fish", Color.White, Color.Blue),
-                Tag("Veggie", Color.Black, Color.Green),
-                Tag("Lovers Lovers Lovers", Color.White, Color.Red),
-                Tag("Burger", Color.White, Color.Black),
-                Tag("Fish", Color.White, Color.Blue),
-                Tag("Veggie", Color.Black, Color.Green),
-                Tag("Lovers Lovers Lovers", Color.White, Color.Red)
+        viewModelScope.launch(Dispatchers.IO) {
+            val res = tagsRepository.getTags()
+            res.fold(
+                ifLeft = {},
+                ifRight = {
+                    _recipeState.value = _recipeState.value.copy(
+                        createdTags = it
+                    )
+                }
             )
-        )
+        }
     }
 }

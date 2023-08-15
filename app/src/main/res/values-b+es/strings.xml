@@ -57,4 +57,11 @@
     <string name="add_recipe_easiness_HARD">Difícil</string>
     <string name="add_recipe_time">Tiempo esperado</string>
     <string name="add_recipe_tags_description">Selecciona o añade etiquetas a tus recetas</string>
+    <string name="err_tags_retrieve">No se han podido recoger las etiquetas</string>
+    <string name="err_tags_creation_failed">No se ha podido crear la etiqueta, prueba otra vez</string>
+    <string name="err_tags_deletion_failed">No se ha podido eliminar la etiqueta, prueba otra vez</string>
+    <string name="tags_empty">No tienes etiquetas creadas, crealas pulsando en el bóton \'+\'</string>
+    <string name="tags_add_title">Añade una etiqueta personalizada</string>
+    <string name="tag_name">Nombre de la etiqueta</string>
+    <string name="tag_save_title">Guardar etiqueta</string>
 </resources>

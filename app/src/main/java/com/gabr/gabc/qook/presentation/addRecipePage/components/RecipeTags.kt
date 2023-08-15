@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -21,8 +20,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -40,21 +37,10 @@ fun RecipeTags(
     onNavigate: () -> Unit,
     viewModel: AddRecipeViewModel
 ) {
-    val state = viewModel.recipeState.collectAsState()
-
-    val selectedTags = remember {
-        mutableStateListOf<Tag>().apply {
-            addAll(state.value.recipe.tags)
-        }
-    }
-    val createdTags = remember {
-        mutableStateListOf<Tag>().apply {
-            addAll(state.value.createdTags)
-        }
-    }
+    val state = viewModel.recipeState.collectAsState().value
 
     Column(
-        verticalArrangement = Arrangement.Top,
+        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxSize()
     ) {
@@ -69,21 +55,20 @@ fun RecipeTags(
         LazyColumn(
             modifier = Modifier.weight(1f)
         ) {
-            items(createdTags.size) { x ->
-                val tag = createdTags[x]
-                val selected = selectedTags.contains(tag)
+            items(state.createdTags.size) { x ->
+                val tag = state.createdTags[x]
+                val selected = state.recipe.tags.contains(tag)
                 TagElementInList(tag, selected) {
-                    if (!selectedTags.contains(tag)) {
-                        selectedTags.add(tag)
+                    if (!state.recipe.tags.contains(tag)) {
+                        viewModel.addTag(tag)
                     } else {
-                        selectedTags.remove(tag)
+                        viewModel.deleteTag(tag)
                     }
                 }
             }
         }
         Button(
             onClick = {
-                viewModel.updateTags(selectedTags)
                 onNavigate()
             },
             modifier = Modifier
@@ -98,7 +83,6 @@ fun RecipeTags(
 @Composable
 fun TagElementInList(tag: Tag, selected: Boolean, onClick: () -> Unit) {
     Surface(
-        modifier = Modifier.height(48.dp),
         onClick = { onClick() }
     ) {
         Row(

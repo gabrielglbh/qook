@@ -31,6 +31,10 @@
             android:theme="@style/Theme.Qook"
             android:windowSoftInputMode="adjustResize" />
         <activity
+            android:name=".presentation.addTagPage.AddTagPage"
+            android:exported="true"
+            android:theme="@style/Theme.Qook" />
+        <activity
             android:name=".presentation.addRecipePage.AddRecipePage"
             android:exported="true"
             android:theme="@style/Theme.Qook"

@@ -1,9 +1,11 @@
 package com.gabr.gabc.qook.domain.tag
 
+import arrow.core.Either
+
 interface TagRepository {
-    suspend fun createTag(tag: Tag)
-    suspend fun removeTag(id: String)
-    suspend fun updateTag(tag: Tag)
-    suspend fun getTags(): List<Tag>
-    suspend fun getTags(recipeId: String): List<Tag>
+    suspend fun createTag(tag: Tag): Either<TagFailure, Tag>
+    suspend fun removeTag(id: String): Either<TagFailure, Unit>
+    suspend fun updateTag(id: String, tag: Tag): Either<TagFailure, Unit>
+    suspend fun getTags(): Either<TagFailure, List<Tag>>
+    suspend fun getTags(recipeId: String): Either<TagFailure, List<Tag>>
 }

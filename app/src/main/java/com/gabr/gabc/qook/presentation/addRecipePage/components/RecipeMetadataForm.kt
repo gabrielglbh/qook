@@ -57,17 +57,12 @@ fun RecipeMetadataForm(
     requestMultiplePermissions: ActivityResultLauncher<Array<String>>,
     viewModel: AddRecipeViewModel
 ) {
-    val state = viewModel.recipeState.collectAsState()
+    val state = viewModel.recipeState.collectAsState().value
     val focusManager = LocalFocusManager.current
     val configuration = LocalConfiguration.current
     val buttonSize = configuration.screenWidthDp.dp / 2f
 
-    var nameField by remember { mutableStateOf(state.value.recipe.name) }
     var nameFieldError by remember { mutableStateOf(false) }
-
-    val (selectedEasiness, onSelect) = remember { mutableStateOf(state.value.recipe.easiness) }
-
-    var timeField by remember { mutableStateOf(state.value.recipe.time) }
     var timeFieldError by remember { mutableStateOf(false) }
 
     Column(
@@ -108,7 +103,7 @@ fun RecipeMetadataForm(
                 border = BorderStroke(2.dp, seed),
                 contentPadding = PaddingValues(0.dp),
             ) {
-                if (state.value.recipe.photo == Uri.EMPTY) {
+                if (state.recipe.photo == Uri.EMPTY) {
                     Icon(
                         Icons.Outlined.AddAPhoto,
                         contentDescription = null,
@@ -117,7 +112,7 @@ fun RecipeMetadataForm(
                     )
                 } else {
                     QImage(
-                        uri = state.value.recipe.photo,
+                        uri = state.recipe.photo,
                         modifier = Modifier.fillMaxSize(),
                     )
                 }
@@ -125,43 +120,40 @@ fun RecipeMetadataForm(
             Spacer(modifier = Modifier.size(20.dp))
             QTextForm(
                 labelId = R.string.add_recipe_name,
-                value = nameField,
+                value = state.recipe.name,
                 isError = nameFieldError,
                 leadingIcon = Icons.Outlined.ReceiptLong,
                 onValueChange = {
-                    nameField = it
+                    viewModel.updateMetadata(name = it)
                     nameFieldError = Validators.isRecipeNameInvalid(it)
                 }
             )
             Spacer(modifier = Modifier.size(20.dp))
             QTextForm(
                 labelId = R.string.add_recipe_time,
-                value = timeField,
+                value = state.recipe.time,
                 isError = timeFieldError,
                 leadingIcon = Icons.Outlined.Timer,
                 onValueChange = {
-                    timeField = it
-                    timeFieldError = Validators.isNameInvalid(timeField)
+                    viewModel.updateMetadata(time = it)
+                    timeFieldError = Validators.isNameInvalid(it)
                 }
             )
             Spacer(modifier = Modifier.size(20.dp))
-            EasinessComponent(selectedEasiness, onSelect = {
+            EasinessComponent(state.recipe.easiness, onSelect = {
                 focusManager.clearFocus()
-                onSelect(it)
+                viewModel.updateMetadata(easiness = it)
             })
         }
         Button(
             onClick = {
-                if (nameField.trim().isNotEmpty() && timeField.trim().isNotEmpty()) {
-                    viewModel.updateMetadata(
-                        name = nameField,
-                        time = timeField,
-                        easiness = selectedEasiness,
-                    )
+                if (state.recipe.name.trim().isNotEmpty() && state.recipe.time.trim()
+                        .isNotEmpty()
+                ) {
                     onNavigate()
                 } else {
-                    if (nameField.trim().isEmpty()) nameFieldError = true
-                    if (timeField.trim().isEmpty()) timeFieldError = true
+                    if (state.recipe.name.trim().isEmpty()) nameFieldError = true
+                    if (state.recipe.time.trim().isEmpty()) timeFieldError = true
                 }
             },
             modifier = Modifier
