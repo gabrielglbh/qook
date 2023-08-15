@@ -50,7 +50,7 @@ class AddTagViewModel @Inject constructor(
         }
     }
 
-    fun createTag(tag: Tag, ifError: (String) -> Unit, ifSuccess: () -> Unit) {
+    fun createTag(tag: Tag, ifError: (String) -> Unit, ifSuccess: (Tag) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) { setIsLoading(true) }
             val res = tagsRepository.createTag(tag)
@@ -58,8 +58,8 @@ class AddTagViewModel @Inject constructor(
                 ifLeft = {
                     ifError(it.error)
                 },
-                ifRight = {
-                    ifSuccess()
+                ifRight = { tagWithId ->
+                    ifSuccess(tagWithId)
                 }
             )
             withContext(Dispatchers.Main) { setIsLoading(false) }

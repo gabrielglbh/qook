@@ -56,6 +56,7 @@ import kotlinx.coroutines.launch
 class AddTagPage : ComponentActivity() {
     companion object {
         const val HAS_ALTERED_TAG = "HAS_ALTERED_TAG"
+        const val HAS_ALTERED_MODE = "HAS_ALTERED_MODE"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -94,9 +95,10 @@ class AddTagPage : ComponentActivity() {
 
         var tagError by remember { mutableStateOf(false) }
 
-        fun successCallback() {
+        fun successCallback(tag: Tag, mode: AlteredMode) {
             val resultIntent = Intent()
-            resultIntent.putExtra(HAS_ALTERED_TAG, true)
+            resultIntent.putExtra(HAS_ALTERED_TAG, tag)
+            resultIntent.putExtra(HAS_ALTERED_MODE, mode)
             setResult(RESULT_OK, resultIntent)
             finish()
         }
@@ -112,13 +114,13 @@ class AddTagPage : ComponentActivity() {
                 viewModel.updateTag(
                     state.tag,
                     ifError = { errorCallback(it) },
-                    ifSuccess = { successCallback() }
+                    ifSuccess = { successCallback(state.tag, AlteredMode.UPDATE) }
                 )
             } else {
                 viewModel.createTag(
                     state.tag,
                     ifError = { errorCallback(it) },
-                    ifSuccess = { successCallback() }
+                    ifSuccess = { createdTag -> successCallback(createdTag, AlteredMode.CREATE) }
                 )
             }
         }
@@ -217,7 +219,12 @@ class AddTagPage : ComponentActivity() {
                                         onClick = {
                                             viewModel.deleteTag(
                                                 ifError = { err -> errorCallback(err) },
-                                                ifSuccess = { successCallback() }
+                                                ifSuccess = {
+                                                    successCallback(
+                                                        state.tag,
+                                                        AlteredMode.DELETE
+                                                    )
+                                                }
                                             )
                                         },
                                         border = BorderStroke(

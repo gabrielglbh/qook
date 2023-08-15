@@ -24,10 +24,10 @@ class TagRepositoryImpl @Inject constructor(
     override suspend fun createTag(tag: Tag): Either<TagFailure, Tag> {
         try {
             auth.currentUser?.let {
-                db.collection("USERS").document(it.uid)
-                    .collection("TAGS").document()
-                    .set(tag.toDto()).await()
-                return Right(tag)
+                val docRef = db.collection("USERS").document(it.uid)
+                    .collection("TAGS").add(tag.toDto()).await()
+                val id = docRef.path.split("/").last()
+                return Right(tag.copy(id = id))
             }
             return Left(TagFailure.NotAuthenticated(res.getString(R.string.error_user_not_auth)))
         } catch (err: FirebaseFirestoreException) {

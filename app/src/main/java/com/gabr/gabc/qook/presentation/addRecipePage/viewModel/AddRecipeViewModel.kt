@@ -25,6 +25,34 @@ class AddRecipeViewModel @Inject constructor(
         gatherTags()
     }
 
+    private fun gatherTags() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val res = tagsRepository.getTags()
+            res.fold(
+                ifLeft = {},
+                ifRight = {
+                    _recipeState.value = _recipeState.value.copy(
+                        createdTags = it
+                    )
+                }
+            )
+        }
+    }
+
+    private fun alterListForDeletion(id: String, list: List<Tag>): List<Tag> {
+        val aux = mutableListOf<Tag>().apply { addAll(list) }
+        val auxIds = aux.map { it.id }
+        if (auxIds.contains(id)) aux.removeAt(auxIds.indexOf(id))
+        return aux
+    }
+
+    private fun alterListForUpdate(tag: Tag, list: List<Tag>): List<Tag> {
+        val aux = mutableListOf<Tag>().apply { addAll(list) }
+        val auxIds = aux.map { it.id }
+        if (auxIds.contains(tag.id)) aux[auxIds.indexOf(tag.id)] = tag
+        return aux
+    }
+
     fun updateMetadata(
         name: String? = null,
         photo: Uri? = null,
@@ -65,17 +93,33 @@ class AddRecipeViewModel @Inject constructor(
         )
     }
 
-    fun gatherTags() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val res = tagsRepository.getTags()
-            res.fold(
-                ifLeft = {},
-                ifRight = {
-                    _recipeState.value = _recipeState.value.copy(
-                        createdTags = it
-                    )
-                }
-            )
-        }
+    fun deleteTagForLocalLoading(id: String) {
+        val value = recipeState.value
+        _recipeState.value = value.copy(
+            recipe = value.recipe.copy(
+                tags = alterListForDeletion(id, value.recipe.tags)
+            ),
+            createdTags = alterListForDeletion(id, value.createdTags)
+        )
+    }
+
+    fun updateTagForLocalLoading(tag: Tag) {
+        val value = recipeState.value
+        _recipeState.value = value.copy(
+            recipe = value.recipe.copy(
+                tags = alterListForUpdate(tag, value.recipe.tags)
+            ),
+            createdTags = alterListForUpdate(tag, value.createdTags)
+        )
+    }
+
+    fun createTagForLocalLoading(tag: Tag) {
+        val value = recipeState.value
+        _recipeState.value = value.copy(
+            createdTags = mutableListOf<Tag>().apply {
+                add(tag)
+                addAll(value.createdTags)
+            }
+        )
     }
 }

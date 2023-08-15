@@ -41,12 +41,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.gabr.gabc.qook.R
+import com.gabr.gabc.qook.domain.tag.Tag
 import com.gabr.gabc.qook.presentation.addRecipePage.components.RecipeDescription
 import com.gabr.gabc.qook.presentation.addRecipePage.components.RecipeIngredients
 import com.gabr.gabc.qook.presentation.addRecipePage.components.RecipeMetadataForm
 import com.gabr.gabc.qook.presentation.addRecipePage.components.RecipeTags
 import com.gabr.gabc.qook.presentation.addRecipePage.viewModel.AddRecipeViewModel
 import com.gabr.gabc.qook.presentation.addTagPage.AddTagPage
+import com.gabr.gabc.qook.presentation.addTagPage.AlteredMode
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.theme.AppTheme
 import com.gabr.gabc.qook.presentation.theme.seed
@@ -92,11 +94,37 @@ class AddRecipePage : ComponentActivity() {
     private val resultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
-                val extras = result.data?.extras
+                val extras = result.data
                 val viewModel: AddRecipeViewModel by viewModels()
 
-                if (extras?.getBoolean(AddTagPage.HAS_ALTERED_TAG) == true) {
-                    viewModel.gatherTags()
+                val updatedTag = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    extras?.getParcelableExtra(AddTagPage.HAS_ALTERED_TAG, Tag::class.java)
+                } else {
+                    extras?.getParcelableExtra(AddTagPage.HAS_ALTERED_TAG)
+                }
+                val mode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    extras?.getSerializableExtra(
+                        AddTagPage.HAS_ALTERED_MODE,
+                        AlteredMode::class.java
+                    )
+                } else {
+                    extras?.getSerializableExtra(AddTagPage.HAS_ALTERED_MODE)
+                }
+
+                updatedTag?.let {
+                    when (mode) {
+                        AlteredMode.DELETE -> {
+                            viewModel.deleteTagForLocalLoading(it.id)
+                        }
+
+                        AlteredMode.UPDATE -> {
+                            viewModel.updateTagForLocalLoading(it)
+                        }
+
+                        AlteredMode.CREATE -> {
+                            viewModel.createTagForLocalLoading(it)
+                        }
+                    }
                 }
             }
         }
