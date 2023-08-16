@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.outlined.Bookmarks
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.Create
 import androidx.compose.material.icons.outlined.Search
@@ -39,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.tag.Tag
 import com.gabr.gabc.qook.presentation.addRecipePage.viewModel.AddRecipeViewModel
+import com.gabr.gabc.qook.presentation.shared.components.QEmptyBox
 import com.gabr.gabc.qook.presentation.shared.components.QTag
 import com.gabr.gabc.qook.presentation.shared.components.QTextForm
 
@@ -97,12 +99,10 @@ fun RecipeTags(
             }
         )
         if (state.createdTags.isEmpty() || state.searchedTags.isEmpty()) {
-            Text(
-                stringResource(R.string.tags_empty),
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(top = 24.dp)
+            QEmptyBox(
+                message = R.string.tags_empty,
+                icon = Icons.Outlined.Bookmarks,
+                modifier = Modifier.weight(1f)
             )
         } else {
             LazyColumn(
@@ -142,7 +142,7 @@ fun RecipeTags(
                                 modifier = Modifier.size(24.dp),
                                 shape = CircleShape,
                                 border = if (selected) {
-                                    BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
+                                    BorderStroke(2.dp, MaterialTheme.colorScheme.primaryContainer)
                                 } else {
                                     BorderStroke(2.dp, MaterialTheme.colorScheme.outline)
                                 }
@@ -151,7 +151,7 @@ fun RecipeTags(
                                     Icon(
                                         Icons.Default.Check,
                                         contentDescription = "",
-                                        tint = MaterialTheme.colorScheme.primary,
+                                        tint = MaterialTheme.colorScheme.primaryContainer,
                                         modifier = Modifier.size(12.dp)
                                     )
                                 }
@@ -163,13 +163,14 @@ fun RecipeTags(
         }
         Button(
             onClick = {
+                if (state.recipe.tags.isEmpty()) return@Button
                 onNavigate()
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 8.dp, start = 32.dp, end = 32.dp)
+                .padding(top = 8.dp)
         ) {
-            Text(stringResource(R.string.add_recipe_next))
+            Text(stringResource(R.string.add_recipe_ready))
         }
     }
 }

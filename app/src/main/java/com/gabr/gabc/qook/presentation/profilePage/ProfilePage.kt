@@ -227,7 +227,7 @@ class ProfilePage : ComponentActivity() {
                                 .width(buttonSize)
                                 .height(buttonSize),
                             shape = CircleShape,
-                            border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
+                            border = BorderStroke(2.dp, MaterialTheme.colorScheme.primaryContainer),
                             contentPadding = PaddingValues(0.dp),
                         ) {
                             if (state.avatarUrl == Uri.EMPTY) {

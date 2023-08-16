@@ -139,7 +139,10 @@ class HomePage : ComponentActivity() {
                         intent.putExtra(HOME_USER_AVATAR, state.value.avatarUrl)
                         resultLauncher.launch(intent)
                     },
-                    actionBorder = BorderStroke(1.dp, color = MaterialTheme.colorScheme.primary),
+                    actionBorder = BorderStroke(
+                        1.dp,
+                        color = MaterialTheme.colorScheme.primaryContainer
+                    ),
                     action = {
                         if (state.value.avatarUrl == Uri.EMPTY) {
                             Icon(
@@ -201,9 +204,9 @@ class HomePage : ComponentActivity() {
                     .height(buttonSize)
                     .weight(1f, fill = false),
                 shape = CircleShape,
-                border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
+                border = BorderStroke(2.dp, MaterialTheme.colorScheme.primaryContainer),
                 contentPadding = PaddingValues(0.dp),
-                colors = ButtonDefaults.outlinedButtonColors(containerColor = MaterialTheme.colorScheme.primary)
+                colors = ButtonDefaults.outlinedButtonColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
             ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -219,13 +222,13 @@ class HomePage : ComponentActivity() {
                             painter = painterResource(R.drawable.random),
                             contentDescription = null,
                             modifier = Modifier.fillMaxSize(),
-                            colorFilter = ColorFilter.tint(Color.White)
+                            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimaryContainer)
                         )
                     }
                     Text(
                         stringResource(R.string.home_get_random_recipe),
                         textAlign = TextAlign.Center,
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier
                             .width(buttonSize)

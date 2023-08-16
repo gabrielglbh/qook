@@ -48,7 +48,7 @@
 
     <string name="add_recipe_title">Add Recipe</string>
     <string name="add_recipe_next">Next</string>
-    <string name="add_recipe_ready">Ready</string>
+    <string name="add_recipe_ready">See preview</string>
     <string name="add_recipe_name">Recipe name</string>
     <string name="add_recipe_easiness">Easiness</string>
     <string name="add_recipe_easiness_EASY">Easy</string>
@@ -69,4 +69,6 @@
     <string name="add_recipe_ingredients_title">What ingredients does it have?</string>
     <string name="add_recipe_ingredient_name">Ingredient</string>
     <string name="add_recipe_empty_ingredients">You have not added an ingredient yet: type ingredients to add them to the recipe</string>
+    <string name="add_recipe_description">Recipe description</string>
+    <string name="add_recipe_description_title">Which steps are needed?</string>
 </resources>

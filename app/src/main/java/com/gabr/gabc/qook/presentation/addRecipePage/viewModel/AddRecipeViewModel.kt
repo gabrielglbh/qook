@@ -59,7 +59,8 @@ class AddRecipeViewModel @Inject constructor(
         photo: Uri? = null,
         easiness: Easiness? = null,
         time: String? = null,
-        ingredients: List<String>? = null
+        ingredients: List<String>? = null,
+        description: String? = null
     ) {
         val value = recipeState.value
         val recipe = value.recipe
@@ -69,7 +70,8 @@ class AddRecipeViewModel @Inject constructor(
                 photo = photo ?: recipe.photo,
                 easiness = easiness ?: recipe.easiness,
                 time = time ?: recipe.time,
-                ingredients = ingredients ?: recipe.ingredients
+                ingredients = ingredients ?: recipe.ingredients,
+                description = description ?: recipe.description
             )
         )
     }

@@ -48,8 +48,8 @@
     <string name="sunday">Domingo</string>
 
     <string name="add_recipe_title">Añadir Receta</string>
-    <string name="add_recipe_next">Next</string>
-    <string name="add_recipe_ready">Ready</string>
+    <string name="add_recipe_next">Siguiente</string>
+    <string name="add_recipe_ready">Mirar vista previa</string>
     <string name="add_recipe_name">Nombre de la receta</string>
     <string name="add_recipe_easiness">Facilidad</string>
     <string name="add_recipe_easiness_EASY">Fácil</string>
@@ -70,4 +70,6 @@
     <string name="add_recipe_ingredients_title">¿Qué ingredientes lleva?</string>
     <string name="add_recipe_ingredient_name">Ingrediente</string>
     <string name="add_recipe_empty_ingredients">No has añadido ningún ingrediente todavía: escríbelos para añadirlos a la receta</string>
+    <string name="add_recipe_description">Recipe description</string>
+    <string name="add_recipe_description_title">¿Qué pasos hay que seguir?</string>
 </resources>

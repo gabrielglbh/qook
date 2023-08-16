@@ -99,7 +99,7 @@ fun RecipeMetadataForm(
                     .width(buttonSize)
                     .height(buttonSize),
                 shape = CircleShape,
-                border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
+                border = BorderStroke(2.dp, MaterialTheme.colorScheme.primaryContainer),
                 contentPadding = PaddingValues(0.dp),
             ) {
                 if (state.recipe.photo == Uri.EMPTY) {
@@ -158,7 +158,7 @@ fun RecipeMetadataForm(
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 8.dp, start = 32.dp, end = 32.dp)
+                .padding(top = 8.dp)
         ) {
             Text(stringResource(R.string.add_recipe_next))
         }
@@ -193,7 +193,7 @@ fun EasinessComponent(
                         .padding(horizontal = 12.dp)
                         .weight(1f),
                     color = if (easiness == selected) {
-                        MaterialTheme.colorScheme.primary
+                        MaterialTheme.colorScheme.primaryContainer
                     } else {
                         MaterialTheme.colorScheme.background
                     },

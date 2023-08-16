@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Clear
+import androidx.compose.material.icons.outlined.RemoveShoppingCart
 import androidx.compose.material.icons.outlined.ShoppingBasket
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -35,6 +36,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.presentation.addRecipePage.viewModel.AddRecipeViewModel
+import com.gabr.gabc.qook.presentation.shared.components.QEmptyBox
 import com.gabr.gabc.qook.presentation.shared.components.QTextForm
 
 @Composable
@@ -103,12 +105,10 @@ fun RecipeIngredients(
             }
         )
         if (state.recipe.ingredients.isEmpty()) {
-            Text(
-                stringResource(R.string.add_recipe_empty_ingredients),
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(top = 24.dp)
+            QEmptyBox(
+                message = R.string.add_recipe_empty_ingredients,
+                icon = Icons.Outlined.RemoveShoppingCart,
+                modifier = Modifier.weight(1f)
             )
         } else {
             LazyColumn(
@@ -147,11 +147,12 @@ fun RecipeIngredients(
         }
         Button(
             onClick = {
+                if (state.recipe.ingredients.isEmpty()) return@Button
                 onNavigate()
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 8.dp, start = 32.dp, end = 32.dp)
+                .padding(top = 8.dp)
         ) {
             Text(stringResource(R.string.add_recipe_next))
         }

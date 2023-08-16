@@ -1,23 +1,86 @@
 package com.gabr.gabc.qook.presentation.addRecipePage.components
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
+import com.gabr.gabc.qook.presentation.addRecipePage.viewModel.AddRecipeViewModel
+import com.gabr.gabc.qook.presentation.shared.components.QTextForm
 
 @Composable
-fun RecipeDescription(onNavigate: () -> Unit) {
-    Button(
-        onClick = onNavigate,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 8.dp, start = 32.dp, end = 32.dp)
+fun RecipeDescription(
+    modifier: Modifier, onNavigate: () -> Unit, viewModel: AddRecipeViewModel
+) {
+    val state = viewModel.recipeState.collectAsState().value
+    val configuration = LocalConfiguration.current
+
+    var descriptionField by remember { mutableStateOf(state.recipe.description) }
+    var descriptionError by remember { mutableStateOf(false) }
+
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier.fillMaxSize()
     ) {
-        Text(stringResource(R.string.add_recipe_ready))
+        Text(
+            stringResource(R.string.add_recipe_description_title),
+            style = MaterialTheme.typography.titleLarge.copy(
+                fontWeight = FontWeight.Bold,
+            ),
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.size(12.dp))
+        QTextForm(
+            labelId = R.string.add_recipe_description,
+            modifier = Modifier.height(configuration.screenHeightDp.dp / 1.5f),
+            value = descriptionField,
+            singleLine = false,
+            imeAction = ImeAction.Default,
+            onValueChange = {
+                descriptionField = it
+                descriptionError = false
+            },
+            onSubmitWithImeAction = {
+                viewModel.updateMetadata(description = descriptionField)
+            },
+            isError = descriptionError
+        )
+        Button(
+            onClick = {
+                viewModel.updateMetadata(description = descriptionField)
+                if (state.recipe.description.trim().isEmpty()) {
+                    descriptionError = true
+                    return@Button
+                }
+                onNavigate()
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 12.dp)
+        ) {
+            Text(stringResource(R.string.add_recipe_next))
+        }
     }
 }

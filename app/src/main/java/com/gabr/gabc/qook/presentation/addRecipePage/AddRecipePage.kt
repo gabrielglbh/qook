@@ -165,17 +165,17 @@ class AddRecipePage : ComponentActivity() {
             currentPage = dest.route ?: "step1"
             bar2Color =
                 if (currentPage == "step2" || currentPage == "step3" || currentPage == "step4") {
-                    colorScheme.primary
+                    colorScheme.primaryContainer
                 } else {
                     colorScheme.outlineVariant
                 }
             bar3Color = if (currentPage == "step3" || currentPage == "step4") {
-                colorScheme.primary
+                colorScheme.primaryContainer
             } else {
                 colorScheme.outlineVariant
             }
             bar4Color = if (currentPage == "step4") {
-                colorScheme.primary
+                colorScheme.primaryContainer
             } else {
                 colorScheme.outlineVariant
             }
@@ -242,10 +242,26 @@ class AddRecipePage : ComponentActivity() {
                             )
                         }
                         composable("step2") {
+                            RecipeIngredients(
+                                modifier = contentPadding,
+                                onNavigate = { navController.navigate("step3") },
+                                viewModel = viewModel
+                            )
+                        }
+                        composable("step3") {
+                            RecipeDescription(
+                                modifier = contentPadding,
+                                onNavigate = {
+                                    navController.navigate("step4")
+                                },
+                                viewModel = viewModel
+                            )
+                        }
+                        composable("step4") {
                             RecipeTags(
                                 modifier = contentPadding,
                                 onNavigate = {
-                                    navController.navigate("step3")
+                                    // TODO: Save recipe
                                 },
                                 onTagTap = { tag ->
                                     val intent = Intent(this@AddRecipePage, AddTagPage::class.java)
@@ -255,14 +271,6 @@ class AddRecipePage : ComponentActivity() {
                                 viewModel = viewModel
                             )
                         }
-                        composable("step3") {
-                            RecipeIngredients(
-                                modifier = contentPadding,
-                                onNavigate = { navController.navigate("step4") },
-                                viewModel = viewModel
-                            )
-                        }
-                        composable("step4") { RecipeDescription {} }
                     }
                     Spacer(modifier = Modifier.size(8.dp))
                 }
@@ -283,7 +291,7 @@ class AddRecipePage : ComponentActivity() {
         ) {
             Surface(
                 shape = MaterialTheme.shapes.medium,
-                color = MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.primaryContainer,
                 modifier = Modifier
                     .height(6.dp)
                     .weight(1f)
