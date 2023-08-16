@@ -3,8 +3,6 @@ package com.gabr.gabc.qook.infrastructure.recipe
 import android.net.Uri
 import com.gabr.gabc.qook.domain.recipe.Easiness
 import com.gabr.gabc.qook.domain.recipe.Recipe
-import com.gabr.gabc.qook.infrastructure.ingredient.IngredientDto
-import com.gabr.gabc.qook.infrastructure.ingredient.toDomain
 import com.gabr.gabc.qook.infrastructure.tag.TagDto
 import com.gabr.gabc.qook.infrastructure.tag.toDomain
 import com.google.firebase.firestore.PropertyName
@@ -18,7 +16,7 @@ data class RecipeDto constructor(
     @PropertyName("time") val time: String = "",
     @PropertyName("photo") val photo: String = "",
     @PropertyName("description") val description: String = "",
-    @PropertyName("ingredients") val ingredients: List<IngredientDto> = listOf(),
+    @PropertyName("ingredients") val ingredients: List<String> = listOf(),
     @PropertyName("tags") val tags: List<TagDto> = listOf(),
 )
 
@@ -31,7 +29,7 @@ fun RecipeDto.toDomain(): Recipe {
         time,
         Uri.parse(photo),
         description,
-        ingredients.map { it.toDomain() },
+        ingredients,
         tags.map { it.toDomain() }
     )
 }

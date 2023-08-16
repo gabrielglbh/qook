@@ -72,6 +72,13 @@ fun QTextForm(
                 }
             } else {
                 null
+            },
+            onSend = if (hasAction) {
+                {
+                    onSubmitWithImeAction!!()
+                }
+            } else {
+                null
             }
         ),
         leadingIcon = if (leadingIcon == null) {

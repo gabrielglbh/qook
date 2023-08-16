@@ -66,4 +66,7 @@
     <string name="tags_modify_title">Modify tag</string>
     <string name="tags_remove_tag">Remove</string>
     <string name="add_recipe_search_tags">Search tags</string>
+    <string name="add_recipe_ingredients_title">What ingredients does it have?</string>
+    <string name="add_recipe_ingredient_name">Ingredient</string>
+    <string name="add_recipe_empty_ingredients">You have not added an ingredient yet: type ingredients to add them to the recipe</string>
 </resources>

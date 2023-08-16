@@ -66,5 +66,8 @@
     <string name="tag_save_title">Guardar</string>
     <string name="tags_modify_title">Actualiza la etiqueta</string>
     <string name="tags_remove_tag">Eliminar</string>
-    <string name="add_recipe_search_tags">Search tags</string>
+    <string name="add_recipe_search_tags">Buscar etiquetas</string>
+    <string name="add_recipe_ingredients_title">¿Qué ingredientes lleva?</string>
+    <string name="add_recipe_ingredient_name">Ingrediente</string>
+    <string name="add_recipe_empty_ingredients">No has añadido ningún ingrediente todavía: escríbelos para añadirlos a la receta</string>
 </resources>

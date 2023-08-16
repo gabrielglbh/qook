@@ -28,7 +28,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material.icons.outlined.ShoppingCart
+import androidx.compose.material.icons.outlined.ShoppingBasket
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -250,7 +250,7 @@ class HomePage : ComponentActivity() {
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             BottomNavButton(
-                icon = Icons.Outlined.ShoppingCart,
+                icon = Icons.Outlined.ShoppingBasket,
                 text = stringResource(R.string.home_shopping_bnb),
                 onClick = {}
             )

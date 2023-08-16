@@ -29,7 +29,7 @@ fun QTag(
 ) {
     Surface(
         shape = MaterialTheme.shapes.large,
-        modifier = modifier.padding(horizontal = 12.dp),
+        modifier = modifier,
         color = tag.color,
         enabled = enabled,
         onClick = {

@@ -7,10 +7,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -46,6 +44,7 @@ import com.gabr.gabc.qook.presentation.shared.components.QTextForm
 
 @Composable
 fun RecipeTags(
+    modifier: Modifier,
     onNavigate: () -> Unit,
     onTagTap: (Tag) -> Unit,
     viewModel: AddRecipeViewModel
@@ -64,19 +63,18 @@ fun RecipeTags(
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
         Text(
             stringResource(R.string.add_recipe_tags_description),
             style = MaterialTheme.typography.titleLarge.copy(
                 fontWeight = FontWeight.Bold,
             ),
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(12.dp)
+            textAlign = TextAlign.Center
         )
+        Spacer(modifier = Modifier.size(8.dp))
         QTextForm(
             labelId = R.string.add_recipe_search_tags,
-            modifier = Modifier.padding(horizontal = 24.dp),
             value = searchField,
             onValueChange = {
                 searchField = it
@@ -103,8 +101,8 @@ fun RecipeTags(
                 stringResource(R.string.tags_empty),
                 textAlign = TextAlign.Center,
                 modifier = Modifier
-                    .padding(12.dp)
                     .weight(1f)
+                    .padding(top = 24.dp)
             )
         } else {
             LazyColumn(
@@ -141,10 +139,7 @@ fun RecipeTags(
                             )
                             Spacer(modifier = Modifier.weight(1f))
                             Surface(
-                                modifier = Modifier
-                                    .width(36.dp)
-                                    .height(24.dp)
-                                    .padding(end = 12.dp),
+                                modifier = Modifier.size(24.dp),
                                 shape = CircleShape,
                                 border = if (selected) {
                                     BorderStroke(2.dp, MaterialTheme.colorScheme.primary)

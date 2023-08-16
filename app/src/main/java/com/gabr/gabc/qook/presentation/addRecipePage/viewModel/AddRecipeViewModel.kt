@@ -59,6 +59,7 @@ class AddRecipeViewModel @Inject constructor(
         photo: Uri? = null,
         easiness: Easiness? = null,
         time: String? = null,
+        ingredients: List<String>? = null
     ) {
         val value = recipeState.value
         val recipe = value.recipe
@@ -68,6 +69,7 @@ class AddRecipeViewModel @Inject constructor(
                 photo = photo ?: recipe.photo,
                 easiness = easiness ?: recipe.easiness,
                 time = time ?: recipe.time,
+                ingredients = ingredients ?: recipe.ingredients
             )
         )
     }
@@ -90,6 +92,41 @@ class AddRecipeViewModel @Inject constructor(
         _recipeState.value = value.copy(
             recipe = value.recipe.copy(
                 tags = aux
+            )
+        )
+    }
+
+    fun addIngredientToRecipe(ingredient: String) {
+        val value = recipeState.value
+        _recipeState.value = value.copy(
+            recipe = value.recipe.copy(
+                ingredients = value.recipe.ingredients + ingredient,
+            )
+        )
+    }
+
+    fun deleteIngredientFromRecipe(ingredient: String) {
+        val value = recipeState.value
+        val aux = mutableListOf<String>().apply {
+            addAll(value.recipe.ingredients)
+            remove(ingredient)
+        }
+        _recipeState.value = value.copy(
+            recipe = value.recipe.copy(
+                ingredients = aux
+            )
+        )
+    }
+
+    fun updateIngredientFromRecipe(index: Int, ingredient: String) {
+        val value = recipeState.value
+        val aux = mutableListOf<String>().apply {
+            addAll(value.recipe.ingredients)
+        }
+        aux[index] = ingredient
+        _recipeState.value = value.copy(
+            recipe = value.recipe.copy(
+                ingredients = aux
             )
         )
     }

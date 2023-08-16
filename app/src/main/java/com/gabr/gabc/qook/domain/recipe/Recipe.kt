@@ -1,8 +1,6 @@
 package com.gabr.gabc.qook.domain.recipe
 
 import android.net.Uri
-import com.gabr.gabc.qook.domain.ingredient.Ingredient
-import com.gabr.gabc.qook.domain.ingredient.toDto
 import com.gabr.gabc.qook.domain.tag.Tag
 import com.gabr.gabc.qook.domain.tag.toDto
 import com.gabr.gabc.qook.infrastructure.recipe.RecipeDto
@@ -16,7 +14,7 @@ data class Recipe(
     val time: String,
     val photo: Uri,
     val description: String,
-    val ingredients: List<Ingredient>,
+    val ingredients: List<String>,
     val tags: List<Tag>
 ) {
     companion object {
@@ -43,7 +41,7 @@ fun Recipe.toDto(): RecipeDto {
         time,
         photo.toString(),
         description,
-        ingredients.map { it.toDto() },
+        ingredients,
         tags.map { it.toDto() },
     )
 }

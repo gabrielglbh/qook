@@ -159,6 +159,8 @@ class AddRecipePage : ComponentActivity() {
         var bar4Color by remember { mutableStateOf(colorScheme.outlineVariant) }
         val navController = rememberNavController()
 
+        val contentPadding = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
+
         navController.addOnDestinationChangedListener { _, dest, _ ->
             currentPage = dest.route ?: "step1"
             bar2Color =
@@ -231,6 +233,7 @@ class AddRecipePage : ComponentActivity() {
                     ) {
                         composable("step1") {
                             RecipeMetadataForm(
+                                modifier = contentPadding,
                                 onNavigate = {
                                     navController.navigate("step2")
                                 },
@@ -240,6 +243,7 @@ class AddRecipePage : ComponentActivity() {
                         }
                         composable("step2") {
                             RecipeTags(
+                                modifier = contentPadding,
                                 onNavigate = {
                                     navController.navigate("step3")
                                 },
@@ -251,7 +255,13 @@ class AddRecipePage : ComponentActivity() {
                                 viewModel = viewModel
                             )
                         }
-                        composable("step3") { RecipeIngredients { navController.navigate("step4") } }
+                        composable("step3") {
+                            RecipeIngredients(
+                                modifier = contentPadding,
+                                onNavigate = { navController.navigate("step4") },
+                                viewModel = viewModel
+                            )
+                        }
                         composable("step4") { RecipeDescription {} }
                     }
                     Spacer(modifier = Modifier.size(8.dp))

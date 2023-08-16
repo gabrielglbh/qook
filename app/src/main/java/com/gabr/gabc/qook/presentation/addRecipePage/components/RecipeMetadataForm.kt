@@ -53,6 +53,7 @@ import com.gabr.gabc.qook.presentation.shared.components.QTextForm
 
 @Composable
 fun RecipeMetadataForm(
+    modifier: Modifier,
     onNavigate: () -> Unit,
     requestMultiplePermissions: ActivityResultLauncher<Array<String>>,
     viewModel: AddRecipeViewModel
@@ -68,9 +69,7 @@ fun RecipeMetadataForm(
     Column(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .padding(12.dp)
-            .fillMaxWidth()
+        modifier = modifier.fillMaxSize()
     ) {
         Column(
             modifier = Modifier
