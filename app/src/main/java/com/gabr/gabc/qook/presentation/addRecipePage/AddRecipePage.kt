@@ -37,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -45,6 +46,7 @@ import com.gabr.gabc.qook.domain.tag.Tag
 import com.gabr.gabc.qook.presentation.addRecipePage.components.RecipeDescription
 import com.gabr.gabc.qook.presentation.addRecipePage.components.RecipeIngredients
 import com.gabr.gabc.qook.presentation.addRecipePage.components.RecipeMetadataForm
+import com.gabr.gabc.qook.presentation.addRecipePage.components.RecipePreview
 import com.gabr.gabc.qook.presentation.addRecipePage.components.RecipeTags
 import com.gabr.gabc.qook.presentation.addRecipePage.viewModel.AddRecipeViewModel
 import com.gabr.gabc.qook.presentation.addTagPage.AddTagPage
@@ -153,28 +155,36 @@ class AddRecipePage : ComponentActivity() {
         val viewModel: AddRecipeViewModel by viewModels()
         val colorScheme = MaterialTheme.colorScheme
 
-        var currentPage by remember { mutableStateOf("step1") }
+        var currentPage by remember { mutableStateOf(RecipeStep.DATA) }
         var bar2Color by remember { mutableStateOf(colorScheme.outlineVariant) }
         var bar3Color by remember { mutableStateOf(colorScheme.outlineVariant) }
         var bar4Color by remember { mutableStateOf(colorScheme.outlineVariant) }
+        var bar5Color by remember { mutableStateOf(colorScheme.outlineVariant) }
         val navController = rememberNavController()
 
         val contentPadding = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
 
         navController.addOnDestinationChangedListener { _, dest, _ ->
-            currentPage = dest.route ?: "step1"
+            val steps = RecipeStep.values()
+            currentPage = RecipeStep.valueOf(dest.route!!)
             bar2Color =
-                if (currentPage == "step2" || currentPage == "step3" || currentPage == "step4") {
+                if (currentPage in steps.slice(RecipeStep.INGREDIENTS.ordinal until steps.size)) {
                     colorScheme.primaryContainer
                 } else {
                     colorScheme.outlineVariant
                 }
-            bar3Color = if (currentPage == "step3" || currentPage == "step4") {
+            bar3Color =
+                if (currentPage in steps.slice(RecipeStep.DESCRIPTION.ordinal until steps.size)) {
+                    colorScheme.primaryContainer
+                } else {
+                    colorScheme.outlineVariant
+                }
+            bar4Color = if (currentPage in steps.slice(RecipeStep.TAGS.ordinal until steps.size)) {
                 colorScheme.primaryContainer
             } else {
                 colorScheme.outlineVariant
             }
-            bar4Color = if (currentPage == "step4") {
+            bar5Color = if (currentPage == RecipeStep.PREVIEW) {
                 colorScheme.primaryContainer
             } else {
                 colorScheme.outlineVariant
@@ -186,20 +196,20 @@ class AddRecipePage : ComponentActivity() {
                 QActionBar(
                     title = R.string.add_recipe_title,
                     onBack = {
-                        if (currentPage != "step1") {
+                        if (currentPage != RecipeStep.DATA) {
                             navController.popBackStack()
                         } else {
                             finish()
                         }
                     },
                     actionBehaviour = {
-                        if (currentPage == "step2") {
+                        if (currentPage == RecipeStep.TAGS) {
                             val intent = Intent(this@AddRecipePage, AddTagPage::class.java)
                             resultLauncher.launch(intent)
                         }
                     },
                     action = {
-                        if (currentPage == "step2") {
+                        if (currentPage == RecipeStep.TAGS) {
                             Icon(
                                 Icons.Outlined.BookmarkAdd,
                                 contentDescription = "",
@@ -222,52 +232,61 @@ class AddRecipePage : ComponentActivity() {
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     RecipeProgressBar(
+                        navController = navController,
                         colorBar2 = bar2Color,
                         colorBar3 = bar3Color,
-                        colorBar4 = bar4Color
+                        colorBar4 = bar4Color,
+                        colorBar5 = bar5Color
                     )
+                    Spacer(modifier = Modifier.size(12.dp))
                     NavHost(
                         navController = navController,
-                        startDestination = "step1",
+                        startDestination = RecipeStep.DATA.name,
                         modifier = Modifier.weight(1f)
                     ) {
-                        composable("step1") {
+                        composable(RecipeStep.DATA.name) {
                             RecipeMetadataForm(
                                 modifier = contentPadding,
                                 onNavigate = {
-                                    navController.navigate("step2")
+                                    navController.navigate(RecipeStep.INGREDIENTS.name)
                                 },
                                 requestMultiplePermissions = requestMultiplePermissions,
                                 viewModel = viewModel
                             )
                         }
-                        composable("step2") {
+                        composable(RecipeStep.INGREDIENTS.name) {
                             RecipeIngredients(
                                 modifier = contentPadding,
-                                onNavigate = { navController.navigate("step3") },
+                                onNavigate = { navController.navigate(RecipeStep.DESCRIPTION.name) },
                                 viewModel = viewModel
                             )
                         }
-                        composable("step3") {
+                        composable(RecipeStep.DESCRIPTION.name) {
                             RecipeDescription(
                                 modifier = contentPadding,
                                 onNavigate = {
-                                    navController.navigate("step4")
+                                    navController.navigate(RecipeStep.TAGS.name)
                                 },
                                 viewModel = viewModel
                             )
                         }
-                        composable("step4") {
+                        composable(RecipeStep.TAGS.name) {
                             RecipeTags(
                                 modifier = contentPadding,
                                 onNavigate = {
-                                    // TODO: Save recipe
+                                    navController.navigate(RecipeStep.PREVIEW.name)
                                 },
                                 onTagTap = { tag ->
                                     val intent = Intent(this@AddRecipePage, AddTagPage::class.java)
                                     intent.putExtra(UPDATE_TAG, tag)
                                     resultLauncher.launch(intent)
                                 },
+                                viewModel = viewModel
+                            )
+                        }
+                        composable(RecipeStep.PREVIEW.name) {
+                            RecipePreview(
+                                modifier = contentPadding,
                                 viewModel = viewModel
                             )
                         }
@@ -280,46 +299,52 @@ class AddRecipePage : ComponentActivity() {
 
     @Composable
     fun RecipeProgressBar(
+        navController: NavController,
         colorBar2: Color,
         colorBar3: Color,
-        colorBar4: Color
+        colorBar4: Color,
+        colorBar5: Color
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceAround,
             modifier = Modifier.padding(start = 12.dp, end = 12.dp, top = 12.dp)
         ) {
-            Surface(
-                shape = MaterialTheme.shapes.medium,
-                color = MaterialTheme.colorScheme.primaryContainer,
-                modifier = Modifier
-                    .height(6.dp)
-                    .weight(1f)
-            ) {}
+            Bar(
+                modifier = Modifier.weight(1f),
+                color = MaterialTheme.colorScheme.primaryContainer
+            ) {
+                navController.navigate(RecipeStep.DATA.name)
+            }
             Spacer(modifier = Modifier.size(8.dp))
-            Surface(
-                shape = MaterialTheme.shapes.medium,
-                color = colorBar2,
-                modifier = Modifier
-                    .height(6.dp)
-                    .weight(1f)
-            ) {}
+            Bar(modifier = Modifier.weight(1f), color = colorBar2) {
+                navController.navigate(RecipeStep.INGREDIENTS.name)
+            }
             Spacer(modifier = Modifier.size(8.dp))
-            Surface(
-                shape = MaterialTheme.shapes.medium,
-                color = colorBar3,
-                modifier = Modifier
-                    .height(6.dp)
-                    .weight(1f)
-            ) {}
+            Bar(modifier = Modifier.weight(1f), color = colorBar3) {
+                navController.navigate(RecipeStep.DESCRIPTION.name)
+            }
             Spacer(modifier = Modifier.size(8.dp))
-            Surface(
-                shape = MaterialTheme.shapes.medium,
-                color = colorBar4,
-                modifier = Modifier
-                    .height(6.dp)
-                    .weight(1f)
-            ) {}
+            Bar(modifier = Modifier.weight(1f), color = colorBar4) {
+                navController.navigate(RecipeStep.TAGS.name)
+            }
+            Spacer(modifier = Modifier.size(8.dp))
+            Bar(modifier = Modifier.weight(1f), color = colorBar5) {
+                navController.navigate(RecipeStep.PREVIEW.name)
+            }
         }
+    }
+
+    @Composable
+    fun Bar(modifier: Modifier, color: Color, onClick: () -> Unit) {
+        Surface(
+            shape = MaterialTheme.shapes.medium,
+            color = color,
+            modifier = modifier
+                .height(8.dp),
+            onClick = {
+                onClick()
+            }
+        ) {}
     }
 }

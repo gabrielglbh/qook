@@ -54,7 +54,9 @@ fun RecipeDescription(
         Spacer(modifier = Modifier.size(12.dp))
         QTextForm(
             labelId = R.string.add_recipe_description,
-            modifier = Modifier.height(configuration.screenHeightDp.dp / 1.5f),
+            modifier = Modifier
+                .height(configuration.screenHeightDp.dp / 1.5f)
+                .weight(1f),
             value = descriptionField,
             singleLine = false,
             imeAction = ImeAction.Default,

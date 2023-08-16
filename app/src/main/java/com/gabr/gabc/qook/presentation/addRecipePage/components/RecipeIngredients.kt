@@ -16,7 +16,6 @@ import androidx.compose.material.icons.outlined.ShoppingBasket
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,14 +29,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.presentation.addRecipePage.viewModel.AddRecipeViewModel
 import com.gabr.gabc.qook.presentation.shared.components.QEmptyBox
 import com.gabr.gabc.qook.presentation.shared.components.QTextForm
+import com.gabr.gabc.qook.presentation.shared.components.QTextTitle
 
 @Composable
 fun RecipeIngredients(
@@ -54,12 +52,9 @@ fun RecipeIngredients(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier.fillMaxSize()
     ) {
-        Text(
-            stringResource(R.string.add_recipe_ingredients_title),
-            style = MaterialTheme.typography.titleLarge.copy(
-                fontWeight = FontWeight.Bold,
-            ),
-            textAlign = TextAlign.Center
+        QTextTitle(
+            title = R.string.add_recipe_ingredients_title,
+            subtitle = R.string.add_recipe_ingredients_description
         )
         Spacer(modifier = Modifier.size(8.dp))
         QTextForm(

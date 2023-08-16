@@ -33,9 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.tag.Tag
@@ -43,6 +41,7 @@ import com.gabr.gabc.qook.presentation.addRecipePage.viewModel.AddRecipeViewMode
 import com.gabr.gabc.qook.presentation.shared.components.QEmptyBox
 import com.gabr.gabc.qook.presentation.shared.components.QTag
 import com.gabr.gabc.qook.presentation.shared.components.QTextForm
+import com.gabr.gabc.qook.presentation.shared.components.QTextTitle
 
 @Composable
 fun RecipeTags(
@@ -67,12 +66,9 @@ fun RecipeTags(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier.fillMaxSize()
     ) {
-        Text(
-            stringResource(R.string.add_recipe_tags_description),
-            style = MaterialTheme.typography.titleLarge.copy(
-                fontWeight = FontWeight.Bold,
-            ),
-            textAlign = TextAlign.Center
+        QTextTitle(
+            title = R.string.add_recipe_tags_title,
+            subtitle = R.string.add_recipe_tags_description
         )
         Spacer(modifier = Modifier.size(8.dp))
         QTextForm(

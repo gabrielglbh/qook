@@ -55,7 +55,7 @@
     <string name="add_recipe_easiness_MEDIUM">Medium</string>
     <string name="add_recipe_easiness_HARD">Hard</string>
     <string name="add_recipe_time">Expected time</string>
-    <string name="add_recipe_tags_description">Select, update or add tags to the recipe</string>
+    <string name="add_recipe_tags_description">To add a tag, tap on the action bar icon. To update or remove, tap on it.</string>
     <string name="err_tags_retrieve">Could not retrieve tags</string>
     <string name="err_tags_creation_failed">Could not create tag, try again</string>
     <string name="err_tags_deletion_failed">Could not delete tag, try again</string>
@@ -71,4 +71,9 @@
     <string name="add_recipe_empty_ingredients">You have not added an ingredient yet: type ingredients to add them to the recipe</string>
     <string name="add_recipe_description">Recipe description</string>
     <string name="add_recipe_description_title">Which steps are needed?</string>
+    <string name="add_recipe_save_recipe">Save recipe</string>
+    <string name="add_recipe_preview_of_the_recipe">Preview of the recipe</string>
+    <string name="add_recipe_preview_guideline">In order to modify something, go back or tap on the progress bars</string>
+    <string name="add_recipe_tags_title">Select tags for your recipe</string>
+    <string name="add_recipe_ingredients_description">To update an ingredient tap on it and change it</string>
 </resources>
