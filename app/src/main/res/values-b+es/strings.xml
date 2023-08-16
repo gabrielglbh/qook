@@ -77,4 +77,9 @@
     <string name="add_recipe_preview_guideline">Para modificar algo, ve atrás o pulsa sobre las barras de progreso</string>
     <string name="add_recipe_tags_title">Selecciona etiquetas para tu receta</string>
     <string name="add_recipe_ingredients_description">Para actualizar un ingrediente, pulsa sobre él y cámbialo</string>
+    <string name="recipe_details_ingredients">Ingredientes</string>
+    <string name="recipe_details_steps">Pasos</string>
+    <string name="add_recipe_ready_dialog_title">Pinta bien…</string>
+    <string name="add_recipe_ready_dialog_subtitle">¿Estás listo para añadir %1$s a tu lista de recetas?</string>
+    <string name="add_recipe_error_validation">The recipe is incomplete, please review it again</string>
 </resources>

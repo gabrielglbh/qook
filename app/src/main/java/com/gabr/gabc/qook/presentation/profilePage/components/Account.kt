@@ -1,14 +1,12 @@
 package com.gabr.gabc.qook.presentation.profilePage.components
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Face
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -21,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.user.User
 import com.gabr.gabc.qook.presentation.profilePage.viewModel.ProfileViewModel
+import com.gabr.gabc.qook.presentation.shared.components.QContentCard
 
 @Composable
 fun Account(
@@ -74,44 +73,38 @@ fun Account(
             }
         )
 
-    Surface(
-        modifier = modifier.padding(horizontal = 12.dp),
-        shape = MaterialTheme.shapes.medium,
-        color = MaterialTheme.colorScheme.secondaryContainer
+    QContentCard(
+        modifier = modifier.padding(12.dp),
+        arrangement = Arrangement.Top,
+        alignment = Alignment.Start
     ) {
-        Column(
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.Start
+        Text(
+            stringResource(R.string.profile_account_label),
+            style = MaterialTheme.typography.titleLarge.copy(
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSecondaryContainer
+            ),
+            modifier = Modifier.padding(start = 16.dp)
+        )
+        ProfileRow(
+            icon = Icons.Outlined.Face,
+            text = stringResource(R.string.profile_change_name),
+            trailingText = user.name
         ) {
-            Text(
-                stringResource(R.string.profile_account_label),
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer
-                ),
-                modifier = Modifier.padding(start = 16.dp, top = 12.dp)
-            )
-            ProfileRow(
-                icon = Icons.Outlined.Face,
-                text = stringResource(R.string.profile_change_name),
-                trailingText = user.name
-            ) {
-                showNameDialog.value = true
-            }
-            ProfileRow(
-                icon = Icons.Outlined.Lock,
-                text = stringResource(R.string.profile_change_password)
-            ) {
-                showPasswordDialog.value = true
-            }
-            ProfileRow(
-                icon = Icons.Outlined.Delete,
-                text = stringResource(R.string.profile_delete_account),
-                textColor = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(bottom = 12.dp)
-            ) {
-                showDeleteAccountDialog.value = true
-            }
+            showNameDialog.value = true
+        }
+        ProfileRow(
+            icon = Icons.Outlined.Lock,
+            text = stringResource(R.string.profile_change_password)
+        ) {
+            showPasswordDialog.value = true
+        }
+        ProfileRow(
+            icon = Icons.Outlined.Delete,
+            text = stringResource(R.string.profile_delete_account),
+            textColor = MaterialTheme.colorScheme.error,
+        ) {
+            showDeleteAccountDialog.value = true
         }
     }
 }

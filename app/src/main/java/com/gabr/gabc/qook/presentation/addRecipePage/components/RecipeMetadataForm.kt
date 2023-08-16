@@ -1,32 +1,25 @@
 package com.gabr.gabc.qook.presentation.addRecipePage.components
 
 import android.Manifest
-import android.net.Uri
 import android.os.Build
 import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AddAPhoto
 import androidx.compose.material.icons.outlined.ReceiptLong
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,7 +30,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -48,7 +40,7 @@ import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.recipe.Easiness
 import com.gabr.gabc.qook.presentation.addRecipePage.viewModel.AddRecipeViewModel
 import com.gabr.gabc.qook.presentation.shared.Validators
-import com.gabr.gabc.qook.presentation.shared.components.QImage
+import com.gabr.gabc.qook.presentation.shared.components.QImageCircle
 import com.gabr.gabc.qook.presentation.shared.components.QTextForm
 
 @Composable
@@ -60,8 +52,6 @@ fun RecipeMetadataForm(
 ) {
     val state = viewModel.recipeState.collectAsState().value
     val focusManager = LocalFocusManager.current
-    val configuration = LocalConfiguration.current
-    val buttonSize = configuration.screenWidthDp.dp / 2f
 
     var nameFieldError by remember { mutableStateOf(false) }
     var timeFieldError by remember { mutableStateOf(false) }
@@ -78,43 +68,24 @@ fun RecipeMetadataForm(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            OutlinedButton(
-                onClick = {
-                    focusManager.clearFocus()
-                    requestMultiplePermissions.launch(
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                            arrayOf(
-                                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                                Manifest.permission.READ_MEDIA_IMAGES
-                            )
-                        } else {
-                            arrayOf(
-                                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                                Manifest.permission.READ_EXTERNAL_STORAGE
-                            )
-                        }
-                    )
-                },
-                modifier = Modifier
-                    .width(buttonSize)
-                    .height(buttonSize),
-                shape = CircleShape,
-                border = BorderStroke(2.dp, MaterialTheme.colorScheme.primaryContainer),
-                contentPadding = PaddingValues(0.dp),
+            QImageCircle(
+                uri = state.recipe.photo,
+                placeholder = Icons.Outlined.AddAPhoto,
             ) {
-                if (state.recipe.photo == Uri.EMPTY) {
-                    Icon(
-                        Icons.Outlined.AddAPhoto,
-                        contentDescription = null,
-                        modifier = Modifier.align(Alignment.CenterVertically),
-                        tint = MaterialTheme.colorScheme.onBackground
-                    )
-                } else {
-                    QImage(
-                        uri = state.recipe.photo,
-                        modifier = Modifier.fillMaxSize(),
-                    )
-                }
+                focusManager.clearFocus()
+                requestMultiplePermissions.launch(
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        arrayOf(
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            Manifest.permission.READ_MEDIA_IMAGES
+                        )
+                    } else {
+                        arrayOf(
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            Manifest.permission.READ_EXTERNAL_STORAGE
+                        )
+                    }
+                )
             }
             Spacer(modifier = Modifier.size(20.dp))
             QTextForm(

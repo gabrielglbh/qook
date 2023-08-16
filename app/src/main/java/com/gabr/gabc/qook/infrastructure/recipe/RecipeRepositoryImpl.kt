@@ -2,8 +2,9 @@ package com.gabr.gabc.qook.infrastructure.recipe
 
 import com.gabr.gabc.qook.domain.recipe.Recipe
 import com.gabr.gabc.qook.domain.recipe.RecipeRepository
+import javax.inject.Inject
 
-class RecipeRepositoryImpl : RecipeRepository {
+class RecipeRepositoryImpl @Inject constructor() : RecipeRepository {
     override suspend fun getRecipes(): List<Recipe> {
         TODO("Not yet implemented")
     }

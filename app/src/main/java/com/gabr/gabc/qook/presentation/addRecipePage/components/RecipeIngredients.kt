@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.presentation.addRecipePage.viewModel.AddRecipeViewModel
@@ -124,7 +125,7 @@ fun RecipeIngredients(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.padding(4.dp)
                         ) {
-                            Text(ingredient)
+                            Text(ingredient, overflow = TextOverflow.Ellipsis, maxLines = 2)
                             Spacer(modifier = Modifier.weight(1f))
                             IconButton(
                                 modifier = Modifier.size(24.dp),

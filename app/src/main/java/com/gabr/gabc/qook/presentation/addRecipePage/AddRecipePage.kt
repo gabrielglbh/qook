@@ -27,15 +27,19 @@ import androidx.compose.material.icons.outlined.BookmarkAdd
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
@@ -54,6 +58,7 @@ import com.gabr.gabc.qook.presentation.addTagPage.AlteredMode
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class AddRecipePage : ComponentActivity() {
@@ -162,6 +167,10 @@ class AddRecipePage : ComponentActivity() {
         var bar5Color by remember { mutableStateOf(colorScheme.outlineVariant) }
         val navController = rememberNavController()
 
+        val scope = rememberCoroutineScope()
+        val snackbarHostState = remember { SnackbarHostState() }
+
+        val errorOnUpload = stringResource(R.string.add_recipe_error_validation)
         val contentPadding = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
 
         navController.addOnDestinationChangedListener { _, dest, _ ->
@@ -218,6 +227,9 @@ class AddRecipePage : ComponentActivity() {
                         }
                     }
                 )
+            },
+            snackbarHost = {
+                SnackbarHost(snackbarHostState)
             }
         ) {
             Box(
@@ -288,7 +300,11 @@ class AddRecipePage : ComponentActivity() {
                             RecipePreview(
                                 modifier = contentPadding,
                                 viewModel = viewModel
-                            )
+                            ) {
+                                scope.launch {
+                                    snackbarHostState.showSnackbar(errorOnUpload)
+                                }
+                            }
                         }
                     }
                     Spacer(modifier = Modifier.size(8.dp))

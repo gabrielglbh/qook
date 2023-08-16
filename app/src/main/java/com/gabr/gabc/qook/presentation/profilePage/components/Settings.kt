@@ -1,14 +1,12 @@
 package com.gabr.gabc.qook.presentation.profilePage.components
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -24,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.user.User
 import com.gabr.gabc.qook.presentation.profilePage.viewModel.ProfileViewModel
+import com.gabr.gabc.qook.presentation.shared.components.QContentCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,35 +57,30 @@ fun Settings(
         )
     }
 
-    Surface(
-        modifier = modifier.padding(vertical = 24.dp, horizontal = 12.dp),
-        shape = MaterialTheme.shapes.medium,
-        color = MaterialTheme.colorScheme.secondaryContainer
+
+    QContentCard(
+        modifier = modifier.padding(12.dp),
+        arrangement = Arrangement.Top,
+        alignment = Alignment.Start
     ) {
-        Column(
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.Start
+        Text(
+            stringResource(R.string.profile_settings_label),
+            style = MaterialTheme.typography.titleLarge.copy(
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSecondaryContainer
+            ),
+            modifier = Modifier.padding(start = 16.dp)
+        )
+        ProfileRow(
+            icon = Icons.Outlined.CalendarMonth,
+            text = stringResource(R.string.profile_change_week_beginning),
+            trailingText = days[user.beginningWeekDay]
         ) {
-            Text(
-                stringResource(R.string.profile_settings_label),
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer
-                ),
-                modifier = Modifier.padding(start = 16.dp, top = 12.dp)
-            )
-            ProfileRow(
-                icon = Icons.Outlined.CalendarMonth,
-                text = stringResource(R.string.profile_change_week_beginning),
-                trailingText = days[user.beginningWeekDay]
-            ) {
-                showWeekBeginningBottomSheet = true
-            }
-            ProfileRow(
-                icon = Icons.Outlined.Info,
-                text = stringResource(R.string.profile_about_qook),
-                modifier = Modifier.padding(bottom = 12.dp)
-            ) {}
+            showWeekBeginningBottomSheet = true
         }
+        ProfileRow(
+            icon = Icons.Outlined.Info,
+            text = stringResource(R.string.profile_about_qook),
+        ) {}
     }
 }

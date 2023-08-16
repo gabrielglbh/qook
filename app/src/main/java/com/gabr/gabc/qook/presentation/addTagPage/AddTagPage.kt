@@ -188,6 +188,7 @@ class AddTagPage : ComponentActivity() {
                                 )
                                 tagError = Validators.isNameInvalid(name)
                             },
+                            isError = tagError,
                             leadingIcon = Icons.Outlined.BookmarkBorder,
                         )
                         Spacer(modifier = Modifier.size(12.dp))

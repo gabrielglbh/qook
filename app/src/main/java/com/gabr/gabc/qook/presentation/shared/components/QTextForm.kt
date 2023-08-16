@@ -44,6 +44,7 @@ fun QTextForm(
     val focusManager = LocalFocusManager.current
     val hasAction = onSubmitWithImeAction != null
 
+    // TODO: When copying from clipboard, onValueChange does not trigger
     OutlinedTextField(
         value = value,
         singleLine = singleLine,

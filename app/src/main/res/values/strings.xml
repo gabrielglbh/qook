@@ -76,4 +76,10 @@
     <string name="add_recipe_preview_guideline">In order to modify something, go back or tap on the progress bars</string>
     <string name="add_recipe_tags_title">Select tags for your recipe</string>
     <string name="add_recipe_ingredients_description">To update an ingredient tap on it and change it</string>
+
+    <string name="recipe_details_ingredients">Ingredients</string>
+    <string name="recipe_details_steps">Steps</string>
+    <string name="add_recipe_ready_dialog_title">Looking good…</string>
+    <string name="add_recipe_ready_dialog_subtitle">Are you ready to add %1$s to you recipe list?</string>
+    <string name="add_recipe_error_validation">The recipe is incomplete, please review it again</string>
 </resources>

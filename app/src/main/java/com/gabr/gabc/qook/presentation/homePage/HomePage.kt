@@ -191,7 +191,7 @@ class HomePage : ComponentActivity() {
         ) {
             QShimmer(controller = state.user != null) {
                 Text(
-                    String.format(stringResource(R.string.home_welcome_message), state.user?.name),
+                    stringResource(R.string.home_welcome_message, state.user?.name ?: ""),
                     style = MaterialTheme.typography.headlineSmall,
                     modifier = it.padding(horizontal = 64.dp, vertical = 32.dp),
                     textAlign = TextAlign.Center

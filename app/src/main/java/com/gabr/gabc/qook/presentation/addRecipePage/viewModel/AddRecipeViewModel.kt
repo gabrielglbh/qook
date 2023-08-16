@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gabr.gabc.qook.domain.recipe.Easiness
+import com.gabr.gabc.qook.domain.recipe.RecipeRepository
 import com.gabr.gabc.qook.domain.tag.Tag
 import com.gabr.gabc.qook.domain.tag.TagRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,7 +17,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AddRecipeViewModel @Inject constructor(
-    private val tagsRepository: TagRepository
+    private val tagsRepository: TagRepository,
+    private val recipeRepository: RecipeRepository,
 ) : ViewModel() {
     private val _recipeState = MutableStateFlow(AddRecipeState())
     val recipeState: StateFlow<AddRecipeState> = _recipeState.asStateFlow()
@@ -52,6 +54,13 @@ class AddRecipeViewModel @Inject constructor(
         val auxIds = aux.map { it.id }
         if (auxIds.contains(tag.id)) aux[auxIds.indexOf(tag.id)] = tag
         return aux
+    }
+
+    fun uploadRecipe() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = recipeRepository.createRecipe(_recipeState.value.recipe)
+            // TODO: Get
+        }
     }
 
     fun updateMetadata(
