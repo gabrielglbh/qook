@@ -19,6 +19,6 @@ interface UserRepository {
     suspend fun createUserInDB(user: domainUser): Either<UserFailure, Unit>
     suspend fun updateUser(user: domainUser): Either<UserFailure, Unit>
     suspend fun getUser(): Either<UserFailure, domainUser>
-    suspend fun updateAvatar(image: String): Either<UserFailure, Uri>
+    suspend fun updateAvatar(image: Uri): Either<UserFailure, Uri>
     suspend fun getAvatar(): Either<UserFailure, Uri>
 }

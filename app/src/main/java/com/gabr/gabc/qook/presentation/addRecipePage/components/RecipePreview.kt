@@ -26,7 +26,12 @@ import com.gabr.gabc.qook.presentation.shared.components.QRecipeDetail
 import com.gabr.gabc.qook.presentation.shared.components.QTextTitle
 
 @Composable
-fun RecipePreview(modifier: Modifier, viewModel: AddRecipeViewModel, onError: () -> Unit) {
+fun RecipePreview(
+    modifier: Modifier,
+    viewModel: AddRecipeViewModel,
+    onError: (String?) -> Unit,
+    onSuccess: () -> Unit
+) {
     val state = viewModel.recipeState.collectAsState().value
     val showValidationDialog = remember { mutableStateOf(false) }
 
@@ -39,7 +44,10 @@ fun RecipePreview(modifier: Modifier, viewModel: AddRecipeViewModel, onError: ()
                 Text(stringResource(R.string.add_recipe_ready_dialog_subtitle, state.recipe.name))
             },
             onSubmit = {
-                viewModel.uploadRecipe()
+                viewModel.uploadRecipe(
+                    ifError = { error -> onError(error) },
+                    ifSuccess = { onSuccess() }
+                )
                 showValidationDialog.value = false
             },
         )
@@ -59,7 +67,7 @@ fun RecipePreview(modifier: Modifier, viewModel: AddRecipeViewModel, onError: ()
         Button(
             onClick = {
                 if (Validators.isRecipeInvalid(state.recipe)) {
-                    onError()
+                    onError(null)
                     return@Button
                 }
                 showValidationDialog.value = true

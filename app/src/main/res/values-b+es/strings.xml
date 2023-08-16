@@ -82,4 +82,7 @@
     <string name="add_recipe_ready_dialog_title">Pinta bien…</string>
     <string name="add_recipe_ready_dialog_subtitle">¿Estás listo para añadir %1$s a tu lista de recetas?</string>
     <string name="add_recipe_error_validation">The recipe is incomplete, please review it again</string>
+    <string name="err_recipe_creation">No se ha podido crear la receta, prueba otra vez</string>
+    <string name="err_recipes_retrieve">No se ha podido recoger la receta, prueba otra vez</string>
+    <string name="error_recipes_update">No se ha podido actualizar la receta, prueba otra vez</string>
 </resources>

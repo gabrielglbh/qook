@@ -32,7 +32,7 @@ class TagRepositoryImpl @Inject constructor(
             return Left(TagFailure.NotAuthenticated(res.getString(R.string.error_user_not_auth)))
         } catch (err: FirebaseFirestoreException) {
             return Left(
-                TagFailure.TagDoesNotExist(
+                TagFailure.TagCreationFailed(
                     "${err.code}: " +
                             res.getString(R.string.err_tags_creation_failed)
                 )
@@ -42,6 +42,7 @@ class TagRepositoryImpl @Inject constructor(
 
     override suspend fun removeTag(id: String): Either<TagFailure, Unit> {
         try {
+            // TODO: Remove THIS tag in ANY recipe involved
             auth.currentUser?.let {
                 db.collection("USERS").document(it.uid)
                     .collection("TAGS").document(id)
@@ -60,6 +61,7 @@ class TagRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateTag(tag: Tag): Either<TagFailure, Unit> {
+        // TODO: Update THIS tag in ANY recipe involved
         auth.currentUser?.let {
             db.collection("USERS").document(it.uid)
                 .collection("TAGS").document(tag.id)
@@ -82,7 +84,7 @@ class TagRepositoryImpl @Inject constructor(
             return Left(TagFailure.NotAuthenticated(res.getString(R.string.error_user_not_auth)))
         } catch (err: FirebaseFirestoreException) {
             return Left(
-                TagFailure.TagDoesNotExist(
+                TagFailure.TagsRetrievalFailed(
                     "${err.code}: " + res.getString(R.string.err_tags_retrieve)
                 )
             )
@@ -90,6 +92,23 @@ class TagRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getTags(recipeId: String): Either<TagFailure, List<Tag>> {
-        TODO("Not yet implemented")
+        try {
+            auth.currentUser?.let {
+                val ref = db
+                    .collection("USERS").document(it.uid)
+                    .collection("RECIPES").document(recipeId)
+                    .collection("TAGS").get().await()
+                return Right(ref.toObjects<TagDto>().map { dto ->
+                    dto.toDomain()
+                })
+            }
+            return Left(TagFailure.NotAuthenticated(res.getString(R.string.error_user_not_auth)))
+        } catch (err: FirebaseFirestoreException) {
+            return Left(
+                TagFailure.TagsRetrievalFailed(
+                    "${err.code}: " + res.getString(R.string.err_tags_retrieve)
+                )
+            )
+        }
     }
 }

@@ -80,7 +80,14 @@ class ProfileViewModel @Inject constructor(
     fun updateAvatar(uri: Uri, onError: ((String) -> Unit)? = null) {
         viewModelScope.launch {
             val result =
-                repository.updateAvatar(resizeImageToFile(uri, provider.contentResolver()).path)
+                repository.updateAvatar(
+                    Uri.fromFile(
+                        resizeImageToFile(
+                            uri,
+                            provider.contentResolver()
+                        )
+                    )
+                )
             result.fold(
                 ifLeft = {
                     onError?.let { f -> f(it.error) }

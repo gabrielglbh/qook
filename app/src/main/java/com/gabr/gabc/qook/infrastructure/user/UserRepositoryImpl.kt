@@ -18,7 +18,6 @@ import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
-import java.io.File
 import javax.inject.Inject
 import com.gabr.gabc.qook.domain.user.User as domainUser
 
@@ -174,12 +173,11 @@ class UserRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun updateAvatar(image: String): Either<UserFailure, Uri> {
+    override suspend fun updateAvatar(image: Uri): Either<UserFailure, Uri> {
         try {
             auth.currentUser?.let {
-                val file = Uri.fromFile(File(image))
                 val imageRef = storage.reference.child("${it.uid}/avatar/photo.jpg")
-                val uploadTask = imageRef.putFile(file).await()
+                val uploadTask = imageRef.putFile(image).await()
 
                 if (uploadTask.error != null) {
                     return Left(UserFailure.UpdateAvatarFailure(res.getString(R.string.error_avatar_update)))

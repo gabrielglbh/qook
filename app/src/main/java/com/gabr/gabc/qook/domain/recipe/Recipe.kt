@@ -2,14 +2,15 @@ package com.gabr.gabc.qook.domain.recipe
 
 import android.net.Uri
 import com.gabr.gabc.qook.domain.tag.Tag
-import com.gabr.gabc.qook.domain.tag.toDto
 import com.gabr.gabc.qook.infrastructure.recipe.RecipeDto
-import java.time.LocalDate
+import java.util.Calendar
+import java.util.Date
 
 data class Recipe(
+    val id: String,
     val name: String,
-    val creationDate: LocalDate,
-    val updateDate: LocalDate,
+    val creationDate: Date,
+    val updateDate: Date,
     val easiness: Easiness,
     val time: String,
     val photo: Uri,
@@ -19,9 +20,10 @@ data class Recipe(
 ) {
     companion object {
         val EMPTY_RECIPE = Recipe(
+            id = "",
             name = "",
-            creationDate = LocalDate.now(),
-            updateDate = LocalDate.now(),
+            creationDate = Calendar.getInstance().time,
+            updateDate = Calendar.getInstance().time,
             easiness = Easiness.EASY,
             time = "",
             photo = Uri.EMPTY,
@@ -34,14 +36,13 @@ data class Recipe(
 
 fun Recipe.toDto(): RecipeDto {
     return RecipeDto(
+        id,
         name,
-        creationDate,
-        updateDate,
+        creationDate.time,
+        updateDate.time,
         easiness.name,
         time,
-        photo.toString(),
         description,
-        ingredients,
-        tags.map { it.toDto() },
+        ingredients
     )
 }

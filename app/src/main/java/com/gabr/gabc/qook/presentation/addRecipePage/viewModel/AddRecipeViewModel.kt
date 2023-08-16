@@ -1,27 +1,36 @@
 package com.gabr.gabc.qook.presentation.addRecipePage.viewModel
 
 import android.net.Uri
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gabr.gabc.qook.domain.recipe.Easiness
 import com.gabr.gabc.qook.domain.recipe.RecipeRepository
 import com.gabr.gabc.qook.domain.tag.Tag
 import com.gabr.gabc.qook.domain.tag.TagRepository
+import com.gabr.gabc.qook.presentation.shared.ResizeImageUtil.Companion.resizeImageToFile
+import com.gabr.gabc.qook.presentation.shared.providers.ContentResolverProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.Calendar
 import javax.inject.Inject
 
 @HiltViewModel
 class AddRecipeViewModel @Inject constructor(
     private val tagsRepository: TagRepository,
     private val recipeRepository: RecipeRepository,
+    private val provider: ContentResolverProvider
 ) : ViewModel() {
     private val _recipeState = MutableStateFlow(AddRecipeState())
     val recipeState: StateFlow<AddRecipeState> = _recipeState.asStateFlow()
+
+    var isLoading = mutableStateOf(false)
+        private set
 
     init {
         gatherTags()
@@ -56,10 +65,30 @@ class AddRecipeViewModel @Inject constructor(
         return aux
     }
 
-    fun uploadRecipe() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val result = recipeRepository.createRecipe(_recipeState.value.recipe)
-            // TODO: Get
+    fun uploadRecipe(ifSuccess: () -> Unit, ifError: (String) -> Unit) {
+        viewModelScope.launch {
+            withContext(Dispatchers.Main) { isLoading.value = true }
+            val resizedPhoto = resizeImageToFile(
+                recipeState.value.recipe.photo,
+                provider.contentResolver(),
+                name = recipeState.value.recipe.name // TODO: Parse out non valid characters or else IOException
+            )
+            val result = recipeRepository.createRecipe(
+                _recipeState.value.recipe.copy(
+                    photo = Uri.fromFile(resizedPhoto),
+                    creationDate = Calendar.getInstance().time,
+                    updateDate = Calendar.getInstance().time
+                )
+            )
+            result.fold(
+                ifLeft = { fail ->
+                    ifError(fail.error)
+                },
+                ifRight = {
+                    ifSuccess()
+                }
+            )
+            withContext(Dispatchers.Main) { isLoading.value = false }
         }
     }
 

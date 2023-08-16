@@ -14,7 +14,8 @@ class ResizeImageUtil {
         fun resizeImageToFile(
             uri: Uri,
             contentProvider: ContentResolver,
-            requiredSize: Int = 250
+            requiredSize: Int = 250,
+            name: String = "photo"
         ): File {
             val options = BitmapFactory.Options()
             options.inJustDecodeBounds = true
@@ -44,7 +45,7 @@ class ResizeImageUtil {
             val dir =
                 File("${Environment.getExternalStoragePublicDirectory(DIRECTORY_PICTURES).absolutePath}/qook")
             if (!dir.exists()) dir.mkdir()
-            val file = File(dir, "photo.jpg")
+            val file = File(dir, "$name.jpg")
             file.createNewFile()
             val fOut = FileOutputStream(file)
 

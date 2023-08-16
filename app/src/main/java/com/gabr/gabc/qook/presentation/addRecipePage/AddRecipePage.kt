@@ -56,6 +56,7 @@ import com.gabr.gabc.qook.presentation.addRecipePage.viewModel.AddRecipeViewMode
 import com.gabr.gabc.qook.presentation.addTagPage.AddTagPage
 import com.gabr.gabc.qook.presentation.addTagPage.AlteredMode
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
+import com.gabr.gabc.qook.presentation.shared.components.QLoadingScreen
 import com.gabr.gabc.qook.presentation.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -200,116 +201,122 @@ class AddRecipePage : ComponentActivity() {
             }
         }
 
-        Scaffold(
-            topBar = {
-                QActionBar(
-                    title = R.string.add_recipe_title,
-                    onBack = {
-                        if (currentPage != RecipeStep.DATA) {
-                            navController.popBackStack()
-                        } else {
-                            finish()
-                        }
-                    },
-                    actionBehaviour = {
-                        if (currentPage == RecipeStep.TAGS) {
-                            val intent = Intent(this@AddRecipePage, AddTagPage::class.java)
-                            resultLauncher.launch(intent)
-                        }
-                    },
-                    action = {
-                        if (currentPage == RecipeStep.TAGS) {
-                            Icon(
-                                Icons.Outlined.BookmarkAdd,
-                                contentDescription = "",
-                                modifier = Modifier.size(16.dp)
-                            )
-                        }
-                    }
-                )
-            },
-            snackbarHost = {
-                SnackbarHost(snackbarHostState)
-            }
-        ) {
-            Box(
-                contentAlignment = Alignment.TopCenter,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(it)
-                    .consumeWindowInsets(it)
-            ) {
-                Column(
-                    verticalArrangement = Arrangement.SpaceAround,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    RecipeProgressBar(
-                        navController = navController,
-                        colorBar2 = bar2Color,
-                        colorBar3 = bar3Color,
-                        colorBar4 = bar4Color,
-                        colorBar5 = bar5Color
-                    )
-                    Spacer(modifier = Modifier.size(12.dp))
-                    NavHost(
-                        navController = navController,
-                        startDestination = RecipeStep.DATA.name,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        composable(RecipeStep.DATA.name) {
-                            RecipeMetadataForm(
-                                modifier = contentPadding,
-                                onNavigate = {
-                                    navController.navigate(RecipeStep.INGREDIENTS.name)
-                                },
-                                requestMultiplePermissions = requestMultiplePermissions,
-                                viewModel = viewModel
-                            )
-                        }
-                        composable(RecipeStep.INGREDIENTS.name) {
-                            RecipeIngredients(
-                                modifier = contentPadding,
-                                onNavigate = { navController.navigate(RecipeStep.DESCRIPTION.name) },
-                                viewModel = viewModel
-                            )
-                        }
-                        composable(RecipeStep.DESCRIPTION.name) {
-                            RecipeDescription(
-                                modifier = contentPadding,
-                                onNavigate = {
-                                    navController.navigate(RecipeStep.TAGS.name)
-                                },
-                                viewModel = viewModel
-                            )
-                        }
-                        composable(RecipeStep.TAGS.name) {
-                            RecipeTags(
-                                modifier = contentPadding,
-                                onNavigate = {
-                                    navController.navigate(RecipeStep.PREVIEW.name)
-                                },
-                                onTagTap = { tag ->
-                                    val intent = Intent(this@AddRecipePage, AddTagPage::class.java)
-                                    intent.putExtra(UPDATE_TAG, tag)
-                                    resultLauncher.launch(intent)
-                                },
-                                viewModel = viewModel
-                            )
-                        }
-                        composable(RecipeStep.PREVIEW.name) {
-                            RecipePreview(
-                                modifier = contentPadding,
-                                viewModel = viewModel
-                            ) {
-                                scope.launch {
-                                    snackbarHostState.showSnackbar(errorOnUpload)
-                                }
+        Box {
+            Scaffold(
+                topBar = {
+                    QActionBar(
+                        title = R.string.add_recipe_title,
+                        onBack = {
+                            if (currentPage != RecipeStep.DATA) {
+                                navController.popBackStack()
+                            } else {
+                                finish()
+                            }
+                        },
+                        actionBehaviour = {
+                            if (currentPage == RecipeStep.TAGS) {
+                                val intent = Intent(this@AddRecipePage, AddTagPage::class.java)
+                                resultLauncher.launch(intent)
+                            }
+                        },
+                        action = {
+                            if (currentPage == RecipeStep.TAGS) {
+                                Icon(
+                                    Icons.Outlined.BookmarkAdd,
+                                    contentDescription = "",
+                                    modifier = Modifier.size(16.dp)
+                                )
                             }
                         }
+                    )
+                },
+                snackbarHost = {
+                    SnackbarHost(snackbarHostState)
+                }
+            ) {
+                Box(
+                    contentAlignment = Alignment.TopCenter,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(it)
+                        .consumeWindowInsets(it)
+                ) {
+                    Column(
+                        verticalArrangement = Arrangement.SpaceAround,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        RecipeProgressBar(
+                            navController = navController,
+                            colorBar2 = bar2Color,
+                            colorBar3 = bar3Color,
+                            colorBar4 = bar4Color,
+                            colorBar5 = bar5Color
+                        )
+                        Spacer(modifier = Modifier.size(12.dp))
+                        NavHost(
+                            navController = navController,
+                            startDestination = RecipeStep.DATA.name,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            composable(RecipeStep.DATA.name) {
+                                RecipeMetadataForm(
+                                    modifier = contentPadding,
+                                    onNavigate = {
+                                        navController.navigate(RecipeStep.INGREDIENTS.name)
+                                    },
+                                    requestMultiplePermissions = requestMultiplePermissions,
+                                    viewModel = viewModel
+                                )
+                            }
+                            composable(RecipeStep.INGREDIENTS.name) {
+                                RecipeIngredients(
+                                    modifier = contentPadding,
+                                    onNavigate = { navController.navigate(RecipeStep.DESCRIPTION.name) },
+                                    viewModel = viewModel
+                                )
+                            }
+                            composable(RecipeStep.DESCRIPTION.name) {
+                                RecipeDescription(
+                                    modifier = contentPadding,
+                                    onNavigate = {
+                                        navController.navigate(RecipeStep.TAGS.name)
+                                    },
+                                    viewModel = viewModel
+                                )
+                            }
+                            composable(RecipeStep.TAGS.name) {
+                                RecipeTags(
+                                    modifier = contentPadding,
+                                    onNavigate = {
+                                        navController.navigate(RecipeStep.PREVIEW.name)
+                                    },
+                                    onTagTap = { tag ->
+                                        val intent =
+                                            Intent(this@AddRecipePage, AddTagPage::class.java)
+                                        intent.putExtra(UPDATE_TAG, tag)
+                                        resultLauncher.launch(intent)
+                                    },
+                                    viewModel = viewModel
+                                )
+                            }
+                            composable(RecipeStep.PREVIEW.name) {
+                                RecipePreview(
+                                    modifier = contentPadding,
+                                    viewModel = viewModel,
+                                    onError = { error ->
+                                        scope.launch {
+                                            snackbarHostState.showSnackbar(error ?: errorOnUpload)
+                                        }
+                                    },
+                                    onSuccess = { finish() }
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.size(8.dp))
                     }
-                    Spacer(modifier = Modifier.size(8.dp))
                 }
             }
+            if (viewModel.isLoading.value) QLoadingScreen()
         }
     }
 
