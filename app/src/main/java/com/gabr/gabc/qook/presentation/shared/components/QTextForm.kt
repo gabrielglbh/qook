@@ -2,6 +2,7 @@ package com.gabr.gabc.qook.presentation.shared.components
 
 import android.util.Log
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Email
@@ -14,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -32,11 +34,16 @@ fun QTextForm(
     onValueChange: (String) -> Unit,
     imeAction: ImeAction = ImeAction.Done,
     leadingIcon: ImageVector? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
     obscured: Boolean = false,
     focusedColor: Color = MaterialTheme.colorScheme.primary,
     isError: Boolean = false,
     keyboardType: KeyboardType = KeyboardType.Text,
+    onSubmitWithImeAction: (() -> Unit)? = null
 ) {
+    val focusManager = LocalFocusManager.current
+    val hasAction = onSubmitWithImeAction != null
+
     OutlinedTextField(
         value = value,
         singleLine = singleLine,
@@ -49,10 +56,33 @@ fun QTextForm(
             keyboardType = keyboardType,
             capitalization = KeyboardCapitalization.Sentences
         ),
+        keyboardActions = KeyboardActions(
+            onDone = if (hasAction) {
+                {
+                    onSubmitWithImeAction!!()
+                    focusManager.clearFocus()
+                }
+            } else {
+                null
+            },
+            onSearch = if (hasAction) {
+                {
+                    onSubmitWithImeAction!!()
+                    focusManager.clearFocus()
+                }
+            } else {
+                null
+            }
+        ),
         leadingIcon = if (leadingIcon == null) {
             null
         } else {
             { Icon(leadingIcon, contentDescription = "") }
+        },
+        trailingIcon = if (trailingIcon == null) {
+            null
+        } else {
+            { trailingIcon() }
         },
         visualTransformation = if (obscured) PasswordVisualTransformation() else VisualTransformation.None,
         colors = TextFieldDefaults.colors(

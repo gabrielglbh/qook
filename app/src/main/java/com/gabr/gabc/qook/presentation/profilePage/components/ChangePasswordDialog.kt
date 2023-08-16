@@ -11,6 +11,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.presentation.shared.Validators
@@ -23,6 +24,18 @@ fun ChangePasswordDialog(setShowDialog: (Boolean) -> Unit, onClick: (String, Str
     var newPasswordField by remember { mutableStateOf("") }
     var errorOld by remember { mutableStateOf(false) }
     var errorNew by remember { mutableStateOf(false) }
+
+    fun onSubmit() {
+        if (!errorOld && !errorNew && oldPasswordField.trim()
+                .isNotEmpty() && newPasswordField.trim().isNotEmpty()
+        ) {
+            onClick(oldPasswordField, newPasswordField)
+            setShowDialog(false)
+        } else {
+            if (errorOld || oldPasswordField.trim().isEmpty()) errorOld = true
+            if (errorNew || newPasswordField.trim().isEmpty()) errorNew = true
+        }
+    }
 
     QDialog(
         onDismissRequest = { setShowDialog(false) },
@@ -38,6 +51,7 @@ fun ChangePasswordDialog(setShowDialog: (Boolean) -> Unit, onClick: (String, Str
                         errorOld = Validators.isPasswordInvalid(oldPasswordField)
                     },
                     obscured = true,
+                    imeAction = ImeAction.Next,
                     isError = errorOld
                 )
                 Spacer(modifier = Modifier.size(20.dp))
@@ -49,20 +63,11 @@ fun ChangePasswordDialog(setShowDialog: (Boolean) -> Unit, onClick: (String, Str
                         errorNew = Validators.isPasswordInvalid(newPasswordField)
                     },
                     obscured = true,
-                    isError = errorNew
+                    isError = errorNew,
+                    onSubmitWithImeAction = { onSubmit() }
                 )
             }
         },
-        onSubmit = {
-            if (!errorOld && !errorNew && oldPasswordField.trim()
-                    .isNotEmpty() && newPasswordField.trim().isNotEmpty()
-            ) {
-                onClick(oldPasswordField, newPasswordField)
-                setShowDialog(false)
-            } else {
-                if (errorOld || oldPasswordField.trim().isEmpty()) errorOld = true
-                if (errorNew || newPasswordField.trim().isEmpty()) errorNew = true
-            }
-        }
+        onSubmit = { onSubmit() }
     )
 }

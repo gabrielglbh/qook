@@ -5,5 +5,6 @@ import com.gabr.gabc.qook.domain.tag.Tag
 
 data class AddRecipeState(
     val recipe: Recipe = Recipe.EMPTY_RECIPE,
-    val createdTags: List<Tag> = listOf()
+    val createdTags: List<Tag> = listOf(),
+    val searchedTags: List<Tag> = listOf()
 )

@@ -133,6 +133,30 @@ class LoginPage : ComponentActivity() {
 
         val errorForm = stringResource(R.string.error_empty_form)
 
+        fun onSubmit() {
+            focusManager.clearFocus()
+
+            if (isRegisterMode) {
+                if (errorEmail || errorPassword || errorName || form.name.trim()
+                        .isEmpty()
+                ) {
+                    viewModel.updateLoginState(form.copy(error = errorForm))
+                } else {
+                    viewModel.createUser {
+                        startActivity(Intent(this@LoginPage, HomePage::class.java))
+                    }
+                }
+            } else {
+                if (errorEmail || errorPassword) {
+                    viewModel.updateLoginState(form.copy(error = errorForm))
+                } else {
+                    viewModel.signInUser {
+                        startActivity(Intent(this@LoginPage, HomePage::class.java))
+                    }
+                }
+            }
+        }
+
         Column(
             modifier = modifier.verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -174,7 +198,8 @@ class LoginPage : ComponentActivity() {
                 },
                 value = form.password,
                 obscured = true,
-                isError = errorPassword
+                isError = errorPassword,
+                onSubmitWithImeAction = { onSubmit() }
             )
             if (form.error.isNotEmpty()) Text(
                 form.error,
@@ -188,29 +213,7 @@ class LoginPage : ComponentActivity() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 24.dp),
-                onClick = {
-                    focusManager.clearFocus()
-
-                    if (isRegisterMode) {
-                        if (errorEmail || errorPassword || errorName || form.name.trim()
-                                .isEmpty()
-                        ) {
-                            viewModel.updateLoginState(form.copy(error = errorForm))
-                        } else {
-                            viewModel.createUser {
-                                startActivity(Intent(this@LoginPage, HomePage::class.java))
-                            }
-                        }
-                    } else {
-                        if (errorEmail || errorPassword) {
-                            viewModel.updateLoginState(form.copy(error = errorForm))
-                        } else {
-                            viewModel.signInUser {
-                                startActivity(Intent(this@LoginPage, HomePage::class.java))
-                            }
-                        }
-                    }
-                }
+                onClick = { onSubmit() }
             ) {
                 Text(
                     stringResource(

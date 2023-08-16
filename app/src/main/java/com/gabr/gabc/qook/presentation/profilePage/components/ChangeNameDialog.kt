@@ -17,6 +17,15 @@ fun ChangeNameDialog(setShowDialog: (Boolean) -> Unit, onClick: (String) -> Unit
     var textField by remember { mutableStateOf("") }
     var errorName by remember { mutableStateOf(false) }
 
+    fun onSubmit() {
+        if (!errorName && textField.trim().isNotEmpty()) {
+            onClick(textField)
+            setShowDialog(false)
+        } else {
+            errorName = true
+        }
+    }
+
     QDialog(
         onDismissRequest = { setShowDialog(false) },
         leadingIcon = Icons.Outlined.Face,
@@ -29,16 +38,10 @@ fun ChangeNameDialog(setShowDialog: (Boolean) -> Unit, onClick: (String) -> Unit
                     textField = it
                     errorName = Validators.isNameInvalid(textField)
                 },
-                isError = errorName
+                isError = errorName,
+                onSubmitWithImeAction = { onSubmit() }
             )
         },
-        onSubmit = {
-            if (!errorName && textField.trim().isNotEmpty()) {
-                onClick(textField)
-                setShowDialog(false)
-            } else {
-                errorName = true
-            }
-        },
+        onSubmit = { onSubmit() },
     )
 }

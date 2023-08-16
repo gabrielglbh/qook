@@ -66,4 +66,5 @@
     <string name="tag_save_title">Guardar</string>
     <string name="tags_modify_title">Actualiza la etiqueta</string>
     <string name="tags_remove_tag">Eliminar</string>
+    <string name="add_recipe_search_tags">Search tags</string>
 </resources>

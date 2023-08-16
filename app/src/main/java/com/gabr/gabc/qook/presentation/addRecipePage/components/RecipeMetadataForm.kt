@@ -41,6 +41,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
@@ -122,6 +123,7 @@ fun RecipeMetadataForm(
                 value = state.recipe.name,
                 isError = nameFieldError,
                 leadingIcon = Icons.Outlined.ReceiptLong,
+                imeAction = ImeAction.Next,
                 onValueChange = {
                     viewModel.updateMetadata(name = it)
                     nameFieldError = Validators.isRecipeNameInvalid(it)
@@ -136,7 +138,7 @@ fun RecipeMetadataForm(
                 onValueChange = {
                     viewModel.updateMetadata(time = it)
                     timeFieldError = Validators.isNameInvalid(it)
-                }
+                },
             )
             Spacer(modifier = Modifier.size(20.dp))
             EasinessComponent(state.recipe.easiness, onSelect = {

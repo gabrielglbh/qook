@@ -32,7 +32,8 @@ class AddRecipeViewModel @Inject constructor(
                 ifLeft = {},
                 ifRight = {
                     _recipeState.value = _recipeState.value.copy(
-                        createdTags = it
+                        createdTags = it,
+                        searchedTags = it
                     )
                 }
             )
@@ -71,7 +72,7 @@ class AddRecipeViewModel @Inject constructor(
         )
     }
 
-    fun addTag(tag: Tag) {
+    fun addTagToRecipe(tag: Tag) {
         val value = recipeState.value
         _recipeState.value = value.copy(
             recipe = value.recipe.copy(
@@ -80,7 +81,7 @@ class AddRecipeViewModel @Inject constructor(
         )
     }
 
-    fun deleteTag(tag: Tag) {
+    fun deleteTagFromRecipe(tag: Tag) {
         val value = recipeState.value
         val aux = mutableListOf<Tag>().apply {
             addAll(value.recipe.tags)
@@ -95,31 +96,54 @@ class AddRecipeViewModel @Inject constructor(
 
     fun deleteTagForLocalLoading(id: String) {
         val value = recipeState.value
+        val newCreatedTags = alterListForDeletion(id, value.createdTags)
         _recipeState.value = value.copy(
             recipe = value.recipe.copy(
                 tags = alterListForDeletion(id, value.recipe.tags)
             ),
-            createdTags = alterListForDeletion(id, value.createdTags)
+            createdTags = newCreatedTags,
+            searchedTags = newCreatedTags
         )
     }
 
     fun updateTagForLocalLoading(tag: Tag) {
         val value = recipeState.value
+        val newCreatedTags = alterListForUpdate(tag, value.createdTags)
         _recipeState.value = value.copy(
             recipe = value.recipe.copy(
                 tags = alterListForUpdate(tag, value.recipe.tags)
             ),
-            createdTags = alterListForUpdate(tag, value.createdTags)
+            createdTags = newCreatedTags,
+            searchedTags = newCreatedTags
         )
     }
 
     fun createTagForLocalLoading(tag: Tag) {
         val value = recipeState.value
+        val newCreatedTags = mutableListOf<Tag>().apply {
+            add(tag)
+            addAll(value.createdTags)
+        }
         _recipeState.value = value.copy(
-            createdTags = mutableListOf<Tag>().apply {
-                add(tag)
-                addAll(value.createdTags)
-            }
+            createdTags = newCreatedTags,
+            searchedTags = newCreatedTags
         )
+    }
+
+    fun onSearchUpdate(query: String) {
+        val value = recipeState.value
+
+        if (query.trim().isEmpty()) {
+            _recipeState.value = value.copy(
+                searchedTags = value.createdTags
+            )
+        } else {
+            val aux = mutableListOf<Tag>().apply { addAll(value.searchedTags) }
+            val filtered = aux.filter { tag -> tag.text.contains(query, ignoreCase = true) }
+
+            _recipeState.value = value.copy(
+                searchedTags = filtered
+            )
+        }
     }
 }
