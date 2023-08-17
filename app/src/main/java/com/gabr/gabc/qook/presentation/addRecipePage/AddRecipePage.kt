@@ -31,6 +31,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,6 +47,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.gabr.gabc.qook.R
+import com.gabr.gabc.qook.domain.recipe.Recipe
 import com.gabr.gabc.qook.domain.tag.Tag
 import com.gabr.gabc.qook.presentation.addRecipePage.components.RecipeDescription
 import com.gabr.gabc.qook.presentation.addRecipePage.components.RecipeIngredients
@@ -55,6 +57,7 @@ import com.gabr.gabc.qook.presentation.addRecipePage.components.RecipeTags
 import com.gabr.gabc.qook.presentation.addRecipePage.viewModel.AddRecipeViewModel
 import com.gabr.gabc.qook.presentation.addTagPage.AddTagPage
 import com.gabr.gabc.qook.presentation.addTagPage.AlteredMode
+import com.gabr.gabc.qook.presentation.recipeDetailsPage.RecipeDetailsPage
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.shared.components.QLoadingScreen
 import com.gabr.gabc.qook.presentation.theme.AppTheme
@@ -65,6 +68,7 @@ import kotlinx.coroutines.launch
 class AddRecipePage : ComponentActivity() {
     companion object {
         const val UPDATE_TAG = "UPDATE_TAG"
+        const val RECIPE_UPDATED = "RECIPE_UPDATED"
     }
 
     private lateinit var pickMedia: ActivityResultLauncher<PickVisualMediaRequest>
@@ -141,6 +145,16 @@ class AddRecipePage : ComponentActivity() {
 
         val viewModel: AddRecipeViewModel by viewModels()
 
+        val recipeFromDetails = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.getParcelableExtra(RecipeDetailsPage.RECIPE_FROM_DETAILS, Recipe::class.java)
+        } else {
+            intent.getParcelableExtra(RecipeDetailsPage.RECIPE_FROM_DETAILS)
+        }
+
+        recipeFromDetails?.let {
+            viewModel.loadLocalRecipe(it)
+        }
+
         pickMedia =
             registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
                 if (uri != null) {
@@ -159,6 +173,7 @@ class AddRecipePage : ComponentActivity() {
     @Composable
     fun AddRecipeView() {
         val viewModel: AddRecipeViewModel by viewModels()
+        val state = viewModel.recipeState.collectAsState().value
         val colorScheme = MaterialTheme.colorScheme
 
         var currentPage by remember { mutableStateOf(RecipeStep.DATA) }
@@ -308,7 +323,23 @@ class AddRecipePage : ComponentActivity() {
                                             snackbarHostState.showSnackbar(error ?: errorOnUpload)
                                         }
                                     },
-                                    onSuccess = { finish() }
+                                    onSuccess = {
+                                        viewModel.uploadRecipe(
+                                            ifError = { error ->
+                                                scope.launch {
+                                                    snackbarHostState.showSnackbar(error)
+                                                }
+                                            },
+                                            ifSuccess = {
+                                                if (state.originalRecipe != Recipe.EMPTY_RECIPE) {
+                                                    val resultIntent = Intent()
+                                                    resultIntent.putExtra(RECIPE_UPDATED, state.recipe)
+                                                    setResult(RESULT_OK, resultIntent)
+                                                }
+                                                finish()
+                                            }
+                                        )
+                                    }
                                 )
                             }
                         }

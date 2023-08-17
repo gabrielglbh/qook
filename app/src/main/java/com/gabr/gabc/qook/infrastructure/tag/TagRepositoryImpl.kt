@@ -9,6 +9,7 @@ import com.gabr.gabc.qook.domain.tag.TagFailure
 import com.gabr.gabc.qook.domain.tag.TagRepository
 import com.gabr.gabc.qook.domain.tag.toDto
 import com.gabr.gabc.qook.infrastructure.recipe.RecipeDto
+import com.gabr.gabc.qook.presentation.shared.Globals
 import com.gabr.gabc.qook.presentation.shared.providers.StringResourcesProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -26,8 +27,8 @@ class TagRepositoryImpl @Inject constructor(
     override suspend fun createTag(tag: Tag): Either<TagFailure, Tag> {
         try {
             auth.currentUser?.let {
-                val docRef = db.collection("USERS").document(it.uid)
-                    .collection("TAGS").add(tag.toDto()).await()
+                val docRef = db.collection(Globals.DB_USER).document(it.uid)
+                    .collection(Globals.DB_TAGS).add(tag.toDto()).await()
                 val id = docRef.path.split("/").last()
                 return Right(tag.copy(id = id))
             }
@@ -45,11 +46,12 @@ class TagRepositoryImpl @Inject constructor(
     override suspend fun removeTag(id: String): Either<TagFailure, Unit> {
         try {
             auth.currentUser?.let {
-                db.collection("USERS").document(it.uid)
-                    .collection("TAGS").document(id).delete().await()
+                db.collection(Globals.DB_USER).document(it.uid)
+                    .collection(Globals.DB_TAGS).document(id).delete().await()
 
-                val query = db.collection("USERS").document(it.uid)
-                    .collection("RECIPES").whereArrayContains("tagIds", id)
+                val query = db.collection(Globals.DB_USER).document(it.uid)
+                    .collection(Globals.DB_RECIPES)
+                    .whereArrayContains(Globals.OBJ_RECIPE_TAG_IDS, id)
                     .get().await()
 
                 query.documents.forEach { doc ->
@@ -58,7 +60,7 @@ class TagRepositoryImpl @Inject constructor(
                         addAll(currentTags)
                         remove(id)
                     }
-                    doc.reference.update(mapOf(Pair("tagIds", newTags))).await()
+                    doc.reference.update(mapOf(Pair(Globals.OBJ_RECIPE_TAG_IDS, newTags))).await()
                 }
 
                 return Right(Unit)
@@ -76,8 +78,8 @@ class TagRepositoryImpl @Inject constructor(
 
     override suspend fun updateTag(tag: Tag): Either<TagFailure, Unit> {
         auth.currentUser?.let {
-            db.collection("USERS").document(it.uid)
-                .collection("TAGS").document(tag.id)
+            db.collection(Globals.DB_USER).document(it.uid)
+                .collection(Globals.DB_TAGS).document(tag.id)
                 .update(tag.toDto().toMap()).await()
             return Right(Unit)
         }
@@ -88,8 +90,8 @@ class TagRepositoryImpl @Inject constructor(
         try {
             auth.currentUser?.let {
                 val ref = db
-                    .collection("USERS").document(it.uid)
-                    .collection("TAGS").get().await()
+                    .collection(Globals.DB_USER).document(it.uid)
+                    .collection(Globals.DB_TAGS).get().await()
                 return Right(ref.toObjects<TagDto>().map { dto ->
                     dto.toDomain()
                 })
@@ -110,14 +112,14 @@ class TagRepositoryImpl @Inject constructor(
                 val tags = mutableListOf<Tag>()
 
                 val ref = db
-                    .collection("USERS").document(it.uid)
-                    .collection("RECIPES").document(recipeId)
+                    .collection(Globals.DB_USER).document(it.uid)
+                    .collection(Globals.DB_RECIPES).document(recipeId)
                     .get().await()
                 val tagIds = ref.toObject<RecipeDto>()?.tagIds ?: listOf()
 
                 tagIds.forEach { id ->
-                    val tag = db.collection("USERS").document(it.uid)
-                        .collection("TAGS").document(id)
+                    val tag = db.collection(Globals.DB_USER).document(it.uid)
+                        .collection(Globals.DB_TAGS).document(id)
                         .get().await()
                     tag.toObject<TagDto>()?.let { t -> tags.add(t.toDomain()) }
                 }

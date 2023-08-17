@@ -24,6 +24,13 @@ class RecipesViewModel @Inject constructor(
     var isLoading = mutableStateOf(false)
         private set
 
+    private fun alterListForUpdate(recipe: Recipe, list: List<Recipe>): List<Recipe> {
+        val aux = mutableListOf<Recipe>().apply { addAll(list) }
+        val auxIds = aux.map { it.id }
+        if (auxIds.contains(recipe.id)) aux[auxIds.indexOf(recipe.id)] = recipe
+        return aux
+    }
+
     fun getRecipes(onError: (String) -> Unit) {
         viewModelScope.launch {
             isLoading.value = true
@@ -76,5 +83,13 @@ class RecipesViewModel @Inject constructor(
                 searchedRecipes = filtered
             )
         }
+    }
+
+    fun updateRecipeLocally(recipe: Recipe) {
+        val value = recipesState.value
+        _recipesState.value = value.copy(
+            recipes = alterListForUpdate(recipe, value.recipes),
+            searchedRecipes = alterListForUpdate(recipe, value.searchedRecipes)
+        )
     }
 }

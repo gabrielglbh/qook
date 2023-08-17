@@ -84,7 +84,7 @@ data class Recipe(
             parcel.writeUri(photo)
             parcel.writeString(description)
             parcel.writeStringList(ingredients)
-            parcel.writeList(tags)
+            parcel.writeTypedList(tags)
         }
     }
 }

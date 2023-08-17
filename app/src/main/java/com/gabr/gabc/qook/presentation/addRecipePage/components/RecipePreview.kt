@@ -44,10 +44,7 @@ fun RecipePreview(
                 Text(stringResource(R.string.add_recipe_ready_dialog_subtitle, state.recipe.name))
             },
             onSubmit = {
-                viewModel.uploadRecipe(
-                    ifError = { error -> onError(error) },
-                    ifSuccess = { onSuccess() }
-                )
+                onSuccess()
                 showValidationDialog.value = false
             },
         )
@@ -66,7 +63,7 @@ fun RecipePreview(
         Spacer(modifier = Modifier.size(12.dp))
         Button(
             onClick = {
-                if (Validators.isRecipeInvalid(state.recipe)) {
+                if (Validators.isRecipeInvalid(state.recipe) || state.originalRecipe == state.recipe) {
                     onError(null)
                     return@Button
                 }

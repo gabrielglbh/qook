@@ -5,9 +5,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gabr.gabc.qook.domain.recipe.Easiness
+import com.gabr.gabc.qook.domain.recipe.Recipe
 import com.gabr.gabc.qook.domain.recipe.RecipeRepository
 import com.gabr.gabc.qook.domain.tag.Tag
 import com.gabr.gabc.qook.domain.tag.TagRepository
+import com.gabr.gabc.qook.presentation.shared.Globals
 import com.gabr.gabc.qook.presentation.shared.ResizeImageUtil.Companion.resizeImageToFile
 import com.gabr.gabc.qook.presentation.shared.providers.ContentResolverProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -68,17 +70,34 @@ class AddRecipeViewModel @Inject constructor(
     fun uploadRecipe(ifSuccess: () -> Unit, ifError: (String) -> Unit) {
         viewModelScope.launch {
             withContext(Dispatchers.Main) { isLoading.value = true }
-            val resizedPhoto = resizeImageToFile(
-                recipeState.value.recipe.photo,
-                provider.contentResolver(),
-                name = Calendar.getInstance().timeInMillis.toString()
-            )
-            val result = recipeRepository.createRecipe(
-                _recipeState.value.recipe.copy(
-                    photo = Uri.fromFile(resizedPhoto),
-                    creationDate = Calendar.getInstance().time,
+            val recipe = recipeState.value.recipe
+            val isUpdating = recipeState.value.originalRecipe != Recipe.EMPTY_RECIPE
+
+            val result = recipeRepository.updateRecipe(
+                recipe = recipe.copy(
+                    photo = if (recipe.photo.host != Globals.FIREBASE_HOST) {
+                        Uri.fromFile(
+                            resizeImageToFile(
+                                recipe.photo,
+                                provider.contentResolver(),
+                                name = Calendar.getInstance().timeInMillis.toString()
+                            )
+                        )
+                    } else {
+                        recipe.photo
+                    },
+                    creationDate = if (isUpdating) {
+                        recipe.creationDate
+                    } else {
+                        Calendar.getInstance().time
+                    },
                     updateDate = Calendar.getInstance().time
-                )
+                ),
+                id = if (isUpdating) {
+                    recipe.id
+                } else {
+                    null
+                }
             )
             result.fold(
                 ifLeft = { fail ->
@@ -88,8 +107,18 @@ class AddRecipeViewModel @Inject constructor(
                     ifSuccess()
                 }
             )
+
             withContext(Dispatchers.Main) { isLoading.value = false }
         }
+    }
+
+    fun loadLocalRecipe(recipe: Recipe) {
+        val value = recipeState.value
+        _recipeState.value = value.copy(
+            recipe = recipe,
+            originalRecipe = recipe
+        )
+
     }
 
     fun updateMetadata(

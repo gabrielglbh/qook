@@ -11,8 +11,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Bolt
 import androidx.compose.material.icons.outlined.Photo
-import androidx.compose.material.icons.outlined.Stairs
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -50,7 +50,6 @@ fun QRecipeItem(recipe: Recipe, modifier: Modifier, onClick: (() -> Unit)? = nul
             QImageContainer(
                 uri = recipe.photo,
                 placeholder = Icons.Outlined.Photo,
-                borderColor = MaterialTheme.colorScheme.onPrimaryContainer,
                 shape = MaterialTheme.shapes.large,
                 size = 128f.dp
             )
@@ -69,7 +68,7 @@ fun QRecipeItem(recipe: Recipe, modifier: Modifier, onClick: (() -> Unit)? = nul
                 )
                 Spacer(modifier = Modifier.size(8.dp))
                 TextWithIcon(
-                    icon = Icons.Outlined.Stairs,
+                    icon = Icons.Outlined.Bolt,
                     text = when (recipe.easiness) {
                         Easiness.EASY -> stringResource(R.string.add_recipe_easiness_EASY)
                         Easiness.MEDIUM -> stringResource(R.string.add_recipe_easiness_MEDIUM)
@@ -105,13 +104,13 @@ private fun TextWithIcon(icon: ImageVector, text: String, modifier: Modifier = M
         Icon(
             icon,
             "",
-            tint = MaterialTheme.colorScheme.onPrimaryContainer
+            tint = MaterialTheme.colorScheme.onBackground
         )
         Spacer(modifier = Modifier.size(4.dp))
         Text(
             text,
             style = MaterialTheme.typography.titleSmall.copy(
-                color = MaterialTheme.colorScheme.onPrimaryContainer
+                color = MaterialTheme.colorScheme.onBackground
             ),
             modifier = modifier,
             maxLines = 1,

@@ -8,6 +8,7 @@ import com.gabr.gabc.qook.domain.storage.StorageRepository
 import com.gabr.gabc.qook.domain.user.UserFailure
 import com.gabr.gabc.qook.domain.user.UserRepository
 import com.gabr.gabc.qook.domain.user.toDto
+import com.gabr.gabc.qook.presentation.shared.Globals
 import com.gabr.gabc.qook.presentation.shared.providers.StringResourcesProvider
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
@@ -95,7 +96,7 @@ class UserRepositoryImpl @Inject constructor(
     override suspend fun createUserInDB(user: domainUser): Either<UserFailure, Unit> {
         try {
             auth.currentUser?.let {
-                db.collection("USERS")
+                db.collection(Globals.DB_USER)
                     .document(it.uid)
                     .set(user.toDto())
                     .await()
@@ -120,11 +121,11 @@ class UserRepositoryImpl @Inject constructor(
             auth.currentUser?.let { user ->
                 val credential = EmailAuthProvider.getCredential(user.email!!, oldPassword)
                 user.reauthenticate(credential).await()
-                db.collection("USERS").document(user.uid).delete().await()
-                db.collection("TAGS").document(user.uid).delete().await()
-                db.collection("RECIPES").document(user.uid).delete().await()
+                db.collection(Globals.DB_USER).document(user.uid).delete().await()
+                db.collection(Globals.DB_TAGS).document(user.uid).delete().await()
+                db.collection(Globals.DB_RECIPES).document(user.uid).delete().await()
                 // TODO: NEEDS Cloud Functions in order to remove the entire director of the user from Storage
-                storage.deleteImage("avatar/photo.jpg")
+                storage.deleteImage(Globals.STORAGE_AVATAR)
                 user.delete().await()
                 return Right(Unit)
             }
@@ -136,7 +137,7 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun updateUser(user: domainUser): Either<UserFailure, Unit> {
         auth.currentUser?.let {
-            db.collection("USERS").document(it.uid).update(user.toDto().toMap()).await()
+            db.collection(Globals.DB_USER).document(it.uid).update(user.toDto().toMap()).await()
             return Right(Unit)
         }
         return Left(UserFailure.NotAuthenticated(res.getString(R.string.error_user_not_auth)))
@@ -145,14 +146,14 @@ class UserRepositoryImpl @Inject constructor(
     override suspend fun getUser(): Either<UserFailure, domainUser> {
         try {
             auth.currentUser?.let {
-                val ref = db.collection("USERS").document(it.uid).get().await()
+                val ref = db.collection(Globals.DB_USER).document(it.uid).get().await()
                 if (!ref.exists()) Left(
                     UserFailure.UserDoesNotExist(res.getString(R.string.error_user_does_not_exist))
                 )
                 else {
                     ref.toObject<UserDto>()?.let { dto ->
                         var user = dto.toDomain()
-                        val result = storage.getDownloadUrl("avatar/photo.jpg")
+                        val result = storage.getDownloadUrl(Globals.STORAGE_AVATAR)
                         result.fold(
                             ifLeft = {},
                             ifRight = { uri -> user = user.copy(photo = uri) }

@@ -3,6 +3,7 @@ package com.gabr.gabc.qook.infrastructure.recipe
 import android.net.Uri
 import com.gabr.gabc.qook.domain.recipe.Easiness
 import com.gabr.gabc.qook.domain.recipe.Recipe
+import com.gabr.gabc.qook.presentation.shared.Globals
 import com.google.firebase.firestore.DocumentId
 import com.google.firebase.firestore.PropertyName
 import java.util.Date
@@ -16,7 +17,7 @@ data class RecipeDto constructor(
     @PropertyName("time") val time: String = "",
     @PropertyName("description") val description: String = "",
     @PropertyName("ingredients") val ingredients: List<String> = listOf(),
-    @PropertyName("tagIds") val tagIds: List<String> = listOf(),
+    @PropertyName(Globals.OBJ_RECIPE_TAG_IDS) val tagIds: List<String> = listOf(),
 )
 
 fun RecipeDto.toDomain(): Recipe {
@@ -43,6 +44,6 @@ fun RecipeDto.toMap(): Map<String, Any?> {
         Pair("time", time),
         Pair("description", description),
         Pair("ingredients", ingredients),
-        Pair("tagIds", tagIds),
+        Pair(Globals.OBJ_RECIPE_TAG_IDS, tagIds),
     )
 }

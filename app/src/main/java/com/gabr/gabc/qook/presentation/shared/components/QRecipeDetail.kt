@@ -15,11 +15,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Create
+import androidx.compose.material.icons.outlined.Bolt
+import androidx.compose.material.icons.outlined.MenuBook
+import androidx.compose.material.icons.outlined.ModeEdit
 import androidx.compose.material.icons.outlined.Photo
-import androidx.compose.material.icons.outlined.Stairs
 import androidx.compose.material.icons.outlined.Timer
-import androidx.compose.material.icons.outlined.Update
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -84,13 +84,14 @@ fun QRecipeDetail(recipe: Recipe, modifier: Modifier) {
                 modifier = Modifier.height(36.dp)
             ) {
                 TextWithIcon(
-                    icon = Icons.Outlined.Stairs,
+                    icon = Icons.Outlined.Bolt,
                     text = when (recipe.easiness) {
                         Easiness.EASY -> stringResource(R.string.add_recipe_easiness_EASY)
                         Easiness.MEDIUM -> stringResource(R.string.add_recipe_easiness_MEDIUM)
                         Easiness.HARD -> stringResource(R.string.add_recipe_easiness_HARD)
                     },
-                    modifier = Modifier.weight(1f))
+                    modifier = Modifier.weight(1f)
+                )
                 TextWithIcon(
                     icon = Icons.Outlined.Timer,
                     text = recipe.time,
@@ -104,11 +105,12 @@ fun QRecipeDetail(recipe: Recipe, modifier: Modifier) {
                 modifier = Modifier.height(36.dp)
             ) {
                 TextWithIcon(
-                    icon = Icons.Outlined.Create,
+                    icon = Icons.Outlined.MenuBook,
                     text = recipe.creationDate.formatDate(),
-                    modifier = Modifier.weight(1f))
+                    modifier = Modifier.weight(1f)
+                )
                 TextWithIcon(
-                    icon = Icons.Outlined.Update,
+                    icon = Icons.Outlined.ModeEdit,
                     text = recipe.updateDate.formatDate(),
                     modifier = Modifier.weight(1f)
                 )
@@ -149,6 +151,7 @@ fun QRecipeDetail(recipe: Recipe, modifier: Modifier) {
                 color = MaterialTheme.colorScheme.onPrimaryContainer
             )
         }
+        Spacer(modifier = Modifier.size(12.dp))
     }
 }
 

@@ -2,6 +2,7 @@ package com.gabr.gabc.qook.presentation.recipesPage
 
 import android.app.Activity
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -43,6 +44,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
+import com.gabr.gabc.qook.domain.recipe.Recipe
 import com.gabr.gabc.qook.presentation.recipeDetailsPage.RecipeDetailsPage
 import com.gabr.gabc.qook.presentation.recipesPage.viewModel.RecipesState
 import com.gabr.gabc.qook.presentation.recipesPage.viewModel.RecipesViewModel
@@ -67,8 +69,16 @@ class RecipesPage : ComponentActivity() {
             if (result.resultCode == Activity.RESULT_OK) {
                 val extras = result.data?.extras
 
-                if (extras?.getBoolean(RecipeDetailsPage.HAS_UPDATED_RECIPE) == true) {
-                    // TODO: update recipe locally if necessary
+                val viewModel: RecipesViewModel by viewModels()
+                val updatedRecipe = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    extras?.getParcelable(RecipeDetailsPage.HAS_UPDATED_RECIPE, Recipe::class.java)
+                } else {
+                    extras?.getParcelable(RecipeDetailsPage.HAS_UPDATED_RECIPE)
+                }
+
+                // TODO: Maintain the scroll? --- possible with lazy loading?
+                updatedRecipe?.let {
+                    viewModel.updateRecipeLocally(it)
                 }
             }
         }
