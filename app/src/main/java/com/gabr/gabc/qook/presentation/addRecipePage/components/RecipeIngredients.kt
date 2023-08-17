@@ -2,7 +2,6 @@ package com.gabr.gabc.qook.presentation.addRecipePage.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,7 +15,6 @@ import androidx.compose.material.icons.outlined.ShoppingBasket
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -30,11 +28,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.presentation.addRecipePage.viewModel.AddRecipeViewModel
 import com.gabr.gabc.qook.presentation.shared.components.QEmptyBox
+import com.gabr.gabc.qook.presentation.shared.components.QIngredient
 import com.gabr.gabc.qook.presentation.shared.components.QTextForm
 import com.gabr.gabc.qook.presentation.shared.components.QTextTitle
 
@@ -115,29 +113,17 @@ fun RecipeIngredients(
                 items(state.recipe.ingredients.size) { x ->
                     val ingredient = state.recipe.ingredients[x]
 
-                    Surface(
+                    QIngredient(
+                        ingredient = ingredient,
                         onClick = {
                             ingredientIndexIfUpdating = x
                             ingredientNameField = ingredient
+                        },
+                        onClear = {
+                            viewModel.deleteIngredientFromRecipe(ingredient)
+                            focusManager.clearFocus()
                         }
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(4.dp)
-                        ) {
-                            Text(ingredient, overflow = TextOverflow.Ellipsis, maxLines = 2)
-                            Spacer(modifier = Modifier.weight(1f))
-                            IconButton(
-                                modifier = Modifier.size(24.dp),
-                                onClick = {
-                                    viewModel.deleteIngredientFromRecipe(ingredient)
-                                    focusManager.clearFocus()
-                                }
-                            ) {
-                                Icon(Icons.Outlined.Clear, contentDescription = null)
-                            }
-                        }
-                    }
+                    )
                 }
             }
         }
