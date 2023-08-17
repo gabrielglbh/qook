@@ -97,4 +97,6 @@
     <string name="recipes_title">Recetas</string>
     <string name="recipes_search_recipes">Busca recetas</string>
     <string name="recipes_empty">No tienes ninguna receta creda todavía. Para crear una, pulsa en el icono \'+\'</string>
+
+    <string name="recipe_details">Detalles</string>
 </resources>

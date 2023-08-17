@@ -1,8 +1,11 @@
 package com.gabr.gabc.qook.presentation.recipesPage
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -40,6 +43,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
+import com.gabr.gabc.qook.presentation.recipeDetailsPage.RecipeDetailsPage
 import com.gabr.gabc.qook.presentation.recipesPage.viewModel.RecipesState
 import com.gabr.gabc.qook.presentation.recipesPage.viewModel.RecipesViewModel
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
@@ -54,6 +58,21 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class RecipesPage : ComponentActivity() {
+    companion object {
+        const val RECIPE_FROM_LIST = "RECIPE_FROM_LIST"
+    }
+
+    private val resultLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val extras = result.data?.extras
+
+                if (extras?.getBoolean(RecipeDetailsPage.HAS_UPDATED_RECIPE) == true) {
+                    // TODO: update recipe locally if necessary
+                }
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -176,7 +195,9 @@ class RecipesPage : ComponentActivity() {
                 ) {
                     items(state.searchedRecipes) { recipe ->
                         QRecipeItem(recipe = recipe, modifier = Modifier.padding(8.dp)) {
-                            // TODO: Go to recipe details
+                            val intent = Intent(this@RecipesPage, RecipeDetailsPage::class.java)
+                            intent.putExtra(RECIPE_FROM_LIST, recipe)
+                            resultLauncher.launch(intent)
                         }
                     }
                 }

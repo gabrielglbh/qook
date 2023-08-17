@@ -96,4 +96,6 @@
     <string name="recipes_title">Recipes</string>
     <string name="recipes_search_recipes">Search recipes</string>
     <string name="recipes_empty">You do not have any recipes created yet. To create one, tap on \'+\' icon</string>
+
+    <string name="recipe_details">Details</string>
 </resources>
