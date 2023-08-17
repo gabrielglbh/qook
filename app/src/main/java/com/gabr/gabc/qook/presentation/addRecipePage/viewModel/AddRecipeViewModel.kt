@@ -71,7 +71,7 @@ class AddRecipeViewModel @Inject constructor(
             val resizedPhoto = resizeImageToFile(
                 recipeState.value.recipe.photo,
                 provider.contentResolver(),
-                name = recipeState.value.recipe.name // TODO: Parse out non valid characters or else IOException
+                name = Calendar.getInstance().timeInMillis.toString()
             )
             val result = recipeRepository.createRecipe(
                 _recipeState.value.recipe.copy(

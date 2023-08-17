@@ -16,6 +16,7 @@ data class RecipeDto constructor(
     @PropertyName("time") val time: String = "",
     @PropertyName("description") val description: String = "",
     @PropertyName("ingredients") val ingredients: List<String> = listOf(),
+    @PropertyName("tagIds") val tagIds: List<String> = listOf(),
 )
 
 fun RecipeDto.toDomain(): Recipe {
@@ -42,5 +43,6 @@ fun RecipeDto.toMap(): Map<String, Any?> {
         Pair("time", time),
         Pair("description", description),
         Pair("ingredients", ingredients),
+        Pair("tagIds", tagIds),
     )
 }

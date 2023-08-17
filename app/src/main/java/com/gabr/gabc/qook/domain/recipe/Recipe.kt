@@ -43,6 +43,7 @@ fun Recipe.toDto(): RecipeDto {
         easiness.name,
         time,
         description,
-        ingredients
+        ingredients,
+        tags.map { it.id }
     )
 }

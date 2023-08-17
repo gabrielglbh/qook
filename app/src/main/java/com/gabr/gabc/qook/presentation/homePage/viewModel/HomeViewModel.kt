@@ -30,18 +30,4 @@ class HomeViewModel @Inject constructor(private val userRepository: UserReposito
             )
         }
     }
-
-    fun getAvatar(onError: ((String) -> Unit)? = null) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val result = userRepository.getAvatar()
-            result.fold(
-                ifLeft = {
-                    onError?.let { f -> f(it.error) }
-                },
-                ifRight = {
-                    _userState.value = _userState.value.copy(avatarUrl = it)
-                }
-            )
-        }
-    }
 }

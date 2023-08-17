@@ -3,6 +3,7 @@ package com.gabr.gabc.qook.presentation.profilePage.viewModel
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gabr.gabc.qook.domain.storage.StorageRepository
 import com.gabr.gabc.qook.domain.user.User
 import com.gabr.gabc.qook.domain.user.UserRepository
 import com.gabr.gabc.qook.presentation.shared.ResizeImageUtil.Companion.resizeImageToFile
@@ -18,14 +19,15 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val repository: UserRepository,
+    private val storageRepository: StorageRepository,
     private val provider: ContentResolverProvider
 ) :
     ViewModel() {
     private val _userState = MutableStateFlow(UserState())
     val userState: StateFlow<UserState> = _userState.asStateFlow()
 
-    fun setDataForLocalLoading(user: User?, avatar: Uri) {
-        _userState.value = UserState(user = user, avatarUrl = avatar)
+    fun setDataForLocalLoading(user: User?) {
+        _userState.value = UserState(user = user)
     }
 
     fun signOut() {
@@ -63,37 +65,21 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    fun getAvatar(onError: ((String) -> Unit)? = null) {
-        viewModelScope.launch {
-            val result = repository.getAvatar()
-            result.fold(
-                ifLeft = {
-                    onError?.let { f -> f(it.error) }
-                },
-                ifRight = {
-                    _userState.value = _userState.value.copy(avatarUrl = it)
-                }
-            )
-        }
-    }
-
     fun updateAvatar(uri: Uri, onError: ((String) -> Unit)? = null) {
         viewModelScope.launch {
             val result =
-                repository.updateAvatar(
-                    Uri.fromFile(
-                        resizeImageToFile(
-                            uri,
-                            provider.contentResolver()
-                        )
-                    )
+                storageRepository.uploadImage(
+                    Uri.fromFile(resizeImageToFile(uri, provider.contentResolver())),
+                    "avatar/photo.jpg"
                 )
             result.fold(
                 ifLeft = {
                     onError?.let { f -> f(it.error) }
                 },
-                ifRight = {
-                    _userState.value = _userState.value.copy(avatarUrl = it)
+                ifRight = { uri ->
+                    _userState.value = _userState.value.copy(
+                        user = _userState.value.user?.copy(photo = uri)
+                    )
                 }
             )
         }

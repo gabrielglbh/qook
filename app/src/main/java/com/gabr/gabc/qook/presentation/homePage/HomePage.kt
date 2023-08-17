@@ -73,7 +73,6 @@ import kotlinx.coroutines.launch
 class HomePage : ComponentActivity() {
     companion object {
         const val HOME_USER = "HOME_USER"
-        const val HOME_USER_AVATAR = "HOME_USER_AVATAR"
     }
 
     private val resultLauncher =
@@ -85,14 +84,7 @@ class HomePage : ComponentActivity() {
                 val scope = CoroutineScope(Dispatchers.Main)
                 val snackbarHostState = SnackbarHostState()
 
-                if (extras?.getBoolean(ProfilePage.HAS_CHANGED_PROFILE_PICTURE) == true) {
-                    viewModel.getAvatar { errorMessage ->
-                        scope.launch {
-                            snackbarHostState.showSnackbar(errorMessage)
-                        }
-                    }
-                }
-                if (extras?.getBoolean(ProfilePage.HAS_CHANGED_NAME) == true) {
+                if (extras?.getBoolean(ProfilePage.HAS_UPDATED_PROFILE) == true) {
                     viewModel.getUser { errorMessage ->
                         scope.launch {
                             snackbarHostState.showSnackbar(errorMessage)
@@ -127,7 +119,6 @@ class HomePage : ComponentActivity() {
                     snackbarHostState.showSnackbar(errorMessage)
                 }
             }
-            viewModel.getAvatar()
         }
 
         Scaffold(
@@ -136,7 +127,6 @@ class HomePage : ComponentActivity() {
                     actionBehaviour = {
                         val intent = Intent(this@HomePage, ProfilePage::class.java)
                         intent.putExtra(HOME_USER, state.value.user)
-                        intent.putExtra(HOME_USER_AVATAR, state.value.avatarUrl)
                         resultLauncher.launch(intent)
                     },
                     actionBorder = BorderStroke(
@@ -144,7 +134,7 @@ class HomePage : ComponentActivity() {
                         color = MaterialTheme.colorScheme.primaryContainer
                     ),
                     action = {
-                        if (state.value.avatarUrl == Uri.EMPTY) {
+                        if (state.value.user?.photo == Uri.EMPTY) {
                             Icon(
                                 Icons.Outlined.AccountCircle,
                                 contentDescription = null,
@@ -152,7 +142,7 @@ class HomePage : ComponentActivity() {
                             )
                         } else {
                             QImage(
-                                uri = state.value.avatarUrl,
+                                uri = state.value.user?.photo ?: Uri.EMPTY,
                                 modifier = Modifier.fillMaxSize()
                             )
                         }

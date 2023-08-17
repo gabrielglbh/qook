@@ -1,10 +1,10 @@
 package com.gabr.gabc.qook.infrastructure.user
 
-import android.net.Uri
 import arrow.core.Either
 import arrow.core.Either.Left
 import arrow.core.Either.Right
 import com.gabr.gabc.qook.R
+import com.gabr.gabc.qook.domain.storage.StorageRepository
 import com.gabr.gabc.qook.domain.user.UserFailure
 import com.gabr.gabc.qook.domain.user.UserRepository
 import com.gabr.gabc.qook.domain.user.toDto
@@ -16,17 +16,15 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.ktx.toObject
-import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import com.gabr.gabc.qook.domain.user.User as domainUser
 
-
 class UserRepositoryImpl @Inject constructor(
     private val auth: FirebaseAuth,
     private val db: FirebaseFirestore,
-    private val storage: FirebaseStorage,
-    private val res: StringResourcesProvider
+    private val storage: StorageRepository,
+    private val res: StringResourcesProvider,
 ) : UserRepository {
     override suspend fun getCurrentUser(): FirebaseUser? = auth.currentUser
 
@@ -123,8 +121,10 @@ class UserRepositoryImpl @Inject constructor(
                 val credential = EmailAuthProvider.getCredential(user.email!!, oldPassword)
                 user.reauthenticate(credential).await()
                 db.collection("USERS").document(user.uid).delete().await()
-                storage.reference.child("${user.uid}/avatar/photo.jpg").delete().await()
-                // TODO: Delete in a transaction RECIPES, TAGS and INGREDIENTS when developed
+                db.collection("TAGS").document(user.uid).delete().await()
+                db.collection("RECIPES").document(user.uid).delete().await()
+                // TODO: NEEDS Cloud Functions in order to remove the entire director of the user from Storage
+                storage.deleteImage("avatar/photo.jpg")
                 user.delete().await()
                 return Right(Unit)
             }
@@ -147,18 +147,20 @@ class UserRepositoryImpl @Inject constructor(
             auth.currentUser?.let {
                 val ref = db.collection("USERS").document(it.uid).get().await()
                 if (!ref.exists()) Left(
-                    UserFailure.UserDoesNotExist(
-                        res.getString(R.string.error_user_does_not_exist)
-                    )
+                    UserFailure.UserDoesNotExist(res.getString(R.string.error_user_does_not_exist))
                 )
                 else {
                     ref.toObject<UserDto>()?.let { dto ->
-                        return Right(dto.toDomain())
+                        var user = dto.toDomain()
+                        val result = storage.getDownloadUrl("avatar/photo.jpg")
+                        result.fold(
+                            ifLeft = {},
+                            ifRight = { uri -> user = user.copy(photo = uri) }
+                        )
+                        return Right(user)
                     }
                     return Left(
-                        UserFailure.UserTranslationFailed(
-                            res.getString(R.string.error_user_corrupted)
-                        )
+                        UserFailure.UserTranslationFailed(res.getString(R.string.error_user_corrupted))
                     )
                 }
             }
@@ -170,36 +172,6 @@ class UserRepositoryImpl @Inject constructor(
                             res.getString(R.string.error_user_retrieval)
                 )
             )
-        }
-    }
-
-    override suspend fun updateAvatar(image: Uri): Either<UserFailure, Uri> {
-        try {
-            auth.currentUser?.let {
-                val imageRef = storage.reference.child("${it.uid}/avatar/photo.jpg")
-                val uploadTask = imageRef.putFile(image).await()
-
-                if (uploadTask.error != null) {
-                    return Left(UserFailure.UpdateAvatarFailure(res.getString(R.string.error_avatar_update)))
-                }
-
-                return Right(uploadTask.storage.downloadUrl.await())
-            }
-            return Left(UserFailure.NotAuthenticated(res.getString(R.string.error_user_not_auth)))
-        } catch (err: Exception) {
-            return Left(UserFailure.UpdateAvatarFailure(res.getString(R.string.error_avatar_update)))
-        }
-    }
-
-    override suspend fun getAvatar(): Either<UserFailure, Uri> {
-        try {
-            auth.currentUser?.let {
-                val uri = storage.reference.child("${it.uid}/avatar/photo.jpg").downloadUrl.await()
-                return Right(uri)
-            }
-            return Left(UserFailure.NotAuthenticated(res.getString(R.string.error_user_not_auth)))
-        } catch (err: Exception) {
-            return Left(UserFailure.UpdateAvatarFailure(res.getString(R.string.error_avatar_update)))
         }
     }
 }

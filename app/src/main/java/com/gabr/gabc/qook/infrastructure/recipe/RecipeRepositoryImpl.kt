@@ -8,33 +8,35 @@ import com.gabr.gabc.qook.domain.recipe.Recipe
 import com.gabr.gabc.qook.domain.recipe.RecipeFailure
 import com.gabr.gabc.qook.domain.recipe.RecipeRepository
 import com.gabr.gabc.qook.domain.recipe.toDto
-import com.gabr.gabc.qook.domain.tag.Tag
-import com.gabr.gabc.qook.domain.tag.toDto
-import com.gabr.gabc.qook.infrastructure.tag.toMap
+import com.gabr.gabc.qook.domain.storage.StorageRepository
 import com.gabr.gabc.qook.presentation.shared.providers.StringResourcesProvider
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.ktx.toObject
-import com.google.firebase.firestore.ktx.toObjects
-import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class RecipeRepositoryImpl @Inject constructor(
     private val auth: FirebaseAuth,
     private val db: FirebaseFirestore,
-    private val storage: FirebaseStorage,
+    private val storage: StorageRepository,
     private val res: StringResourcesProvider
 ) : RecipeRepository {
     override suspend fun getRecipes(): Either<RecipeFailure, List<Recipe>> {
-        // TODO: Needs Firebase Storage Service to GET images with downloadUrl and path
         try {
             auth.currentUser?.let {
                 val query = db.collection("USERS").document(it.uid)
                     .collection("RECIPES").get().await()
-                return Right(query.toObjects())
+                val recipes = mutableListOf<Recipe>()
+                query.documents.forEach { doc ->
+                    val result = getRecipe(doc.id)
+                    result.fold(
+                        ifLeft = {},
+                        ifRight = { recipe -> recipes.add(recipe) }
+                    )
+                }
+                return Right(recipes)
             }
             return Left(RecipeFailure.NotAuthenticated(res.getString(R.string.error_user_not_auth)))
         } catch (err: FirebaseFirestoreException) {
@@ -50,28 +52,13 @@ class RecipeRepositoryImpl @Inject constructor(
     override suspend fun createRecipe(recipe: Recipe): Either<RecipeFailure, Recipe> {
         try {
             auth.currentUser?.let {
-                val writeBatch = db.batch()
                 val docRef = db.collection("USERS").document(it.uid)
                     .collection("RECIPES").document()
                 val recipeId = docRef.path.split("/").last()
 
-                writeBatch.set(docRef, recipe.toDto())
-                recipe.tags.forEach { tag ->
-                    writeBatch.set(
-                        db.collection("USERS").document(it.uid)
-                            .collection("RECIPES").document(recipeId)
-                            .collection("TAGS").document(tag.id), tag.toDto()
-                    )
-                }
-                writeBatch.commit().await()
+                docRef.set(recipe.toDto()).await()
 
-                val file = recipe.photo
-                val imageRef = storage.reference.child("${it.uid}/recipes/$recipeId.jpg")
-                val uploadTask = imageRef.putFile(file).await()
-
-                if (uploadTask.error != null) {
-                    return Left(RecipeFailure.RecipeCreationFailed(res.getString(R.string.error_avatar_update)))
-                }
+                storage.uploadImage(recipe.photo, "recipes/$recipeId.jpg")
 
                 return Right(recipe)
             }
@@ -93,8 +80,7 @@ class RecipeRepositoryImpl @Inject constructor(
                     .collection("RECIPES").document(id)
                     .delete().await()
 
-                storage.reference.child("${it.uid}/recipes/$id.jpg")
-                    .delete().await()
+                storage.deleteImage("recipes/$id.jpg")
 
                 return Right(Unit)
             }
@@ -114,26 +100,14 @@ class RecipeRepositoryImpl @Inject constructor(
             lateinit var result: Either<RecipeFailure, Unit>
             val docRef = db.collection("USERS").document(it.uid)
                 .collection("RECIPES").document(recipe.id)
-            val tagDocRefs = mutableListOf<DocumentReference>()
-            recipe.tags.forEach { tag ->
-                tagDocRefs.add(
-                    docRef.collection("TAGS").document(tag.id)
-                )
-            }
 
             db.runTransaction { transaction ->
                 val recipeSnapshot = transaction.get(docRef)
-                val originRecipe = recipeSnapshot.toObject<Recipe>()
-                if (originRecipe != recipe) transaction.update(docRef, recipe.toDto().toMap())
-
-                tagDocRefs.forEachIndexed { x, ref ->
-                    val tagSnapshot = transaction.get(ref)
-                    val originTag = tagSnapshot.toObject<Tag>()
-                    if (originTag != recipe.tags[x]) transaction.update(
-                        ref,
-                        recipe.tags[x].toDto().toMap()
-                    )
-                }
+                val originRecipe = recipeSnapshot.toObject<RecipeDto>()
+                if (originRecipe != recipe.toDto()) transaction.update(
+                    docRef,
+                    recipe.toDto().toMap()
+                )
             }.addOnCanceledListener {
                 result =
                     Left(RecipeFailure.RecipeUpdateFailed(res.getString(R.string.error_recipes_update)))
@@ -144,14 +118,7 @@ class RecipeRepositoryImpl @Inject constructor(
                 result = Right(Unit)
             }.await()
 
-            val file = recipe.photo
-            val imageRef = storage.reference.child("${it.uid}/recipes/${recipe.id}.jpg")
-            val uploadTask = imageRef.putFile(file).await()
-
-            if (uploadTask.error != null) {
-                result =
-                    Left(RecipeFailure.RecipeCreationFailed(res.getString(R.string.error_avatar_update)))
-            }
+            storage.uploadImage(recipe.photo, "recipes/${recipe.id}.jpg")
 
             return result
         }
@@ -167,7 +134,15 @@ class RecipeRepositoryImpl @Inject constructor(
             auth.currentUser?.let {
                 val query = db.collection("USERS").document(it.uid)
                     .collection("RECIPES").document(id).get().await()
-                return Right(query.toObject()!!)
+                query.toObject<RecipeDto>()?.let { recipeDto ->
+                    var recipe = recipeDto.toDomain()
+                    val res = storage.getDownloadUrl("recipes/${id}.jpg")
+                    res.fold(
+                        ifLeft = {},
+                        ifRight = { uri -> recipe = recipe.copy(photo = uri) }
+                    )
+                    return Right(recipe)
+                }
             }
             return Left(RecipeFailure.NotAuthenticated(res.getString(R.string.error_user_not_auth)))
         } catch (err: FirebaseFirestoreException) {

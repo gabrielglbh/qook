@@ -55,8 +55,7 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class ProfilePage : ComponentActivity() {
     companion object {
-        const val HAS_CHANGED_PROFILE_PICTURE = "HAS_CHANGED_PROFILE_PICTURE"
-        const val HAS_CHANGED_NAME = "HAS_CHANGED_NAME"
+        const val HAS_UPDATED_PROFILE = "HAS_UPDATED_PROFILE"
     }
 
     private var hasChangedProfilePicture = false
@@ -103,13 +102,8 @@ class ProfilePage : ComponentActivity() {
         } else {
             intent.getParcelableExtra(HomePage.HOME_USER)
         }
-        val avatar = if (VERSION.SDK_INT >= VERSION_CODES.TIRAMISU) {
-            intent.getParcelableExtra(HomePage.HOME_USER_AVATAR, Uri::class.java)
-        } else {
-            intent.getParcelableExtra(HomePage.HOME_USER_AVATAR)
-        } ?: Uri.EMPTY
 
-        viewModel.setDataForLocalLoading(user, avatar)
+        viewModel.setDataForLocalLoading(user)
 
         pickMedia =
             registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
@@ -138,14 +132,13 @@ class ProfilePage : ComponentActivity() {
         val passwordChangeSuccessfulMessage =
             stringResource(R.string.profile_password_change_successful)
 
-        if (state.user == null || state.avatarUrl == Uri.EMPTY) {
+        if (state.user == null) {
             LaunchedEffect(key1 = Unit) {
                 viewModel.getUser { errorMessage ->
                     scope.launch {
                         snackbarHostState.showSnackbar(errorMessage)
                     }
                 }
-                viewModel.getAvatar()
             }
         }
 
@@ -154,8 +147,10 @@ class ProfilePage : ComponentActivity() {
                 QActionBar(
                     onBack = {
                         val resultIntent = Intent()
-                        resultIntent.putExtra(HAS_CHANGED_PROFILE_PICTURE, hasChangedProfilePicture)
-                        resultIntent.putExtra(HAS_CHANGED_NAME, hasChangedName)
+                        resultIntent.putExtra(
+                            HAS_UPDATED_PROFILE,
+                            hasChangedName || hasChangedProfilePicture
+                        )
                         setResult(RESULT_OK, resultIntent)
                         finish()
                     },
@@ -198,7 +193,7 @@ class ProfilePage : ComponentActivity() {
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         QImageCircle(
-                            uri = state.avatarUrl,
+                            uri = state.user?.photo ?: Uri.EMPTY,
                             placeholder = Icons.Outlined.AccountCircle,
                         ) {
                             requestMultiplePermissions.launch(

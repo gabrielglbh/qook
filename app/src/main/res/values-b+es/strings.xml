@@ -85,4 +85,7 @@
     <string name="err_recipe_creation">No se ha podido crear la receta, prueba otra vez</string>
     <string name="err_recipes_retrieve">No se ha podido recoger la receta, prueba otra vez</string>
     <string name="error_recipes_update">No se ha podido actualizar la receta, prueba otra vez</string>
+    <string name="err_storage_upload_image">No se ha podido actualizar la imagen, prueba otra vez</string>
+    <string name="err_storage_retrieval">No se ha podido recoger la imagen, prueba otra vez</string>
+    <string name="err_storage_delete">No se ha podido eliminar la imagen, prueba otra vez</string>
 </resources>
