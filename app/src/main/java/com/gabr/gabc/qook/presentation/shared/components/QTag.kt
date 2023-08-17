@@ -23,7 +23,6 @@ import com.gabr.gabc.qook.domain.tag.Tag
 fun QTag(
     tag: Tag,
     modifier: Modifier = Modifier,
-    enabled: Boolean = false,
     onClick: (() -> Unit)? = null,
     icon: ImageVector? = null
 ) {
@@ -31,7 +30,7 @@ fun QTag(
         shape = MaterialTheme.shapes.large,
         modifier = modifier,
         color = tag.color,
-        enabled = enabled,
+        enabled = onClick != null,
         onClick = {
             onClick?.let { it() }
         },

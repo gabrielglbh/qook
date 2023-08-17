@@ -45,7 +45,7 @@ import com.gabr.gabc.qook.presentation.profilePage.components.Account
 import com.gabr.gabc.qook.presentation.profilePage.components.Settings
 import com.gabr.gabc.qook.presentation.profilePage.viewModel.ProfileViewModel
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
-import com.gabr.gabc.qook.presentation.shared.components.QImageCircle
+import com.gabr.gabc.qook.presentation.shared.components.QImageContainer
 import com.gabr.gabc.qook.presentation.shared.components.QShimmer
 import com.gabr.gabc.qook.presentation.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -193,7 +193,7 @@ class ProfilePage : ComponentActivity() {
                         verticalArrangement = Arrangement.Top,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        QImageCircle(
+                        QImageContainer(
                             uri = state.user.photo,
                             placeholder = Icons.Outlined.AccountCircle,
                         ) {

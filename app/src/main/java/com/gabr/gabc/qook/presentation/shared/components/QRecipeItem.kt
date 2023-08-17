@@ -2,25 +2,18 @@ package com.gabr.gabc.qook.presentation.shared.components
 
 import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Create
 import androidx.compose.material.icons.outlined.Photo
 import androidx.compose.material.icons.outlined.Stairs
 import androidx.compose.material.icons.outlined.Timer
-import androidx.compose.material.icons.outlined.Update
-import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -31,7 +24,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -39,50 +31,37 @@ import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.recipe.Easiness
 import com.gabr.gabc.qook.domain.recipe.Recipe
 import com.gabr.gabc.qook.domain.tag.Tag
-import com.gabr.gabc.qook.presentation.shared.DateFormatters.Companion.formatDate
 import com.gabr.gabc.qook.presentation.theme.AppTheme
 import java.util.Calendar
 
 @Composable
-fun QRecipeDetail(recipe: Recipe, modifier: Modifier) {
-    Column(
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
-            .fillMaxWidth()
-            .verticalScroll(rememberScrollState()),
-    ) {
-        QImageContainer(
-            uri = recipe.photo,
-            placeholder = Icons.Outlined.Photo,
-        )
-        Spacer(modifier = Modifier.size(12.dp))
-        Text(
-            recipe.name,
-            style = MaterialTheme.typography.titleLarge.copy(
-                fontWeight = FontWeight.Bold,
-            ),
-            textAlign = TextAlign.Center
-        )
-        Spacer(modifier = Modifier.size(8.dp))
-        LazyRow(
-            content = {
-                items(recipe.tags) { tag ->
-                    Box(
-                        modifier = Modifier.padding(horizontal = 4.dp)
-                    ) {
-                        QTag(tag = tag)
-                    }
-                }
-            }
-        )
-        Spacer(modifier = Modifier.size(12.dp))
-        QContentCard {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.height(36.dp)
+fun QRecipeItem(recipe: Recipe, modifier: Modifier) {
+    QContentCard {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start,
+            modifier = modifier.fillMaxWidth()
+        ) {
+            QImageContainer(
+                uri = recipe.photo,
+                placeholder = Icons.Outlined.Photo,
+                borderColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                shape = MaterialTheme.shapes.large
+            )
+            Spacer(modifier = Modifier.size(12.dp))
+            Column(
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.Start
             ) {
+                Text(
+                    recipe.name,
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.Bold,
+                    ),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(modifier = Modifier.size(8.dp))
                 TextWithIcon(
                     icon = Icons.Outlined.Stairs,
                     text = when (recipe.easiness) {
@@ -90,92 +69,56 @@ fun QRecipeDetail(recipe: Recipe, modifier: Modifier) {
                         Easiness.MEDIUM -> stringResource(R.string.add_recipe_easiness_MEDIUM)
                         Easiness.HARD -> stringResource(R.string.add_recipe_easiness_HARD)
                     },
-                    modifier = Modifier.weight(1f))
+                )
+                Spacer(modifier = Modifier.size(8.dp))
                 TextWithIcon(
                     icon = Icons.Outlined.Timer,
                     text = recipe.time,
-                    modifier = Modifier.weight(1f)
+                )
+                LazyRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    content = {
+                        items(recipe.tags) { tag ->
+                            QTag(
+                                tag = tag,
+                                modifier = Modifier.padding(4.dp)
+                            )
+                        }
+                    }
                 )
             }
-            Divider(modifier = Modifier.padding(vertical = 8.dp))
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.height(36.dp)
-            ) {
-                TextWithIcon(
-                    icon = Icons.Outlined.Create,
-                    text = recipe.creationDate.formatDate(),
-                    modifier = Modifier.weight(1f))
-                TextWithIcon(
-                    icon = Icons.Outlined.Update,
-                    text = recipe.updateDate.formatDate(),
-                    modifier = Modifier.weight(1f)
-                )
-            }
-        }
-        Spacer(modifier = Modifier.size(12.dp))
-        QContentCard {
-            Text(
-                stringResource(R.string.recipe_details_ingredients),
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                ),
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onPrimaryContainer
-            )
-            Spacer(modifier = Modifier.size(12.dp))
-            Column(
-                horizontalAlignment = Alignment.Start
-            ) {
-                recipe.ingredients.forEach {
-                    QIngredient(ingredient = it)
-                }
-            }
-        }
-        Spacer(modifier = Modifier.size(12.dp))
-        QContentCard {
-            Text(
-                stringResource(R.string.recipe_details_steps),
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                ),
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onPrimaryContainer
-            )
-            Spacer(modifier = Modifier.size(8.dp))
-            Text(
-                recipe.description, textAlign = TextAlign.Justify,
-                color = MaterialTheme.colorScheme.onPrimaryContainer
-            )
         }
     }
 }
 
 @Composable
 private fun TextWithIcon(icon: ImageVector, text: String, modifier: Modifier = Modifier) {
-    Icon(
-        icon,
-        "",
-        tint = MaterialTheme.colorScheme.onPrimaryContainer
-    )
-    Spacer(modifier = Modifier.size(4.dp))
-    Text(
-        text,
-        style = MaterialTheme.typography.titleSmall.copy(
-            color = MaterialTheme.colorScheme.onPrimaryContainer
-        ),
-        modifier = modifier,
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis
-    )
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            icon,
+            "",
+            tint = MaterialTheme.colorScheme.onPrimaryContainer
+        )
+        Spacer(modifier = Modifier.size(4.dp))
+        Text(
+            text,
+            style = MaterialTheme.typography.titleSmall.copy(
+                color = MaterialTheme.colorScheme.onPrimaryContainer
+            ),
+            modifier = modifier,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewQRecipeDetail() {
+fun PreviewQRecipeItem() {
     AppTheme {
-        QRecipeDetail(
+        QRecipeItem(
             recipe = Recipe(
                 "",
                 "Berenjenas rellenas",
@@ -214,7 +157,7 @@ fun PreviewQRecipeDetail() {
                     Tag("", "Rápido", Color.Red),
                     Tag("", "Vegetal", Color.Green)
                 )
-            ), modifier = Modifier.padding(12.dp)
+            ), modifier = Modifier.padding(4.dp)
         )
     }
 }

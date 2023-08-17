@@ -57,15 +57,9 @@
     <string name="add_recipe_easiness_HARD">Difícil</string>
     <string name="add_recipe_time">Tiempo esperado</string>
     <string name="add_recipe_tags_description">Para crear etiquetas pulsa el icono de la barra de acciones. Para actualizar o eliminar, pulsa sobre ella</string>
-    <string name="err_tags_retrieve">No se han podido recoger las etiquetas</string>
-    <string name="err_tags_creation_failed">No se ha podido crear la etiqueta, prueba otra vez</string>
-    <string name="err_tags_deletion_failed">No se ha podido eliminar la etiqueta, prueba otra vez</string>
-    <string name="tags_empty">No tienes etiquetas creadas, crealas pulsando en el bóton \'+\'</string>
-    <string name="tags_add_title">Añade una etiqueta</string>
-    <string name="tag_name">Nombre</string>
-    <string name="tag_save_title">Guardar</string>
-    <string name="tags_modify_title">Actualiza la etiqueta</string>
-    <string name="tags_remove_tag">Eliminar</string>
+    <string name="add_recipe_ready_dialog_title">Pinta bien…</string>
+    <string name="add_recipe_ready_dialog_subtitle">¿Estás listo para añadir %1$s a tu lista de recetas?</string>
+    <string name="add_recipe_error_validation">The recipe is incomplete, please review it again</string>
     <string name="add_recipe_search_tags">Buscar etiquetas</string>
     <string name="add_recipe_ingredients_title">¿Qué ingredientes lleva?</string>
     <string name="add_recipe_ingredient_name">Ingrediente</string>
@@ -77,15 +71,30 @@
     <string name="add_recipe_preview_guideline">Para modificar algo, ve atrás o pulsa sobre las barras de progreso</string>
     <string name="add_recipe_tags_title">Selecciona etiquetas para tu receta</string>
     <string name="add_recipe_ingredients_description">Para actualizar un ingrediente, pulsa sobre él y cámbialo</string>
-    <string name="recipe_details_ingredients">Ingredientes</string>
-    <string name="recipe_details_steps">Pasos</string>
-    <string name="add_recipe_ready_dialog_title">Pinta bien…</string>
-    <string name="add_recipe_ready_dialog_subtitle">¿Estás listo para añadir %1$s a tu lista de recetas?</string>
-    <string name="add_recipe_error_validation">The recipe is incomplete, please review it again</string>
+
     <string name="err_recipe_creation">No se ha podido crear la receta, prueba otra vez</string>
     <string name="err_recipes_retrieve">No se ha podido recoger la receta, prueba otra vez</string>
-    <string name="error_recipes_update">No se ha podido actualizar la receta, prueba otra vez</string>
+    <string name="err_recipes_update">No se ha podido actualizar la receta, prueba otra vez</string>
+
+    <string name="err_tags_retrieve">No se han podido recoger las etiquetas</string>
+    <string name="err_tags_creation_failed">No se ha podido crear la etiqueta, prueba otra vez</string>
+    <string name="err_tags_deletion_failed">No se ha podido eliminar la etiqueta, prueba otra vez</string>
+
+    <string name="tags_empty">No tienes etiquetas creadas, crealas pulsando en el bóton \'+\'</string>
+    <string name="tags_add_title">Añade una etiqueta</string>
+    <string name="tag_name">Nombre</string>
+    <string name="tag_save_title">Guardar</string>
+    <string name="tags_modify_title">Actualiza la etiqueta</string>
+    <string name="tags_remove_tag">Eliminar</string>
+
+    <string name="recipe_details_ingredients">Ingredientes</string>
+    <string name="recipe_details_steps">Pasos</string>
+
     <string name="err_storage_upload_image">No se ha podido actualizar la imagen, prueba otra vez</string>
     <string name="err_storage_retrieval">No se ha podido recoger la imagen, prueba otra vez</string>
     <string name="err_storage_delete">No se ha podido eliminar la imagen, prueba otra vez</string>
+
+    <string name="recipes_title">Recetas</string>
+    <string name="recipes_search_recipes">Busca recetas</string>
+    <string name="recipes_empty">No tienes ninguna receta creda todavía. Para crear una, pulsa en el icono \'+\'</string>
 </resources>

@@ -40,7 +40,7 @@ import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.recipe.Easiness
 import com.gabr.gabc.qook.presentation.addRecipePage.viewModel.AddRecipeViewModel
 import com.gabr.gabc.qook.presentation.shared.Validators
-import com.gabr.gabc.qook.presentation.shared.components.QImageCircle
+import com.gabr.gabc.qook.presentation.shared.components.QImageContainer
 import com.gabr.gabc.qook.presentation.shared.components.QTextForm
 
 @Composable
@@ -68,7 +68,7 @@ fun RecipeMetadataForm(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            QImageCircle(
+            QImageContainer(
                 uri = state.recipe.photo,
                 placeholder = Icons.Outlined.AddAPhoto,
             ) {

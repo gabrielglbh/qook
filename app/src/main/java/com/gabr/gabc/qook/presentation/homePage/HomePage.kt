@@ -61,6 +61,7 @@ import com.gabr.gabc.qook.presentation.addRecipePage.AddRecipePage
 import com.gabr.gabc.qook.presentation.homePage.viewModel.HomeViewModel
 import com.gabr.gabc.qook.presentation.homePage.viewModel.UserState
 import com.gabr.gabc.qook.presentation.profilePage.ProfilePage
+import com.gabr.gabc.qook.presentation.recipesPage.RecipesPage
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.shared.components.QImage
 import com.gabr.gabc.qook.presentation.shared.components.QShimmer
@@ -258,7 +259,9 @@ class HomePage : ComponentActivity() {
             BottomNavButton(
                 icon = Icons.Outlined.Search,
                 text = stringResource(R.string.home_recipes_bnb),
-                onClick = {}
+                onClick = {
+                    startActivity(Intent(this@HomePage, RecipesPage::class.java))
+                }
             )
         }
     }

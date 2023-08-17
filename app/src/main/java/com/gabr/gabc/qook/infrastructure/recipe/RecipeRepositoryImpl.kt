@@ -9,6 +9,7 @@ import com.gabr.gabc.qook.domain.recipe.RecipeFailure
 import com.gabr.gabc.qook.domain.recipe.RecipeRepository
 import com.gabr.gabc.qook.domain.recipe.toDto
 import com.gabr.gabc.qook.domain.storage.StorageRepository
+import com.gabr.gabc.qook.domain.tag.TagRepository
 import com.gabr.gabc.qook.presentation.shared.providers.StringResourcesProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -21,6 +22,7 @@ class RecipeRepositoryImpl @Inject constructor(
     private val auth: FirebaseAuth,
     private val db: FirebaseFirestore,
     private val storage: StorageRepository,
+    private val tagRepository: TagRepository,
     private val res: StringResourcesProvider
 ) : RecipeRepository {
     override suspend fun getRecipes(): Either<RecipeFailure, List<Recipe>> {
@@ -110,10 +112,10 @@ class RecipeRepositoryImpl @Inject constructor(
                 )
             }.addOnCanceledListener {
                 result =
-                    Left(RecipeFailure.RecipeUpdateFailed(res.getString(R.string.error_recipes_update)))
+                    Left(RecipeFailure.RecipeUpdateFailed(res.getString(R.string.err_recipes_update)))
             }.addOnFailureListener {
                 result =
-                    Left(RecipeFailure.RecipeUpdateFailed(res.getString(R.string.error_recipes_update)))
+                    Left(RecipeFailure.RecipeUpdateFailed(res.getString(R.string.err_recipes_update)))
             }.addOnSuccessListener {
                 result = Right(Unit)
             }.await()
@@ -140,6 +142,11 @@ class RecipeRepositoryImpl @Inject constructor(
                     res.fold(
                         ifLeft = {},
                         ifRight = { uri -> recipe = recipe.copy(photo = uri) }
+                    )
+                    val tagsRes = tagRepository.getTags(id)
+                    tagsRes.fold(
+                        ifLeft = {},
+                        ifRight = { tags -> recipe = recipe.copy(tags = tags) }
                     )
                     return Right(recipe)
                 }

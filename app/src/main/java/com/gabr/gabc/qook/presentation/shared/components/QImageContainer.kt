@@ -12,16 +12,20 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun QImageCircle(
+fun QImageContainer(
     uri: Uri,
     placeholder: ImageVector,
     size: Dp? = null,
+    borderColor: Color = MaterialTheme.colorScheme.primaryContainer,
+    shape: Shape = CircleShape,
     onClick: (() -> Unit)? = null
 ) {
     val configuration = LocalConfiguration.current
@@ -30,9 +34,9 @@ fun QImageCircle(
     OutlinedButton(
         onClick = { onClick?.let { it() } },
         modifier = Modifier.size(size ?: sizeDefault),
-        shape = CircleShape,
+        shape = shape,
         enabled = onClick != null,
-        border = BorderStroke(2.dp, MaterialTheme.colorScheme.primaryContainer),
+        border = BorderStroke(2.dp, borderColor),
         contentPadding = PaddingValues(0.dp),
     ) {
         if (uri == Uri.EMPTY) {

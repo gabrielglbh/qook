@@ -126,7 +126,6 @@ fun RecipeTags(
                         ) {
                             QTag(
                                 tag,
-                                enabled = true,
                                 icon = Icons.Outlined.Create,
                                 onClick = {
                                     clearSearch()
