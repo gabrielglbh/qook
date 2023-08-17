@@ -16,6 +16,7 @@ import androidx.compose.material.icons.outlined.Stairs
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -35,8 +36,12 @@ import com.gabr.gabc.qook.presentation.theme.AppTheme
 import java.util.Calendar
 
 @Composable
-fun QRecipeItem(recipe: Recipe, modifier: Modifier) {
-    QContentCard {
+fun QRecipeItem(recipe: Recipe, modifier: Modifier, onClick: (() -> Unit)? = null) {
+    Surface(
+        enabled = onClick != null,
+        onClick = { onClick?.let { it() } },
+        shape = MaterialTheme.shapes.small
+    ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start,
@@ -46,7 +51,8 @@ fun QRecipeItem(recipe: Recipe, modifier: Modifier) {
                 uri = recipe.photo,
                 placeholder = Icons.Outlined.Photo,
                 borderColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                shape = MaterialTheme.shapes.large
+                shape = MaterialTheme.shapes.large,
+                size = 128f.dp
             )
             Spacer(modifier = Modifier.size(12.dp))
             Column(

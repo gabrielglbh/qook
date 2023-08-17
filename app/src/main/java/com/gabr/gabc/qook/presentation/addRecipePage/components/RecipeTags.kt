@@ -118,7 +118,8 @@ fun RecipeTags(
                             } else {
                                 viewModel.deleteTagFromRecipe(tag)
                             }
-                        }
+                        },
+                        shape = MaterialTheme.shapes.small
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,

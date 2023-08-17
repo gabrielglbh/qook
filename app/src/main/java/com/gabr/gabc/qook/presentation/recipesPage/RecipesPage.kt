@@ -175,7 +175,9 @@ class RecipesPage : ComponentActivity() {
                     modifier = Modifier.weight(1f)
                 ) {
                     items(state.searchedRecipes) { recipe ->
-                        QRecipeItem(recipe = recipe, modifier = Modifier.padding(8.dp))
+                        QRecipeItem(recipe = recipe, modifier = Modifier.padding(8.dp)) {
+                            // TODO: Go to recipe details
+                        }
                     }
                 }
             }

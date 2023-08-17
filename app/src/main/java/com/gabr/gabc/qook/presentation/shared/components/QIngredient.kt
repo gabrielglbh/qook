@@ -20,7 +20,8 @@ import androidx.compose.ui.unit.dp
 fun QIngredient(ingredient: String, onClick: (() -> Unit)? = null, onClear: (() -> Unit)? = null) {
     Surface(
         onClick = { onClick?.let { it() } },
-        enabled = onClick != null
+        enabled = onClick != null,
+        shape = MaterialTheme.shapes.small
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,

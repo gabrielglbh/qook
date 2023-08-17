@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -20,7 +19,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileRow(
     modifier: Modifier = Modifier,
@@ -38,7 +36,8 @@ fun ProfileRow(
     Surface(
         color = Color.Transparent,
         modifier = modifier.fillMaxWidth(),
-        onClick = onClick
+        onClick = onClick,
+        shape = MaterialTheme.shapes.small
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
