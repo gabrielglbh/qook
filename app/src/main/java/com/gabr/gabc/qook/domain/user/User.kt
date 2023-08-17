@@ -11,7 +11,11 @@ data class User(
     val email: String,
     val beginningWeekDay: Int = 1,
     val photo: Uri = Uri.EMPTY
-) : Parcelable
+) : Parcelable {
+    companion object {
+        val EMPTY_USER = User("", "")
+    }
+}
 
 fun User.toDto(): UserDto {
     return UserDto(name, email, beginningWeekDay)

@@ -27,7 +27,7 @@ class ProfileViewModel @Inject constructor(
     val userState: StateFlow<UserState> = _userState.asStateFlow()
 
     fun setDataForLocalLoading(user: User?) {
-        _userState.value = UserState(user = user)
+        _userState.value = UserState(user = user ?: User.EMPTY_USER)
     }
 
     fun signOut() {
@@ -77,8 +77,9 @@ class ProfileViewModel @Inject constructor(
                     onError?.let { f -> f(it.error) }
                 },
                 ifRight = { uri ->
-                    _userState.value = _userState.value.copy(
-                        user = _userState.value.user?.copy(photo = uri)
+                    val value = _userState.value
+                    _userState.value = value.copy(
+                        user = value.user.copy(photo = uri)
                     )
                 }
             )

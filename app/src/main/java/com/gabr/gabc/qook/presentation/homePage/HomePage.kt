@@ -56,6 +56,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
+import com.gabr.gabc.qook.domain.user.User
 import com.gabr.gabc.qook.presentation.addRecipePage.AddRecipePage
 import com.gabr.gabc.qook.presentation.homePage.viewModel.HomeViewModel
 import com.gabr.gabc.qook.presentation.homePage.viewModel.UserState
@@ -134,7 +135,7 @@ class HomePage : ComponentActivity() {
                         color = MaterialTheme.colorScheme.primaryContainer
                     ),
                     action = {
-                        if (state.value.user?.photo == Uri.EMPTY) {
+                        if (state.value.user.photo == Uri.EMPTY) {
                             Icon(
                                 Icons.Outlined.AccountCircle,
                                 contentDescription = null,
@@ -142,7 +143,7 @@ class HomePage : ComponentActivity() {
                             )
                         } else {
                             QImage(
-                                uri = state.value.user?.photo ?: Uri.EMPTY,
+                                uri = state.value.user.photo,
                                 modifier = Modifier.fillMaxSize()
                             )
                         }
@@ -179,9 +180,9 @@ class HomePage : ComponentActivity() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
-            QShimmer(controller = state.user != null) {
+            QShimmer(controller = state.user != User.EMPTY_USER) {
                 Text(
-                    stringResource(R.string.home_welcome_message, state.user?.name ?: ""),
+                    stringResource(R.string.home_welcome_message, state.user.name),
                     style = MaterialTheme.typography.headlineSmall,
                     modifier = it.padding(horizontal = 64.dp, vertical = 32.dp),
                     textAlign = TextAlign.Center

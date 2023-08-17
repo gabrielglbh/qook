@@ -36,7 +36,6 @@ fun RecipeDescription(
     val state = viewModel.recipeState.collectAsState().value
     val configuration = LocalConfiguration.current
 
-    var descriptionField by remember { mutableStateOf(state.recipe.description) }
     var descriptionError by remember { mutableStateOf(false) }
 
     Column(
@@ -57,21 +56,20 @@ fun RecipeDescription(
             modifier = Modifier
                 .height(configuration.screenHeightDp.dp / 1.5f)
                 .weight(1f),
-            value = descriptionField,
+            value = state.recipe.description,
             singleLine = false,
             imeAction = ImeAction.Default,
             onValueChange = {
-                descriptionField = it
-                descriptionError = false
+                viewModel.updateMetadata(description = it)
+                descriptionError = it.trim().isEmpty()
             },
             onSubmitWithImeAction = {
-                viewModel.updateMetadata(description = descriptionField)
+                viewModel.updateMetadata(description = state.recipe.description)
             },
             isError = descriptionError
         )
         Button(
             onClick = {
-                viewModel.updateMetadata(description = descriptionField)
                 if (state.recipe.description.trim().isEmpty()) {
                     descriptionError = true
                     return@Button

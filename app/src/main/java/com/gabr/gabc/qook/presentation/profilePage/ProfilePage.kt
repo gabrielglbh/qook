@@ -2,7 +2,6 @@ package com.gabr.gabc.qook.presentation.profilePage
 
 import android.Manifest
 import android.content.Intent
-import android.net.Uri
 import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
 import android.os.Bundle
@@ -129,10 +128,12 @@ class ProfilePage : ComponentActivity() {
         val scope = rememberCoroutineScope()
         val snackbarHostState = remember { SnackbarHostState() }
 
+        val isUserEmpty = state.user == User.EMPTY_USER
+
         val passwordChangeSuccessfulMessage =
             stringResource(R.string.profile_password_change_successful)
 
-        if (state.user == null) {
+        if (isUserEmpty) {
             LaunchedEffect(key1 = Unit) {
                 viewModel.getUser { errorMessage ->
                     scope.launch {
@@ -193,7 +194,7 @@ class ProfilePage : ComponentActivity() {
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         QImageCircle(
-                            uri = state.user?.photo ?: Uri.EMPTY,
+                            uri = state.user.photo,
                             placeholder = Icons.Outlined.AccountCircle,
                         ) {
                             requestMultiplePermissions.launch(
@@ -210,47 +211,45 @@ class ProfilePage : ComponentActivity() {
                                 }
                             )
                         }
-                        QShimmer(controller = state.user != null) { modifier ->
+                        QShimmer(controller = !isUserEmpty) { modifier ->
                             Text(
-                                state.user?.email ?: "",
+                                state.user.email,
                                 style = MaterialTheme.typography.headlineSmall,
                                 modifier = modifier.padding(top = 12.dp)
                             )
                         }
-                        QShimmer(controller = state.user != null) { modifier ->
-                            state.user?.let { u -> Settings(viewModel, u, modifier) }
+                        QShimmer(controller = !isUserEmpty) { modifier ->
+                            Settings(viewModel, state.user, modifier)
                         }
-                        QShimmer(controller = state.user != null) { modifier ->
-                            state.user?.let { u ->
-                                Account(viewModel, u, modifier,
-                                    onNameUpdated = {
-                                        hasChangedName = true
-                                    },
-                                    onChangePasswordSuccess = {
-                                        scope.launch {
-                                            snackbarHostState.showSnackbar(
-                                                passwordChangeSuccessfulMessage
-                                            )
-                                        }
-                                    },
-                                    onChangePasswordError = {
-                                        scope.launch {
-                                            snackbarHostState.showSnackbar(it)
-                                        }
-                                    },
-                                    onDeleteAccountSuccess = {
-                                        val intent = Intent(this@ProfilePage, LoginPage::class.java)
-                                        intent.flags =
-                                            Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                                        startActivity(intent)
-                                    },
-                                    onDeleteAccountError = {
-                                        scope.launch {
-                                            snackbarHostState.showSnackbar(it)
-                                        }
+                        QShimmer(controller = !isUserEmpty) { modifier ->
+                            Account(viewModel, state.user, modifier,
+                                onNameUpdated = {
+                                    hasChangedName = true
+                                },
+                                onChangePasswordSuccess = {
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar(
+                                            passwordChangeSuccessfulMessage
+                                        )
                                     }
-                                )
-                            }
+                                },
+                                onChangePasswordError = {
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar(it)
+                                    }
+                                },
+                                onDeleteAccountSuccess = {
+                                    val intent = Intent(this@ProfilePage, LoginPage::class.java)
+                                    intent.flags =
+                                        Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                    startActivity(intent)
+                                },
+                                onDeleteAccountError = {
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar(it)
+                                    }
+                                }
+                            )
                         }
                     }
                 }

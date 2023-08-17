@@ -48,9 +48,8 @@ class TagRepositoryImpl @Inject constructor(
                 db.collection("USERS").document(it.uid)
                     .collection("TAGS").document(id).delete().await()
 
-                // TODO: Remove THIS tag in ANY recipe involved: NEEDS Cloud Functions
                 val query = db.collection("USERS").document(it.uid)
-                    .collection("RECIPES").whereArrayContains("tags", id)
+                    .collection("RECIPES").whereArrayContains("tagIds", id)
                     .get().await()
 
                 query.documents.forEach { doc ->
@@ -59,7 +58,7 @@ class TagRepositoryImpl @Inject constructor(
                         addAll(currentTags)
                         remove(id)
                     }
-                    doc.reference.update(mapOf(Pair("tags", newTags))).await()
+                    doc.reference.update(mapOf(Pair("tagIds", newTags))).await()
                 }
 
                 return Right(Unit)

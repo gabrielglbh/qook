@@ -19,15 +19,15 @@ class StorageRepositoryImpl @Inject constructor(
     private val res: StringResourcesProvider
 ) : StorageRepository {
     override suspend fun uploadImage(file: Uri, path: String): Either<StorageFailure, Uri> {
-        return try {
+        try {
             auth.currentUser?.let {
                 val ref = storage.reference.child("${it.uid}/$path")
                 ref.putFile(file).await()
-                Right(ref.downloadUrl.await())
+                return Right(ref.downloadUrl.await())
             }
-            Left(StorageFailure.NotAuthenticated(res.getString(R.string.err_storage_upload_image)))
+            return Left(StorageFailure.NotAuthenticated(res.getString(R.string.err_storage_upload_image)))
         } catch (err: Exception) {
-            Left(StorageFailure.ImageUpdateFailed(res.getString(R.string.err_storage_upload_image)))
+            return Left(StorageFailure.ImageUpdateFailed(res.getString(R.string.err_storage_upload_image)))
         }
     }
 

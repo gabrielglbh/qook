@@ -4,20 +4,22 @@ import android.net.Uri
 import android.os.Build.VERSION.SDK_INT
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.ImageNotSupported
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import coil.ImageLoader
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
 import coil.request.ImageRequest
-import com.gabr.gabc.qook.R
 
 enum class QImageType {
     NETWORK, GIF
@@ -32,9 +34,6 @@ fun QImage(
 ) {
     if (type == QImageType.GIF && resource == null) {
         throw Exception("Should provide a resource such as R.drawable.xxx with type GIF")
-    }
-    if (type == QImageType.NETWORK && uri == Uri.EMPTY) {
-        throw Exception("Should provide a resource such as https://domain.es/image.png with type NETWORK")
     }
 
     when (type) {
@@ -66,10 +65,11 @@ fun QImage(
                     CircularProgressIndicator()
                 },
                 error = {
-                    Image(
-                        painter = painterResource(R.drawable.no_image),
+                    Icon(
+                        Icons.Outlined.ImageNotSupported,
                         contentDescription = null,
-                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.outline)
+                        modifier = Modifier.size(16.dp),
+                        tint = MaterialTheme.colorScheme.outline
                     )
                 },
                 contentDescription = "",
