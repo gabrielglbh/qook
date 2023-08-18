@@ -75,7 +75,9 @@ class AddRecipeViewModel @Inject constructor(
 
             val result = recipeRepository.updateRecipe(
                 recipe = recipe.copy(
-                    photo = if (recipe.photo.host != Globals.FIREBASE_HOST) {
+                    photo = if (recipe.photo == Uri.EMPTY) {
+                        Uri.EMPTY
+                    } else if (recipe.photo.host != Globals.FIREBASE_HOST) {
                         Uri.fromFile(
                             resizeImageToFile(
                                 recipe.photo,

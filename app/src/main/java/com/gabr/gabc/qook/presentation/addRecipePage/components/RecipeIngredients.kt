@@ -31,6 +31,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.presentation.addRecipePage.viewModel.AddRecipeViewModel
+import com.gabr.gabc.qook.presentation.shared.Validators
 import com.gabr.gabc.qook.presentation.shared.components.QEmptyBox
 import com.gabr.gabc.qook.presentation.shared.components.QIngredient
 import com.gabr.gabc.qook.presentation.shared.components.QTextForm
@@ -38,12 +39,16 @@ import com.gabr.gabc.qook.presentation.shared.components.QTextTitle
 
 @Composable
 fun RecipeIngredients(
-    modifier: Modifier, onNavigate: () -> Unit, viewModel: AddRecipeViewModel
+    modifier: Modifier,
+    onNavigate: () -> Unit,
+    viewModel: AddRecipeViewModel,
+    onIngredientsEmpty: () -> Unit
 ) {
     val focusManager = LocalFocusManager.current
     val state = viewModel.recipeState.collectAsState().value
 
     var ingredientNameField by remember { mutableStateOf("") }
+    var ingredientNameError by remember { mutableStateOf(false) }
     var ingredientIndexIfUpdating by remember { mutableIntStateOf(-1) }
 
     Column(
@@ -61,8 +66,10 @@ fun RecipeIngredients(
             value = ingredientNameField,
             onValueChange = {
                 ingredientNameField = it
+                ingredientNameError = Validators.isIngredientNameInvalid(it)
             },
             leadingIcon = Icons.Outlined.ShoppingBasket,
+            isError = ingredientNameError,
             imeAction = if (ingredientNameField.isEmpty()) {
                 ImeAction.Done
             } else {
@@ -82,7 +89,7 @@ fun RecipeIngredients(
                 }
             },
             onSubmitWithImeAction = {
-                if (ingredientNameField.trim().isEmpty()) return@QTextForm
+                if (ingredientNameField.trim().isEmpty() || ingredientNameError) return@QTextForm
 
                 if (ingredientIndexIfUpdating != -1) {
                     if (ingredientNameField.trim().isNotEmpty()) {
@@ -96,6 +103,7 @@ fun RecipeIngredients(
                 }
                 ingredientNameField = ""
                 ingredientIndexIfUpdating = -1
+                ingredientNameError = false
             }
         )
         if (state.recipe.ingredients.isEmpty()) {
@@ -129,7 +137,10 @@ fun RecipeIngredients(
         }
         Button(
             onClick = {
-                if (state.recipe.ingredients.isEmpty()) return@Button
+                if (state.recipe.ingredients.isEmpty()) {
+                    onIngredientsEmpty()
+                    return@Button
+                }
                 onNavigate()
             },
             modifier = Modifier

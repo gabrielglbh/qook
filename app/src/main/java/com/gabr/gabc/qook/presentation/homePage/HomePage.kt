@@ -26,8 +26,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
-import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material.icons.outlined.Receipt
 import androidx.compose.material.icons.outlined.ShoppingBasket
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -55,14 +55,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import arrow.core.Either
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.user.User
-import com.gabr.gabc.qook.presentation.addRecipePage.AddRecipePage
 import com.gabr.gabc.qook.presentation.homePage.viewModel.HomeViewModel
 import com.gabr.gabc.qook.presentation.homePage.viewModel.UserState
 import com.gabr.gabc.qook.presentation.profilePage.ProfilePage
 import com.gabr.gabc.qook.presentation.recipesPage.RecipesPage
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
+import com.gabr.gabc.qook.presentation.shared.components.QAutoSizeText
 import com.gabr.gabc.qook.presentation.shared.components.QImage
 import com.gabr.gabc.qook.presentation.shared.components.QShimmer
 import com.gabr.gabc.qook.presentation.theme.AppTheme
@@ -135,7 +136,7 @@ class HomePage : ComponentActivity() {
                         1.dp,
                         color = MaterialTheme.colorScheme.primaryContainer
                     ),
-                    action = {
+                    action = Either.Left {
                         if (state.value.user.photo == Uri.EMPTY) {
                             Icon(
                                 Icons.Outlined.AccountCircle,
@@ -250,19 +251,18 @@ class HomePage : ComponentActivity() {
                 onClick = {}
             )
             BottomNavButton(
-                icon = Icons.Outlined.Add,
-                text = stringResource(R.string.home_add_recipe_bnb),
-                onClick = {
-                    startActivity(Intent(this@HomePage, AddRecipePage::class.java))
-                }
-            )
-            BottomNavButton(
-                icon = Icons.Outlined.Search,
+                icon = Icons.Outlined.Receipt,
                 text = stringResource(R.string.home_recipes_bnb),
                 onClick = {
                     startActivity(Intent(this@HomePage, RecipesPage::class.java))
                 }
             )
+            BottomNavButton(
+                icon = Icons.Outlined.CalendarMonth,
+                text = stringResource(R.string.home_planning_bnb),
+                onClick = {}
+            )
+
         }
     }
 
@@ -286,10 +286,10 @@ class HomePage : ComponentActivity() {
                     .width(32.dp)
                     .height(32.dp),
             )
-            Text(
-                text, style = MaterialTheme.typography.bodySmall.copy(
-                    color = MaterialTheme.colorScheme.outline
-                )
+            QAutoSizeText(
+                text,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.outline
             )
         }
     }

@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.gabr.gabc.qook.presentation.shared.components.QAutoSizeText
 
 @Composable
 fun ProfileRow(
@@ -55,13 +56,13 @@ fun ProfileRow(
                 tint = textColor,
                 modifier = Modifier.padding(start = 16.dp)
             )
-            Text(
-                text,
+            QAutoSizeText(
+                text = text,
                 modifier = Modifier
                     .padding(
                         top = 12.dp,
-                        start = 24.dp,
-                        end = 12.dp,
+                        start = 12.dp,
+                        end = 4.dp,
                         bottom = 12.dp
                     )
                     .weight(1f),
@@ -71,7 +72,7 @@ fun ProfileRow(
                 trailingText,
                 modifier = Modifier.padding(
                     top = 12.dp,
-                    start = 24.dp,
+                    start = 8.dp,
                     end = 16.dp,
                     bottom = 12.dp
                 ),

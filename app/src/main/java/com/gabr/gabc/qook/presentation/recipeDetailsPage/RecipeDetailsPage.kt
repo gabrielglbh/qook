@@ -15,11 +15,11 @@ import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ModeEdit
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import arrow.core.Either
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.recipe.Recipe
 import com.gabr.gabc.qook.presentation.addRecipePage.AddRecipePage
@@ -99,9 +99,7 @@ class RecipeDetailsPage : ComponentActivity() {
                             intent.putExtra(RECIPE_FROM_DETAILS, viewModel.recipe.value)
                             resultLauncher.launch(intent)
                         },
-                        action = {
-                            Icon(Icons.Outlined.ModeEdit, contentDescription = "")
-                        }
+                        action = Either.Right(Icons.Outlined.ModeEdit)
                     )
                 }
             ) {

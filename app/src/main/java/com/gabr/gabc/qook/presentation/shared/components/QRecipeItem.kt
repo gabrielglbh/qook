@@ -60,7 +60,7 @@ fun QRecipeItem(recipe: Recipe, modifier: Modifier, onClick: (() -> Unit)? = nul
             ) {
                 Text(
                     recipe.name,
-                    style = MaterialTheme.typography.titleLarge.copy(
+                    style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold,
                     ),
                     maxLines = 2,

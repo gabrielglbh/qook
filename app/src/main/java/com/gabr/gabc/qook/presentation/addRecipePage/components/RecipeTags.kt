@@ -159,7 +159,6 @@ fun RecipeTags(
         }
         Button(
             onClick = {
-                if (state.recipe.tags.isEmpty()) return@Button
                 onNavigate()
             },
             modifier = Modifier

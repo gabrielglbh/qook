@@ -23,7 +23,8 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Clear
-import androidx.compose.material.icons.outlined.MenuBook
+import androidx.compose.material.icons.outlined.PostAdd
+import androidx.compose.material.icons.outlined.Receipt
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -43,8 +44,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import arrow.core.Either
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.recipe.Recipe
+import com.gabr.gabc.qook.presentation.addRecipePage.AddRecipePage
 import com.gabr.gabc.qook.presentation.recipeDetailsPage.RecipeDetailsPage
 import com.gabr.gabc.qook.presentation.recipesPage.viewModel.RecipesState
 import com.gabr.gabc.qook.presentation.recipesPage.viewModel.RecipesViewModel
@@ -52,6 +55,7 @@ import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.shared.components.QEmptyBox
 import com.gabr.gabc.qook.presentation.shared.components.QLoadingScreen
 import com.gabr.gabc.qook.presentation.shared.components.QRecipeItem
+import com.gabr.gabc.qook.presentation.shared.components.QShimmer
 import com.gabr.gabc.qook.presentation.shared.components.QTag
 import com.gabr.gabc.qook.presentation.shared.components.QTextForm
 import com.gabr.gabc.qook.presentation.theme.AppTheme
@@ -70,10 +74,18 @@ class RecipesPage : ComponentActivity() {
                 val extras = result.data?.extras
 
                 val viewModel: RecipesViewModel by viewModels()
-                val updatedRecipe = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                var updatedRecipe = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     extras?.getParcelable(RecipeDetailsPage.HAS_UPDATED_RECIPE, Recipe::class.java)
                 } else {
                     extras?.getParcelable(RecipeDetailsPage.HAS_UPDATED_RECIPE)
+                }
+
+                if (updatedRecipe == null) {
+                    updatedRecipe = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        extras?.getParcelable(AddRecipePage.RECIPE_UPDATED, Recipe::class.java)
+                    } else {
+                        extras?.getParcelable(AddRecipePage.RECIPE_UPDATED)
+                    }
                 }
 
                 // TODO: Maintain the scroll? --- possible with lazy loading?
@@ -118,7 +130,15 @@ class RecipesPage : ComponentActivity() {
         Box {
             Scaffold(
                 topBar = {
-                    QActionBar(title = R.string.recipes_title, onBack = { finish() })
+                    QActionBar(
+                        title = R.string.recipes_title,
+                        onBack = { finish() },
+                        action = Either.Right(Icons.Outlined.PostAdd),
+                        actionBehaviour = {
+                            val intent = Intent(this@RecipesPage, AddRecipePage::class.java)
+                            resultLauncher.launch(intent)
+                        }
+                    )
                 },
                 snackbarHost = {
                     SnackbarHost(snackbarHostState)
@@ -178,36 +198,48 @@ class RecipesPage : ComponentActivity() {
                 }
             )
             Spacer(modifier = Modifier.size(8.dp))
-            LazyRow(
-                modifier = Modifier.fillMaxWidth(),
-                content = {
-                    items(state.tags) { tag ->
-                        QTag(
-                            tag = tag,
-                            modifier = Modifier.padding(4.dp),
-                            onClick = {
-                                // TODO: Filter the search by tag
-                            }
-                        )
+            QShimmer(controller = state.tags.isNotEmpty()) { modifier ->
+                LazyRow(
+                    modifier = modifier.fillMaxWidth(),
+                    content = {
+                        items(state.tags) { tag ->
+                            QTag(
+                                tag = tag,
+                                modifier = Modifier.padding(4.dp),
+                                onClick = {
+                                    // TODO: Filter the search by tag
+                                }
+                            )
+                        }
                     }
-                }
-            )
-            Spacer(modifier = Modifier.size(8.dp))
-            if (state.recipes.isEmpty() || state.searchedRecipes.isEmpty()) {
-                QEmptyBox(
-                    message = R.string.recipes_empty,
-                    icon = Icons.Outlined.MenuBook,
-                    modifier = Modifier.weight(1f)
                 )
-            } else {
-                LazyColumn(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    items(state.searchedRecipes) { recipe ->
-                        QRecipeItem(recipe = recipe, modifier = Modifier.padding(8.dp)) {
-                            val intent = Intent(this@RecipesPage, RecipeDetailsPage::class.java)
-                            intent.putExtra(RECIPE_FROM_LIST, recipe)
-                            resultLauncher.launch(intent)
+            }
+            Spacer(modifier = Modifier.size(8.dp))
+            Box(
+                modifier = Modifier.weight(1f),
+                contentAlignment = if (state.recipes.isEmpty() || state.searchedRecipes.isEmpty()) {
+                    Alignment.Center
+                } else {
+                    Alignment.TopCenter
+                }
+            ) {
+                QShimmer(controller = state.recipes.isEmpty() || state.searchedRecipes.isEmpty()) { modifier ->
+                    QEmptyBox(
+                        message = R.string.recipes_empty,
+                        icon = Icons.Outlined.Receipt,
+                        modifier = modifier
+                    )
+                }
+                QShimmer(controller = state.searchedRecipes.isNotEmpty()) { modifier ->
+                    LazyColumn(
+                        modifier = modifier
+                    ) {
+                        items(state.searchedRecipes) { recipe ->
+                            QRecipeItem(recipe = recipe, modifier = Modifier.padding(8.dp)) {
+                                val intent = Intent(this@RecipesPage, RecipeDetailsPage::class.java)
+                                intent.putExtra(RECIPE_FROM_LIST, recipe)
+                                resultLauncher.launch(intent)
+                            }
                         }
                     }
                 }

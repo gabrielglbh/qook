@@ -44,7 +44,7 @@ fun QTextForm(
     val focusManager = LocalFocusManager.current
     val hasAction = onSubmitWithImeAction != null
 
-    // TODO: When copying from clipboard, onValueChange does not trigger
+    // TODO: Show error reason from validator below text field?
     OutlinedTextField(
         value = value,
         singleLine = singleLine,

@@ -1,5 +1,6 @@
 package com.gabr.gabc.qook.infrastructure.recipe
 
+import android.net.Uri
 import arrow.core.Either
 import arrow.core.Either.Left
 import arrow.core.Either.Right
@@ -16,6 +17,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.ktx.toObject
+import com.google.firebase.storage.StorageException
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -67,7 +69,7 @@ class RecipeRepositoryImpl @Inject constructor(
 
                 docRef.set(recipe.toDto()).await()
 
-                if (recipe.photo.host != Globals.FIREBASE_HOST) {
+                if (recipe.photo.host != Globals.FIREBASE_HOST && recipe.photo != Uri.EMPTY) {
                     storage.uploadImage(recipe.photo, "${Globals.STORAGE_RECIPES}$recipeId.jpg")
                 }
 
@@ -81,6 +83,10 @@ class RecipeRepositoryImpl @Inject constructor(
                             res.getString(R.string.err_recipe_creation)
                 )
             )
+        } catch (err: StorageException) {
+            return Left(
+                RecipeFailure.RecipeDoesNotExist(res.getString(R.string.err_recipe_creation))
+            )
         }
     }
 
@@ -91,7 +97,10 @@ class RecipeRepositoryImpl @Inject constructor(
                     .collection(Globals.DB_RECIPES).document(id)
                     .delete().await()
 
-                storage.deleteImage("${Globals.STORAGE_RECIPES}$id.jpg")
+                try {
+                    storage.deleteImage("${Globals.STORAGE_RECIPES}$id.jpg")
+                } catch (_: StorageException) {
+                }
 
                 return Right(Unit)
             }
@@ -100,7 +109,7 @@ class RecipeRepositoryImpl @Inject constructor(
             return Left(
                 RecipeFailure.RecipeDoesNotExist(
                     "${err.code}: " +
-                            res.getString(R.string.err_tags_deletion_failed)
+                            res.getString(R.string.err_recipe_deletion_failed)
                 )
             )
         }
@@ -117,11 +126,16 @@ class RecipeRepositoryImpl @Inject constructor(
                     .collection(Globals.DB_RECIPES).document(id).get().await()
                 query.toObject<RecipeDto>()?.let { recipeDto ->
                     var recipe = recipeDto.toDomain()
-                    val res = storage.getDownloadUrl("${Globals.STORAGE_RECIPES}${id}.jpg")
-                    res.fold(
-                        ifLeft = {},
-                        ifRight = { uri -> recipe = recipe.copy(photo = uri) }
-                    )
+
+                    try {
+                        val res = storage.getDownloadUrl("${Globals.STORAGE_RECIPES}${id}.jpg")
+                        res.fold(
+                            ifLeft = {},
+                            ifRight = { uri -> recipe = recipe.copy(photo = uri) }
+                        )
+                    } catch (_: StorageException) {
+                    }
+
                     val tagsRes = tagRepository.getTags(id)
                     tagsRes.fold(
                         ifLeft = {},

@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.BookmarkAdd
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -46,6 +45,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import arrow.core.Either
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.recipe.Recipe
 import com.gabr.gabc.qook.domain.tag.Tag
@@ -187,6 +187,7 @@ class AddRecipePage : ComponentActivity() {
         val snackbarHostState = remember { SnackbarHostState() }
 
         val errorOnUpload = stringResource(R.string.add_recipe_error_validation)
+        val errorOnIngredients = stringResource(R.string.err_add_recipe_ingredients_empty)
         val contentPadding = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
 
         navController.addOnDestinationChangedListener { _, dest, _ ->
@@ -228,20 +229,18 @@ class AddRecipePage : ComponentActivity() {
                                 finish()
                             }
                         },
-                        actionBehaviour = {
-                            if (currentPage == RecipeStep.TAGS) {
+                        actionBehaviour = if (currentPage == RecipeStep.TAGS) {
+                            {
                                 val intent = Intent(this@AddRecipePage, AddTagPage::class.java)
                                 resultLauncher.launch(intent)
                             }
+                        } else {
+                            null
                         },
-                        action = {
-                            if (currentPage == RecipeStep.TAGS) {
-                                Icon(
-                                    Icons.Outlined.BookmarkAdd,
-                                    contentDescription = "",
-                                    modifier = Modifier.size(16.dp)
-                                )
-                            }
+                        action = if (currentPage == RecipeStep.TAGS) {
+                            Either.Right(Icons.Outlined.BookmarkAdd)
+                        } else {
+                            null
                         }
                     )
                 },
@@ -287,7 +286,12 @@ class AddRecipePage : ComponentActivity() {
                                 RecipeIngredients(
                                     modifier = contentPadding,
                                     onNavigate = { navController.navigate(RecipeStep.DESCRIPTION.name) },
-                                    viewModel = viewModel
+                                    viewModel = viewModel,
+                                    onIngredientsEmpty = {
+                                        scope.launch {
+                                            snackbarHostState.showSnackbar(errorOnIngredients)
+                                        }
+                                    }
                                 )
                             }
                             composable(RecipeStep.DESCRIPTION.name) {
@@ -331,9 +335,12 @@ class AddRecipePage : ComponentActivity() {
                                                 }
                                             },
                                             ifSuccess = {
-                                                if (state.originalRecipe != Recipe.EMPTY_RECIPE) {
+                                                if (state.originalRecipe != Recipe.EMPTY_RECIPE || state.recipe != Recipe.EMPTY_RECIPE) {
                                                     val resultIntent = Intent()
-                                                    resultIntent.putExtra(RECIPE_UPDATED, state.recipe)
+                                                    resultIntent.putExtra(
+                                                        RECIPE_UPDATED,
+                                                        state.recipe
+                                                    )
                                                     setResult(RESULT_OK, resultIntent)
                                                 }
                                                 finish()

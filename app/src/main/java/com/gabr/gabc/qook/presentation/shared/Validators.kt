@@ -13,5 +13,7 @@ class Validators {
             recipe == Recipe.EMPTY_RECIPE || recipe.tags.isEmpty() || recipe.ingredients.isEmpty() ||
                     recipe.description.trim().isEmpty() || isRecipeNameInvalid(recipe.name) ||
                     isNameInvalid(recipe.time)
+
+        fun isIngredientNameInvalid(name: String) = name.trim().isEmpty() || name.length > 48
     }
 }

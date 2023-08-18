@@ -24,6 +24,7 @@
     <string name="home_recipes_bnb">Recetas</string>
     <string name="home_welcome_message">Hola %1$s, ¿qué cocinamos hoy?</string>
     <string name="home_get_random_recipe">Prepara una receta aleatoria de tu lista</string>
+    <string name="home_planning_bnb">Planificación</string>
 
     <string name="profile_settings_label">Ajustes</string>
     <string name="profile_change_week_beginning">Planificar semana desde…</string>
@@ -71,6 +72,7 @@
     <string name="add_recipe_preview_guideline">Para modificar algo, ve atrás o pulsa sobre las barras de progreso</string>
     <string name="add_recipe_tags_title">Selecciona etiquetas para tu receta</string>
     <string name="add_recipe_ingredients_description">Para actualizar un ingrediente, pulsa sobre él y cámbialo</string>
+    <string name="err_add_recipe_ingredients_empty">Debes añadir por lo menos 1 ingrediente para seguir</string>
 
     <string name="err_recipe_creation">No se ha podido crear la receta, prueba otra vez</string>
     <string name="err_recipes_retrieve">No se ha podido recoger la receta, prueba otra vez</string>
@@ -79,6 +81,7 @@
     <string name="err_tags_retrieve">No se han podido recoger las etiquetas</string>
     <string name="err_tags_creation_failed">No se ha podido crear la etiqueta, prueba otra vez</string>
     <string name="err_tags_deletion_failed">No se ha podido eliminar la etiqueta, prueba otra vez</string>
+    <string name="err_recipe_deletion_failed">No se ha podido eliminar la receta, prueba otra vez</string>
 
     <string name="tags_empty">No tienes etiquetas creadas, crealas pulsando en el bóton \'+\'</string>
     <string name="tags_add_title">Añade una etiqueta</string>

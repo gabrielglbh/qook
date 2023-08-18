@@ -18,11 +18,9 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.ExitToApp
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -37,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import arrow.core.Either
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.user.User
 import com.gabr.gabc.qook.presentation.homePage.HomePage
@@ -45,6 +44,7 @@ import com.gabr.gabc.qook.presentation.profilePage.components.Account
 import com.gabr.gabc.qook.presentation.profilePage.components.Settings
 import com.gabr.gabc.qook.presentation.profilePage.viewModel.ProfileViewModel
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
+import com.gabr.gabc.qook.presentation.shared.components.QAutoSizeText
 import com.gabr.gabc.qook.presentation.shared.components.QImageContainer
 import com.gabr.gabc.qook.presentation.shared.components.QShimmer
 import com.gabr.gabc.qook.presentation.theme.AppTheme
@@ -162,13 +162,7 @@ class ProfilePage : ComponentActivity() {
                             Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                         startActivity(intent)
                     },
-                    action = {
-                        Icon(
-                            Icons.Outlined.ExitToApp,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp)
-                        )
-                    },
+                    action = Either.Right(Icons.Outlined.ExitToApp)
                 )
             },
             snackbarHost = {
@@ -212,8 +206,8 @@ class ProfilePage : ComponentActivity() {
                             )
                         }
                         QShimmer(controller = !isUserEmpty) { modifier ->
-                            Text(
-                                state.user.email,
+                            QAutoSizeText(
+                                text = state.user.email,
                                 style = MaterialTheme.typography.headlineSmall,
                                 modifier = modifier.padding(top = 12.dp)
                             )

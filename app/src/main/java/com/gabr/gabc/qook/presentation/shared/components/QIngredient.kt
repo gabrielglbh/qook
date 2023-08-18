@@ -36,7 +36,7 @@ fun QIngredient(ingredient: String, onClick: (() -> Unit)? = null, onClear: (() 
             )
             Text(
                 ingredient,
-                maxLines = 1,
+                maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
                 modifier = Modifier.weight(1f)

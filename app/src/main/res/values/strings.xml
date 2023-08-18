@@ -23,6 +23,7 @@
     <string name="home_recipes_bnb">Recipes</string>
     <string name="home_welcome_message">Hi %1$s, what are we cooking today?</string>
     <string name="home_get_random_recipe">Prepare a random recipe from your list</string>
+    <string name="home_planning_bnb">Planning</string>
 
     <string name="profile_settings_label">Settings</string>
     <string name="profile_change_week_beginning">Plan week from…</string>
@@ -70,10 +71,12 @@
     <string name="add_recipe_preview_guideline">In order to modify something, go back or tap on the progress bars</string>
     <string name="add_recipe_tags_title">Select tags for your recipe</string>
     <string name="add_recipe_ingredients_description">To update an ingredient tap on it and change it</string>
+    <string name="err_add_recipe_ingredients_empty">You must add at least 1 ingredient to proceed</string>
 
     <string name="err_recipe_creation">Could not create recipe, try again</string>
     <string name="err_recipes_update">Could not update the recipe, try again</string>
     <string name="err_recipes_retrieve">Could not retrieve recipes, try again</string>
+    <string name="err_recipe_deletion_failed">Could not delete recipe, try again</string>
 
     <string name="err_tags_retrieve">Could not retrieve tags</string>
     <string name="err_tags_creation_failed">Could not create tag, try again</string>
