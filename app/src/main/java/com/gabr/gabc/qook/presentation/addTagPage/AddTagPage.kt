@@ -6,7 +6,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,9 +18,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -35,7 +31,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
@@ -46,6 +41,7 @@ import com.gabr.gabc.qook.presentation.shared.Validators
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.shared.components.QColorPicker
 import com.gabr.gabc.qook.presentation.shared.components.QLoadingScreen
+import com.gabr.gabc.qook.presentation.shared.components.QRemoveButton
 import com.gabr.gabc.qook.presentation.shared.components.QTag
 import com.gabr.gabc.qook.presentation.shared.components.QTextForm
 import com.gabr.gabc.qook.presentation.theme.AppTheme
@@ -213,32 +209,15 @@ class AddTagPage : ComponentActivity() {
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.Center
                             ) {
-                                OutlinedButton(
-                                    onClick = {
-                                        viewModel.deleteTag(
-                                            ifError = { err -> errorCallback(err) },
-                                            ifSuccess = {
-                                                successCallback(
-                                                    state.tag,
-                                                    AlteredMode.DELETE
-                                                )
-                                            }
-                                        )
-                                    },
-                                    border = BorderStroke(
-                                        1.dp,
-                                        MaterialTheme.colorScheme.error
-                                    ),
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(start = 12.dp, end = 12.dp, bottom = 8.dp),
-                                    colors = ButtonDefaults.outlinedButtonColors(
-                                        containerColor = Color.Transparent,
-                                    )
-                                ) {
-                                    Text(
-                                        stringResource(R.string.tags_remove_tag),
-                                        color = MaterialTheme.colorScheme.error
+                                QRemoveButton {
+                                    viewModel.deleteTag(
+                                        ifError = { err -> errorCallback(err) },
+                                        ifSuccess = {
+                                            successCallback(
+                                                state.tag,
+                                                AlteredMode.DELETE
+                                            )
+                                        }
                                     )
                                 }
                                 Spacer(modifier = Modifier.size(8.dp))

@@ -16,7 +16,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ModeEdit
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import arrow.core.Either
@@ -26,9 +30,12 @@ import com.gabr.gabc.qook.presentation.addRecipePage.AddRecipePage
 import com.gabr.gabc.qook.presentation.recipeDetailsPage.viewModel.RecipeDetailsViewModel
 import com.gabr.gabc.qook.presentation.recipesPage.RecipesPage
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
+import com.gabr.gabc.qook.presentation.shared.components.QLoadingScreen
 import com.gabr.gabc.qook.presentation.shared.components.QRecipeDetail
+import com.gabr.gabc.qook.presentation.shared.components.QRemoveButton
 import com.gabr.gabc.qook.presentation.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class RecipeDetailsPage : ComponentActivity() {
@@ -81,6 +88,9 @@ class RecipeDetailsPage : ComponentActivity() {
     fun RecipeDetailsView() {
         val viewModel: RecipeDetailsViewModel by viewModels()
 
+        val scope = rememberCoroutineScope()
+        val snackbarHostState = remember { SnackbarHostState() }
+
         Box {
             Scaffold(
                 topBar = {
@@ -101,6 +111,9 @@ class RecipeDetailsPage : ComponentActivity() {
                         },
                         action = Either.Right(Icons.Outlined.ModeEdit)
                     )
+                },
+                snackbarHost = {
+                    SnackbarHost(snackbarHostState)
                 }
             ) {
                 Box(
@@ -109,13 +122,29 @@ class RecipeDetailsPage : ComponentActivity() {
                         .consumeWindowInsets(it)
                 ) {
                     Column {
+                        // TODO: Adapt it to QActionBar taking an array of actions
+                        QRemoveButton {
+                            viewModel.removeRecipe(
+                                onError = {
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar(it)
+                                    }
+                                },
+                                onSuccess = {
+                                    // TODO: Refresh list or update locally
+                                    finish()
+                                }
+                            )
+                        }
                         QRecipeDetail(
                             recipe = viewModel.recipe.value,
-                            modifier = Modifier.padding(horizontal = 12.dp)
+                            modifier = Modifier.padding(start = 12.dp, end = 12.dp, bottom = 12.dp)
                         )
+
                     }
                 }
             }
+            if (viewModel.isLoading.value) QLoadingScreen()
         }
     }
 }
