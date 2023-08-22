@@ -34,8 +34,11 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
@@ -43,6 +46,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.recipe.Recipe
+import com.gabr.gabc.qook.domain.tag.Tag
 import com.gabr.gabc.qook.presentation.addRecipePage.AddRecipePage
 import com.gabr.gabc.qook.presentation.recipeDetailsPage.RecipeDetailsPage
 import com.gabr.gabc.qook.presentation.recipesPage.viewModel.RecipesState
@@ -169,7 +173,7 @@ class RecipesPage : ComponentActivity() {
                     RecipesContent(viewModel, state)
                 }
             }
-            if (viewModel.isLoading.value) QLoadingScreen()
+            if (viewModel.isLoadingRecipes.value || viewModel.isLoadingTags.value) QLoadingScreen()
         }
     }
 
@@ -178,6 +182,7 @@ class RecipesPage : ComponentActivity() {
         val searchState = viewModel.searchState.collectAsState().value
 
         val focusManager = LocalFocusManager.current
+        var selectedFilterTag by remember { mutableStateOf<Tag?>(null) }
 
         fun clearSearch() {
             viewModel.updateSearchState(searchState.copy(query = ""))
@@ -210,6 +215,7 @@ class RecipesPage : ComponentActivity() {
                 },
                 imeAction = ImeAction.Search,
                 onSubmitWithImeAction = {
+                    selectedFilterTag = null
                     viewModel.onSearch()
                     focusManager.clearFocus()
                 }
@@ -223,8 +229,15 @@ class RecipesPage : ComponentActivity() {
                             QTag(
                                 tag = tag,
                                 modifier = Modifier.padding(4.dp),
+                                isActive = selectedFilterTag == tag,
                                 onClick = {
-                                    viewModel.updateSearchState(searchState.copy(tags = listOf(tag)))
+                                    selectedFilterTag = tag
+                                    viewModel.updateSearchState(
+                                        searchState.copy(
+                                            tag = tag,
+                                            query = ""
+                                        )
+                                    )
                                     viewModel.onSearch()
                                 }
                             )

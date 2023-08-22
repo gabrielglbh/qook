@@ -5,6 +5,7 @@ import android.os.Parcelable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import com.gabr.gabc.qook.infrastructure.tag.TagDto
+import com.gabr.gabc.qook.presentation.shared.StringFormatters
 import kotlinx.parcelize.Parceler
 import kotlinx.parcelize.Parcelize
 
@@ -40,9 +41,14 @@ data class Tag(
 }
 
 fun Tag.toDto(): TagDto {
+    val nameKeywords = mutableListOf<String>().apply {
+        addAll(text.split(' ').map { e -> e.lowercase() })
+        addAll(StringFormatters.generateSubStrings(text))
+    }
     return TagDto(
         id,
         text,
+        nameKeywords.distinct(),
         color.toArgb()
     )
 }

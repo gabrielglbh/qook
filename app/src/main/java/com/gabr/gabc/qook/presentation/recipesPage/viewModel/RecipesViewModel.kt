@@ -24,7 +24,9 @@ class RecipesViewModel @Inject constructor(
     private val _searchState = MutableStateFlow(SearchState())
     val searchState: StateFlow<SearchState> = _searchState.asStateFlow()
 
-    var isLoading = mutableStateOf(false)
+    var isLoadingRecipes = mutableStateOf(false)
+        private set
+    var isLoadingTags = mutableStateOf(false)
         private set
 
     private fun alterListForUpdate(recipe: Recipe, list: List<Recipe>): List<Recipe> {
@@ -50,7 +52,7 @@ class RecipesViewModel @Inject constructor(
 
     fun getRecipes(onError: (String) -> Unit) {
         viewModelScope.launch {
-            isLoading.value = true
+            isLoadingRecipes.value = true
             val result = recipeRepository.getRecipes()
             result.fold(
                 ifLeft = { e -> onError(e.error) },
@@ -61,19 +63,19 @@ class RecipesViewModel @Inject constructor(
                     )
                 }
             )
-            isLoading.value = false
+            isLoadingRecipes.value = false
         }
     }
 
     // TODO: not working
     fun onSearch() {
         viewModelScope.launch {
-            isLoading.value = true
+            isLoadingRecipes.value = true
             val result = recipeRepository.getRecipes(
                 orderBy = searchState.value.orderBy,
                 ascending = searchState.value.ascending,
                 query = searchState.value.query,
-                tagIds = searchState.value.tags?.map { it.id }
+                tagId = searchState.value.tag?.id
             )
             result.fold(
                 ifLeft = {
@@ -85,7 +87,7 @@ class RecipesViewModel @Inject constructor(
                     )
                 }
             )
-            isLoading.value = false
+            isLoadingRecipes.value = false
         }
     }
 
@@ -101,7 +103,7 @@ class RecipesViewModel @Inject constructor(
 
     fun getTags(onError: (String) -> Unit) {
         viewModelScope.launch {
-            isLoading.value = true
+            isLoadingTags.value = true
             val result = tagRepository.getTags()
             result.fold(
                 ifLeft = { e -> onError(e.error) },
@@ -111,7 +113,7 @@ class RecipesViewModel @Inject constructor(
                     )
                 }
             )
-            isLoading.value = false
+            isLoadingTags.value = false
         }
     }
 

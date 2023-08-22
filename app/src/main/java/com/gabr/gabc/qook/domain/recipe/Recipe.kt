@@ -5,6 +5,7 @@ import android.os.Parcel
 import android.os.Parcelable
 import com.gabr.gabc.qook.domain.tag.Tag
 import com.gabr.gabc.qook.infrastructure.recipe.RecipeDto
+import com.gabr.gabc.qook.presentation.shared.StringFormatters
 import kotlinx.parcelize.Parceler
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.parcelableCreator
@@ -90,9 +91,22 @@ data class Recipe(
 }
 
 fun Recipe.toDto(): RecipeDto {
+    val ingredientKeywords = mutableListOf<String>()
+    ingredients.forEach {
+        val keywords = StringFormatters.generateSubStrings(it)
+        val each = it.split(' ').map { e -> e.lowercase() }
+        ingredientKeywords.addAll(each)
+        ingredientKeywords.addAll(keywords)
+    }
+    val nameKeywords = mutableListOf<String>().apply {
+        addAll(name.split(' ').map { e -> e.lowercase() })
+        addAll(StringFormatters.generateSubStrings(name))
+    }
+
     return RecipeDto(
         id,
         name,
+        (nameKeywords + ingredientKeywords).distinct(),
         creationDate.time,
         updateDate.time,
         easiness.name,

@@ -9,6 +9,7 @@ import com.google.firebase.firestore.PropertyName
 data class TagDto(
     @DocumentId val id: String = "",
     @PropertyName(Globals.OBJ_TAG_NAME) val text: String = "",
+    @PropertyName(Globals.OBJ_TAG_KEYWORDS) val keywords: List<String> = listOf(),
     @PropertyName("color") val color: Int = -1
 )
 
@@ -19,6 +20,7 @@ fun TagDto.toDomain(): Tag {
 fun TagDto.toMap(): Map<String, Any?> {
     return mapOf(
         Pair(Globals.OBJ_TAG_NAME, text),
+        Pair(Globals.OBJ_TAG_KEYWORDS, keywords),
         Pair("color", color),
     )
 }

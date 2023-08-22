@@ -11,6 +11,7 @@ import java.util.Date
 data class RecipeDto constructor(
     @DocumentId val id: String = "",
     @PropertyName(Globals.OBJ_RECIPE_NAME) val name: String = "",
+    @PropertyName(Globals.OBJ_RECIPE_KEYWORDS) val keywords: List<String> = listOf(),
     @PropertyName(Globals.OBJ_RECIPE_CREATION) val creationDate: Long = 0L,
     @PropertyName(Globals.OBJ_RECIPE_UPDATE) val updateDate: Long = 0L,
     @PropertyName(Globals.OBJ_RECIPE_EASINESS) val easiness: String = "",
@@ -38,6 +39,7 @@ fun RecipeDto.toDomain(): Recipe {
 fun RecipeDto.toMap(): Map<String, Any?> {
     return mapOf(
         Pair(Globals.OBJ_RECIPE_NAME, name),
+        Pair(Globals.OBJ_RECIPE_KEYWORDS, keywords),
         Pair(Globals.OBJ_RECIPE_CREATION, creationDate),
         Pair(Globals.OBJ_RECIPE_UPDATE, updateDate),
         Pair(Globals.OBJ_RECIPE_EASINESS, easiness),

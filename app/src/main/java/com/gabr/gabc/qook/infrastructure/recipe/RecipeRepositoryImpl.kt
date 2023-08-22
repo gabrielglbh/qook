@@ -33,19 +33,18 @@ class RecipeRepositoryImpl @Inject constructor(
         orderBy: String,
         ascending: Boolean,
         query: String?,
-        tagIds: List<String>?
+        tagId: String?
     ): Either<RecipeFailure, List<Recipe>> {
         try {
             auth.currentUser?.let {
                 val collection = db.collection(Globals.DB_USER).document(it.uid)
                     .collection(Globals.DB_RECIPES)
 
-                if (tagIds != null) {
-                    collection.whereArrayContainsAny(Globals.OBJ_RECIPE_TAG_IDS, tagIds)
+                if (tagId != null) {
+                    collection.whereArrayContains(Globals.OBJ_RECIPE_TAG_IDS, tagId)
                 }
-                if (query != null) {
-                    collection.whereGreaterThanOrEqualTo(Globals.OBJ_RECIPE_NAME, query)
-                        .whereLessThanOrEqualTo(Globals.OBJ_RECIPE_NAME, query + '\uf8ff')
+                if (query != null && query.trim().isNotEmpty()) {
+                    collection.whereArrayContains(Globals.OBJ_RECIPE_KEYWORDS, query.lowercase())
                 }
                 val snapshot = collection.orderBy(
                     orderBy, if (ascending) {

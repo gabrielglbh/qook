@@ -7,5 +7,5 @@ data class SearchState(
     val orderBy: String = Globals.OBJ_RECIPE_CREATION,
     val ascending: Boolean = true,
     val query: String = "",
-    val tags: List<Tag>? = null
+    val tag: Tag? = null
 )
