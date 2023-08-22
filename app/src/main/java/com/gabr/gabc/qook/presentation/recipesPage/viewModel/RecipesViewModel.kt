@@ -21,6 +21,9 @@ class RecipesViewModel @Inject constructor(
     private val _recipesState = MutableStateFlow(RecipesState())
     val recipesState: StateFlow<RecipesState> = _recipesState.asStateFlow()
 
+    private val _searchState = MutableStateFlow(SearchState())
+    val searchState: StateFlow<SearchState> = _searchState.asStateFlow()
+
     var isLoading = mutableStateOf(false)
         private set
 
@@ -62,6 +65,40 @@ class RecipesViewModel @Inject constructor(
         }
     }
 
+    // TODO: not working
+    fun onSearch() {
+        viewModelScope.launch {
+            isLoading.value = true
+            val result = recipeRepository.getRecipes(
+                orderBy = searchState.value.orderBy,
+                ascending = searchState.value.ascending,
+                query = searchState.value.query,
+                tagIds = searchState.value.tags?.map { it.id }
+            )
+            result.fold(
+                ifLeft = {
+                    clearSearch()
+                },
+                ifRight = { recipes ->
+                    _recipesState.value = _recipesState.value.copy(
+                        searchedRecipes = recipes
+                    )
+                }
+            )
+            isLoading.value = false
+        }
+    }
+
+    fun clearSearch() {
+        _recipesState.value = _recipesState.value.copy(
+            searchedRecipes = _recipesState.value.recipes
+        )
+    }
+
+    fun updateSearchState(searchState: SearchState) {
+        _searchState.value = searchState
+    }
+
     fun getTags(onError: (String) -> Unit) {
         viewModelScope.launch {
             isLoading.value = true
@@ -75,27 +112,6 @@ class RecipesViewModel @Inject constructor(
                 }
             )
             isLoading.value = false
-        }
-    }
-
-    fun onSearchUpdate(query: String) {
-        val value = recipesState.value
-
-        if (query.trim().isEmpty()) {
-            _recipesState.value = value.copy(
-                searchedRecipes = value.recipes
-            )
-        } else {
-            // TODO: Do search online?
-            val aux = mutableListOf<Recipe>().apply { addAll(value.searchedRecipes) }
-            val filtered = aux.filter { recipe ->
-                recipe.name.contains(query, ignoreCase = true) ||
-                        recipe.description.contains(query, ignoreCase = true)
-            }
-
-            _recipesState.value = value.copy(
-                searchedRecipes = filtered
-            )
         }
     }
 

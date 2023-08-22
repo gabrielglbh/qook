@@ -2,12 +2,13 @@ package com.gabr.gabc.qook.infrastructure.tag
 
 import androidx.compose.ui.graphics.Color
 import com.gabr.gabc.qook.domain.tag.Tag
+import com.gabr.gabc.qook.presentation.shared.Globals
 import com.google.firebase.firestore.DocumentId
 import com.google.firebase.firestore.PropertyName
 
 data class TagDto(
     @DocumentId val id: String = "",
-    @PropertyName("text") val text: String = "",
+    @PropertyName(Globals.OBJ_TAG_NAME) val text: String = "",
     @PropertyName("color") val color: Int = -1
 )
 
@@ -17,7 +18,7 @@ fun TagDto.toDomain(): Tag {
 
 fun TagDto.toMap(): Map<String, Any?> {
     return mapOf(
-        Pair("text", text),
+        Pair(Globals.OBJ_TAG_NAME, text),
         Pair("color", color),
     )
 }

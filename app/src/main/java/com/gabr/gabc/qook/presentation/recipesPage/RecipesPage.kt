@@ -34,11 +34,8 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
@@ -178,12 +175,13 @@ class RecipesPage : ComponentActivity() {
 
     @Composable
     fun RecipesContent(viewModel: RecipesViewModel, state: RecipesState) {
+        val searchState = viewModel.searchState.collectAsState().value
+
         val focusManager = LocalFocusManager.current
-        var searchField by remember { mutableStateOf("") }
 
         fun clearSearch() {
-            searchField = ""
-            viewModel.onSearchUpdate("")
+            viewModel.updateSearchState(searchState.copy(query = ""))
+            viewModel.clearSearch()
             focusManager.clearFocus()
         }
 
@@ -196,13 +194,12 @@ class RecipesPage : ComponentActivity() {
         ) {
             QTextForm(
                 labelId = R.string.recipes_search_recipes,
-                value = searchField,
+                value = searchState.query,
                 onValueChange = {
-                    searchField = it
-                    viewModel.onSearchUpdate(it)
+                    viewModel.updateSearchState(searchState.copy(query = it))
                 },
                 leadingIcon = Icons.Outlined.Search,
-                trailingIcon = if (searchField.isEmpty()) {
+                trailingIcon = if (searchState.query.isEmpty()) {
                     null
                 } else {
                     {
@@ -213,7 +210,7 @@ class RecipesPage : ComponentActivity() {
                 },
                 imeAction = ImeAction.Search,
                 onSubmitWithImeAction = {
-                    viewModel.onSearchUpdate(searchField)
+                    viewModel.onSearch()
                     focusManager.clearFocus()
                 }
             )
@@ -227,7 +224,8 @@ class RecipesPage : ComponentActivity() {
                                 tag = tag,
                                 modifier = Modifier.padding(4.dp),
                                 onClick = {
-                                    // TODO: Filter the search by tag
+                                    viewModel.updateSearchState(searchState.copy(tags = listOf(tag)))
+                                    viewModel.onSearch()
                                 }
                             )
                         }

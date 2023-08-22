@@ -10,13 +10,13 @@ import java.util.Date
 
 data class RecipeDto constructor(
     @DocumentId val id: String = "",
-    @PropertyName("name") val name: String = "",
-    @PropertyName("creationDate") val creationDate: Long = 0L,
-    @PropertyName("updateDate") val updateDate: Long = 0L,
-    @PropertyName("easiness") val easiness: String = "",
+    @PropertyName(Globals.OBJ_RECIPE_NAME) val name: String = "",
+    @PropertyName(Globals.OBJ_RECIPE_CREATION) val creationDate: Long = 0L,
+    @PropertyName(Globals.OBJ_RECIPE_UPDATE) val updateDate: Long = 0L,
+    @PropertyName(Globals.OBJ_RECIPE_EASINESS) val easiness: String = "",
     @PropertyName("time") val time: String = "",
-    @PropertyName("description") val description: String = "",
-    @PropertyName("ingredients") val ingredients: List<String> = listOf(),
+    @PropertyName(Globals.OBJ_RECIPE_DESCRIPTION) val description: String = "",
+    @PropertyName(Globals.OBJ_RECIPE_INGREDIENTS) val ingredients: List<String> = listOf(),
     @PropertyName(Globals.OBJ_RECIPE_TAG_IDS) val tagIds: List<String> = listOf(),
 )
 
@@ -37,13 +37,13 @@ fun RecipeDto.toDomain(): Recipe {
 
 fun RecipeDto.toMap(): Map<String, Any?> {
     return mapOf(
-        Pair("name", name),
-        Pair("creationDate", creationDate),
-        Pair("updateDate", updateDate),
-        Pair("easiness", easiness),
+        Pair(Globals.OBJ_RECIPE_NAME, name),
+        Pair(Globals.OBJ_RECIPE_CREATION, creationDate),
+        Pair(Globals.OBJ_RECIPE_UPDATE, updateDate),
+        Pair(Globals.OBJ_RECIPE_EASINESS, easiness),
         Pair("time", time),
-        Pair("description", description),
-        Pair("ingredients", ingredients),
+        Pair(Globals.OBJ_RECIPE_DESCRIPTION, description),
+        Pair(Globals.OBJ_RECIPE_INGREDIENTS, ingredients),
         Pair(Globals.OBJ_RECIPE_TAG_IDS, tagIds),
     )
 }

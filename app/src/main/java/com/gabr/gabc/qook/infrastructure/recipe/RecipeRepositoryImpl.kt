@@ -16,6 +16,7 @@ import com.gabr.gabc.qook.presentation.shared.providers.StringResourcesProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.storage.StorageException
 import kotlinx.coroutines.tasks.await
@@ -28,13 +29,34 @@ class RecipeRepositoryImpl @Inject constructor(
     private val tagRepository: TagRepository,
     private val res: StringResourcesProvider
 ) : RecipeRepository {
-    override suspend fun getRecipes(): Either<RecipeFailure, List<Recipe>> {
+    override suspend fun getRecipes(
+        orderBy: String,
+        ascending: Boolean,
+        query: String?,
+        tagIds: List<String>?
+    ): Either<RecipeFailure, List<Recipe>> {
         try {
             auth.currentUser?.let {
-                val query = db.collection(Globals.DB_USER).document(it.uid)
-                    .collection(Globals.DB_RECIPES).get().await()
+                val collection = db.collection(Globals.DB_USER).document(it.uid)
+                    .collection(Globals.DB_RECIPES)
+
+                if (tagIds != null) {
+                    collection.whereArrayContainsAny(Globals.OBJ_RECIPE_TAG_IDS, tagIds)
+                }
+                if (query != null) {
+                    collection.whereGreaterThanOrEqualTo(Globals.OBJ_RECIPE_NAME, query)
+                        .whereLessThanOrEqualTo(Globals.OBJ_RECIPE_NAME, query + '\uf8ff')
+                }
+                val snapshot = collection.orderBy(
+                    orderBy, if (ascending) {
+                        Query.Direction.ASCENDING
+                    } else {
+                        Query.Direction.DESCENDING
+                    }
+                ).get().await()
+
                 val recipes = mutableListOf<Recipe>()
-                query.documents.forEach { doc ->
+                snapshot.documents.forEach { doc ->
                     val result = getRecipe(doc.id)
                     result.fold(
                         ifLeft = {},

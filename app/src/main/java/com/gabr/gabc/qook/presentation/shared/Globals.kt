@@ -12,5 +12,13 @@ class Globals {
         const val STORAGE_AVATAR = "avatar/photo.jpg"
 
         const val OBJ_RECIPE_TAG_IDS = "tagIds"
+        const val OBJ_RECIPE_NAME = "name"
+        const val OBJ_RECIPE_EASINESS = "easiness"
+        const val OBJ_RECIPE_CREATION = "creationDate"
+        const val OBJ_RECIPE_UPDATE = "updateDate"
+        const val OBJ_RECIPE_DESCRIPTION = "description"
+        const val OBJ_RECIPE_INGREDIENTS = "ingredients"
+
+        const val OBJ_TAG_NAME = "text"
     }
 }

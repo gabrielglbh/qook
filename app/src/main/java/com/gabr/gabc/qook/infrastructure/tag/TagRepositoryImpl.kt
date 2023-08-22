@@ -91,7 +91,9 @@ class TagRepositoryImpl @Inject constructor(
             auth.currentUser?.let {
                 val ref = db
                     .collection(Globals.DB_USER).document(it.uid)
-                    .collection(Globals.DB_TAGS).get().await()
+                    .collection(Globals.DB_TAGS)
+                    .orderBy(Globals.OBJ_TAG_NAME)
+                    .get().await()
                 return Right(ref.toObjects<TagDto>().map { dto ->
                     dto.toDomain()
                 })
