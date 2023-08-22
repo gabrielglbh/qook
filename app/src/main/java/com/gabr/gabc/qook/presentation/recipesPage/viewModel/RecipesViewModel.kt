@@ -31,6 +31,20 @@ class RecipesViewModel @Inject constructor(
         return aux
     }
 
+    private fun alterListForDelete(recipe: Recipe, list: List<Recipe>): List<Recipe> {
+        val aux = mutableListOf<Recipe>().apply { addAll(list) }
+        val auxIds = aux.map { it.id }
+        if (auxIds.contains(recipe.id)) aux.removeAt(auxIds.indexOf(recipe.id))
+        return aux
+    }
+
+    private fun alterListForAddition(recipe: Recipe, list: List<Recipe>): List<Recipe> {
+        return mutableListOf<Recipe>().apply {
+            add(recipe)
+            addAll(list)
+        }
+    }
+
     fun getRecipes(onError: (String) -> Unit) {
         viewModelScope.launch {
             isLoading.value = true
@@ -90,6 +104,22 @@ class RecipesViewModel @Inject constructor(
         _recipesState.value = value.copy(
             recipes = alterListForUpdate(recipe, value.recipes),
             searchedRecipes = alterListForUpdate(recipe, value.searchedRecipes)
+        )
+    }
+
+    fun deleteRecipeLocally(recipe: Recipe) {
+        val value = recipesState.value
+        _recipesState.value = value.copy(
+            recipes = alterListForDelete(recipe, value.recipes),
+            searchedRecipes = alterListForDelete(recipe, value.searchedRecipes)
+        )
+    }
+
+    fun addRecipeLocally(recipe: Recipe) {
+        val value = recipesState.value
+        _recipesState.value = value.copy(
+            recipes = alterListForAddition(recipe, value.recipes),
+            searchedRecipes = alterListForAddition(recipe, value.searchedRecipes)
         )
     }
 }

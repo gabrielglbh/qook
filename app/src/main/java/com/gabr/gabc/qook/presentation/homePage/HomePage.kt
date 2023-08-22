@@ -155,9 +155,7 @@ class HomePage : ComponentActivity() {
     @Composable
     fun UserPhotoIcon(user: User) {
         Surface(
-            modifier = Modifier
-                .size(48.dp)
-                .padding(top = 4.dp, bottom = 4.dp),
+            modifier = Modifier.size(48.dp),
             onClick = {
                 val intent = Intent(this@HomePage, ProfilePage::class.java)
                 intent.putExtra(HOME_USER, user)

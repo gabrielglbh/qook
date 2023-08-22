@@ -73,23 +73,38 @@ class RecipesPage : ComponentActivity() {
                 val extras = result.data?.extras
 
                 val viewModel: RecipesViewModel by viewModels()
-                var updatedRecipe = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                val updatedRecipe = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     extras?.getParcelable(RecipeDetailsPage.HAS_UPDATED_RECIPE, Recipe::class.java)
                 } else {
                     extras?.getParcelable(RecipeDetailsPage.HAS_UPDATED_RECIPE)
                 }
 
-                if (updatedRecipe == null) {
-                    updatedRecipe = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        extras?.getParcelable(AddRecipePage.RECIPE_UPDATED, Recipe::class.java)
-                    } else {
-                        extras?.getParcelable(AddRecipePage.RECIPE_UPDATED)
+                // TODO: Maintain the scroll? --- possible with lazy loading?
+                if (updatedRecipe != null) {
+                    updatedRecipe.let {
+                        viewModel.updateRecipeLocally(it)
+                    }
+                } else {
+                    val toBeAddedRecipe =
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            extras?.getParcelable(AddRecipePage.RECIPE_UPDATED, Recipe::class.java)
+                        } else {
+                            extras?.getParcelable(AddRecipePage.RECIPE_UPDATED)
+                        }
+
+                    toBeAddedRecipe?.let { recipe ->
+                        viewModel.addRecipeLocally(recipe)
                     }
                 }
 
-                // TODO: Maintain the scroll? --- possible with lazy loading?
-                updatedRecipe?.let {
-                    viewModel.updateRecipeLocally(it)
+                val deletedRecipe = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    extras?.getParcelable(RecipeDetailsPage.HAS_DELETED_RECIPE, Recipe::class.java)
+                } else {
+                    extras?.getParcelable(RecipeDetailsPage.HAS_DELETED_RECIPE)
+                }
+
+                deletedRecipe?.let {
+                    viewModel.deleteRecipeLocally(it)
                 }
             }
         }

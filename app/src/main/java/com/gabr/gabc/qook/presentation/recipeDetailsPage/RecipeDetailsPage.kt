@@ -18,13 +18,17 @@ import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.ModeEdit
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.recipe.Recipe
@@ -32,6 +36,7 @@ import com.gabr.gabc.qook.presentation.addRecipePage.AddRecipePage
 import com.gabr.gabc.qook.presentation.recipeDetailsPage.viewModel.RecipeDetailsViewModel
 import com.gabr.gabc.qook.presentation.recipesPage.RecipesPage
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
+import com.gabr.gabc.qook.presentation.shared.components.QDialog
 import com.gabr.gabc.qook.presentation.shared.components.QLoadingScreen
 import com.gabr.gabc.qook.presentation.shared.components.QRecipeDetail
 import com.gabr.gabc.qook.presentation.theme.AppTheme
@@ -42,6 +47,7 @@ import kotlinx.coroutines.launch
 class RecipeDetailsPage : ComponentActivity() {
     companion object {
         const val HAS_UPDATED_RECIPE = "HAS_UPDATED_RECIPE"
+        const val HAS_DELETED_RECIPE = "HAS_DELETED_RECIPE"
         const val RECIPE_FROM_DETAILS = "RECIPE_FROM_DETAILS"
     }
 
@@ -91,6 +97,41 @@ class RecipeDetailsPage : ComponentActivity() {
 
         val scope = rememberCoroutineScope()
         val snackbarHostState = remember { SnackbarHostState() }
+        val showConfirmationDialog = remember { mutableStateOf(false) }
+
+        if (showConfirmationDialog.value)
+            QDialog(
+                onDismissRequest = { showConfirmationDialog.value = false },
+                leadingIcon = Icons.Outlined.Delete,
+                title = R.string.recipe_details_remove_recipe,
+                content = {
+                    Text(
+                        stringResource(
+                            R.string.recipe_details_delete_warning,
+                            viewModel.recipe.value.name
+                        )
+                    )
+                },
+                onSubmit = {
+                    showConfirmationDialog.value = false
+                    viewModel.removeRecipe(
+                        onError = {
+                            scope.launch {
+                                snackbarHostState.showSnackbar(it)
+                            }
+                        },
+                        onSuccess = {
+                            val intent = Intent()
+                            intent.putExtra(
+                                HAS_DELETED_RECIPE,
+                                viewModel.recipe.value
+                            )
+                            setResult(RESULT_OK, intent)
+                            finish()
+                        }
+                    )
+                },
+            )
 
         Box {
             Scaffold(
@@ -110,20 +151,14 @@ class RecipeDetailsPage : ComponentActivity() {
                                 IconButton(
                                     modifier = Modifier.padding(end = 8.dp),
                                     onClick = {
-                                        viewModel.removeRecipe(
-                                            onError = {
-                                                scope.launch {
-                                                    snackbarHostState.showSnackbar(it)
-                                                }
-                                            },
-                                            onSuccess = {
-                                                // TODO: Refresh list or update locally
-                                                finish()
-                                            }
-                                        )
+                                        showConfirmationDialog.value = true
                                     }
                                 ) {
-                                    Icon(Icons.Outlined.Delete, "")
+                                    Icon(
+                                        Icons.Outlined.Delete,
+                                        "",
+                                        tint = MaterialTheme.colorScheme.error
+                                    )
                                 }
                             },
                             {

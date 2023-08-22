@@ -67,7 +67,7 @@ class AddRecipeViewModel @Inject constructor(
         return aux
     }
 
-    fun uploadRecipe(ifSuccess: () -> Unit, ifError: (String) -> Unit) {
+    fun uploadRecipe(ifSuccess: (Recipe) -> Unit, ifError: (String) -> Unit) {
         viewModelScope.launch {
             withContext(Dispatchers.Main) { isLoading.value = true }
             val recipe = recipeState.value.recipe
@@ -105,8 +105,8 @@ class AddRecipeViewModel @Inject constructor(
                 ifLeft = { fail ->
                     ifError(fail.error)
                 },
-                ifRight = {
-                    ifSuccess()
+                ifRight = { recipeWithId ->
+                    ifSuccess(recipeWithId)
                 }
             )
 

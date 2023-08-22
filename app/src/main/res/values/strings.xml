@@ -101,4 +101,6 @@
     <string name="recipes_empty">You do not have any recipes created yet. To create one, tap on \'+\' icon</string>
 
     <string name="recipe_details">Details</string>
+    <string name="recipe_details_remove_recipe">Remove recipe</string>
+    <string name="recipe_details_delete_warning">Are you sure you want to remove %1$s?</string>
 </resources>

@@ -337,12 +337,12 @@ class AddRecipePage : ComponentActivity() {
                                                     snackbarHostState.showSnackbar(error)
                                                 }
                                             },
-                                            ifSuccess = {
+                                            ifSuccess = { uploadedRecipe ->
                                                 if (state.originalRecipe != Recipe.EMPTY_RECIPE || state.recipe != Recipe.EMPTY_RECIPE) {
                                                     val resultIntent = Intent()
                                                     resultIntent.putExtra(
                                                         RECIPE_UPDATED,
-                                                        state.recipe
+                                                        uploadedRecipe
                                                     )
                                                     setResult(RESULT_OK, resultIntent)
                                                 }

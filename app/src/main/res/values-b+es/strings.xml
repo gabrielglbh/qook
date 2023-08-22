@@ -102,4 +102,6 @@
     <string name="recipes_empty">No tienes ninguna receta creda todavía. Para crear una, pulsa en el icono \'+\'</string>
 
     <string name="recipe_details">Detalles</string>
+    <string name="recipe_details_remove_recipe">Eliminar receta</string>
+    <string name="recipe_details_delete_warning">¿Estás seguro de que quieres eliminar %1$s?</string>
 </resources>
