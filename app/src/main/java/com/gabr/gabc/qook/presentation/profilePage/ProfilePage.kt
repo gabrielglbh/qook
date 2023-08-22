@@ -21,6 +21,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.ExitToApp
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -35,7 +37,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import arrow.core.Either
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.user.User
 import com.gabr.gabc.qook.presentation.homePage.HomePage
@@ -155,14 +156,19 @@ class ProfilePage : ComponentActivity() {
                         setResult(RESULT_OK, resultIntent)
                         finish()
                     },
-                    actionBehaviour = {
-                        viewModel.signOut()
-                        val intent = Intent(this, LoginPage::class.java)
-                        intent.flags =
-                            Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        startActivity(intent)
-                    },
-                    action = Either.Right(Icons.Outlined.ExitToApp)
+                    actions = listOf {
+                        IconButton(
+                            onClick = {
+                                viewModel.signOut()
+                                val intent = Intent(this, LoginPage::class.java)
+                                intent.flags =
+                                    Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                startActivity(intent)
+                            }
+                        ) {
+                            Icon(Icons.Outlined.ExitToApp, "")
+                        }
+                    }
                 )
             },
             snackbarHost = {

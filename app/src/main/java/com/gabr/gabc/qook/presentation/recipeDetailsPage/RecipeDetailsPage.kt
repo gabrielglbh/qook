@@ -14,7 +14,10 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.ModeEdit
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -23,7 +26,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import arrow.core.Either
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.recipe.Recipe
 import com.gabr.gabc.qook.presentation.addRecipePage.AddRecipePage
@@ -32,7 +34,6 @@ import com.gabr.gabc.qook.presentation.recipesPage.RecipesPage
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.shared.components.QLoadingScreen
 import com.gabr.gabc.qook.presentation.shared.components.QRecipeDetail
-import com.gabr.gabc.qook.presentation.shared.components.QRemoveButton
 import com.gabr.gabc.qook.presentation.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -104,12 +105,42 @@ class RecipeDetailsPage : ComponentActivity() {
                             }
                             finish()
                         },
-                        actionBehaviour = {
-                            val intent = Intent(this@RecipeDetailsPage, AddRecipePage::class.java)
-                            intent.putExtra(RECIPE_FROM_DETAILS, viewModel.recipe.value)
-                            resultLauncher.launch(intent)
-                        },
-                        action = Either.Right(Icons.Outlined.ModeEdit)
+                        actions = listOf(
+                            {
+                                IconButton(
+                                    modifier = Modifier.padding(end = 8.dp),
+                                    onClick = {
+                                        viewModel.removeRecipe(
+                                            onError = {
+                                                scope.launch {
+                                                    snackbarHostState.showSnackbar(it)
+                                                }
+                                            },
+                                            onSuccess = {
+                                                // TODO: Refresh list or update locally
+                                                finish()
+                                            }
+                                        )
+                                    }
+                                ) {
+                                    Icon(Icons.Outlined.Delete, "")
+                                }
+                            },
+                            {
+                                IconButton(
+                                    onClick = {
+                                        val intent = Intent(
+                                            this@RecipeDetailsPage,
+                                            AddRecipePage::class.java
+                                        )
+                                        intent.putExtra(RECIPE_FROM_DETAILS, viewModel.recipe.value)
+                                        resultLauncher.launch(intent)
+                                    }
+                                ) {
+                                    Icon(Icons.Outlined.ModeEdit, "")
+                                }
+                            }
+                        )
                     )
                 },
                 snackbarHost = {
@@ -122,20 +153,6 @@ class RecipeDetailsPage : ComponentActivity() {
                         .consumeWindowInsets(it)
                 ) {
                     Column {
-                        // TODO: Adapt it to QActionBar taking an array of actions
-                        QRemoveButton {
-                            viewModel.removeRecipe(
-                                onError = {
-                                    scope.launch {
-                                        snackbarHostState.showSnackbar(it)
-                                    }
-                                },
-                                onSuccess = {
-                                    // TODO: Refresh list or update locally
-                                    finish()
-                                }
-                            )
-                        }
                         QRecipeDetail(
                             recipe = viewModel.recipe.value,
                             modifier = Modifier.padding(start = 12.dp, end = 12.dp, bottom = 12.dp)

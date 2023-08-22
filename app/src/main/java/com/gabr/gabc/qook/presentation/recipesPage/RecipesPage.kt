@@ -44,7 +44,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import arrow.core.Either
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.recipe.Recipe
 import com.gabr.gabc.qook.presentation.addRecipePage.AddRecipePage
@@ -133,10 +132,16 @@ class RecipesPage : ComponentActivity() {
                     QActionBar(
                         title = R.string.recipes_title,
                         onBack = { finish() },
-                        action = Either.Right(Icons.Outlined.PostAdd),
-                        actionBehaviour = {
-                            val intent = Intent(this@RecipesPage, AddRecipePage::class.java)
-                            resultLauncher.launch(intent)
+                        actions = listOf {
+                            IconButton(
+                                onClick = {
+                                    val intent =
+                                        Intent(this@RecipesPage, AddRecipePage::class.java)
+                                    resultLauncher.launch(intent)
+                                }
+                            ) {
+                                Icon(Icons.Outlined.PostAdd, "")
+                            }
                         }
                     )
                 },

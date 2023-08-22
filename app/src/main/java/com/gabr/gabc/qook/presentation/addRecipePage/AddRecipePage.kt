@@ -24,6 +24,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.BookmarkAdd
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -45,7 +47,6 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import arrow.core.Either
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.recipe.Recipe
 import com.gabr.gabc.qook.domain.tag.Tag
@@ -229,16 +230,18 @@ class AddRecipePage : ComponentActivity() {
                                 finish()
                             }
                         },
-                        actionBehaviour = if (currentPage == RecipeStep.TAGS) {
-                            {
-                                val intent = Intent(this@AddRecipePage, AddTagPage::class.java)
-                                resultLauncher.launch(intent)
+                        actions = if (currentPage == RecipeStep.TAGS) {
+                            listOf {
+                                IconButton(
+                                    onClick = {
+                                        val intent =
+                                            Intent(this@AddRecipePage, AddTagPage::class.java)
+                                        resultLauncher.launch(intent)
+                                    }
+                                ) {
+                                    Icon(Icons.Outlined.BookmarkAdd, "")
+                                }
                             }
-                        } else {
-                            null
-                        },
-                        action = if (currentPage == RecipeStep.TAGS) {
-                            Either.Right(Icons.Outlined.BookmarkAdd)
                         } else {
                             null
                         }

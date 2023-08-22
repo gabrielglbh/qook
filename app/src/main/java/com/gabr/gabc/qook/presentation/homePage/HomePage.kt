@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -36,6 +37,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -55,7 +57,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import arrow.core.Either
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.user.User
 import com.gabr.gabc.qook.presentation.homePage.viewModel.HomeViewModel
@@ -127,28 +128,8 @@ class HomePage : ComponentActivity() {
         Scaffold(
             topBar = {
                 QActionBar(
-                    actionBehaviour = {
-                        val intent = Intent(this@HomePage, ProfilePage::class.java)
-                        intent.putExtra(HOME_USER, state.value.user)
-                        resultLauncher.launch(intent)
-                    },
-                    actionBorder = BorderStroke(
-                        1.dp,
-                        color = MaterialTheme.colorScheme.primaryContainer
-                    ),
-                    action = Either.Left {
-                        if (state.value.user.photo == Uri.EMPTY) {
-                            Icon(
-                                Icons.Outlined.AccountCircle,
-                                contentDescription = null,
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        } else {
-                            QImage(
-                                uri = state.value.user.photo,
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        }
+                    actions = listOf {
+                        UserPhotoIcon(state.value.user)
                     }
                 )
             },
@@ -167,6 +148,39 @@ class HomePage : ComponentActivity() {
                     .consumeWindowInsets(it)
             ) {
                 Body(state.value)
+            }
+        }
+    }
+
+    @Composable
+    fun UserPhotoIcon(user: User) {
+        Surface(
+            modifier = Modifier
+                .size(48.dp)
+                .padding(top = 4.dp, bottom = 4.dp),
+            onClick = {
+                val intent = Intent(this@HomePage, ProfilePage::class.java)
+                intent.putExtra(HOME_USER, user)
+                resultLauncher.launch(intent)
+            },
+            shape = CircleShape,
+            color = Color.Transparent,
+            border = BorderStroke(
+                1.dp,
+                color = MaterialTheme.colorScheme.primaryContainer
+            )
+        ) {
+            if (user.photo == Uri.EMPTY) {
+                Icon(
+                    Icons.Outlined.AccountCircle,
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize()
+                )
+            } else {
+                QImage(
+                    uri = user.photo,
+                    modifier = Modifier.fillMaxSize()
+                )
             }
         }
     }
