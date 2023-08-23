@@ -16,9 +16,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Bolt
+import androidx.compose.material.icons.outlined.ContentPaste
 import androidx.compose.material.icons.outlined.MenuBook
 import androidx.compose.material.icons.outlined.ModeEdit
 import androidx.compose.material.icons.outlined.Photo
+import androidx.compose.material.icons.outlined.ReceiptLong
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
@@ -30,7 +32,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -59,9 +60,7 @@ fun QRecipeDetail(recipe: Recipe, modifier: Modifier) {
         Spacer(modifier = Modifier.size(12.dp))
         Text(
             recipe.name,
-            style = MaterialTheme.typography.titleLarge.copy(
-                fontWeight = FontWeight.Bold,
-            ),
+            style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.size(8.dp))
@@ -117,12 +116,18 @@ fun QRecipeDetail(recipe: Recipe, modifier: Modifier) {
             }
         }
         Spacer(modifier = Modifier.size(12.dp))
-        QContentCard {
+        QContentCard(
+            backgroundContent = {
+                Icon(
+                    Icons.Outlined.ReceiptLong,
+                    contentDescription = null,
+                    modifier = it
+                )
+            }
+        ) {
             Text(
                 stringResource(R.string.recipe_details_ingredients),
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                ),
+                style = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onPrimaryContainer
             )
@@ -136,12 +141,18 @@ fun QRecipeDetail(recipe: Recipe, modifier: Modifier) {
             }
         }
         Spacer(modifier = Modifier.size(12.dp))
-        QContentCard {
+        QContentCard(
+            backgroundContent = {
+                Icon(
+                    Icons.Outlined.ContentPaste,
+                    contentDescription = null,
+                    modifier = it
+                )
+            }
+        ) {
             Text(
                 stringResource(R.string.recipe_details_steps),
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                ),
+                style = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onPrimaryContainer
             )

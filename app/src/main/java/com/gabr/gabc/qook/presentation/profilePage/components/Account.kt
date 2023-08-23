@@ -80,10 +80,7 @@ fun Account(
     ) {
         Text(
             stringResource(R.string.profile_account_label),
-            style = MaterialTheme.typography.titleLarge.copy(
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSecondaryContainer
-            ),
+            style = MaterialTheme.typography.titleLarge,
             modifier = Modifier.padding(start = 16.dp)
         )
         ProfileRow(

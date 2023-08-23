@@ -17,7 +17,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.user.User
@@ -65,10 +64,7 @@ fun Settings(
     ) {
         Text(
             stringResource(R.string.profile_settings_label),
-            style = MaterialTheme.typography.titleLarge.copy(
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSecondaryContainer
-            ),
+            style = MaterialTheme.typography.titleLarge,
             modifier = Modifier.padding(start = 16.dp)
         )
         ProfileRow(

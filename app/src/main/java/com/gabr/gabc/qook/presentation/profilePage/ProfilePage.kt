@@ -15,9 +15,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.ExitToApp
@@ -196,21 +198,26 @@ class ProfilePage : ComponentActivity() {
                         QImageContainer(
                             uri = state.user.photo,
                             placeholder = Icons.Outlined.AccountCircle,
-                        ) {
-                            requestMultiplePermissions.launch(
-                                if (VERSION.SDK_INT >= VERSION_CODES.TIRAMISU) {
-                                    arrayOf(
-                                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                                        Manifest.permission.READ_MEDIA_IMAGES
-                                    )
-                                } else {
-                                    arrayOf(
-                                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                                        Manifest.permission.READ_EXTERNAL_STORAGE
+                            onClick = if (!isUserEmpty) {
+                                {
+                                    requestMultiplePermissions.launch(
+                                        if (VERSION.SDK_INT >= VERSION_CODES.TIRAMISU) {
+                                            arrayOf(
+                                                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                                Manifest.permission.READ_MEDIA_IMAGES
+                                            )
+                                        } else {
+                                            arrayOf(
+                                                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                                Manifest.permission.READ_EXTERNAL_STORAGE
+                                            )
+                                        }
                                     )
                                 }
-                            )
-                        }
+                            } else {
+                                null
+                            }
+                        )
                         QShimmer(controller = !isUserEmpty) { modifier ->
                             QAutoSizeText(
                                 text = state.user.email,
@@ -218,6 +225,7 @@ class ProfilePage : ComponentActivity() {
                                 modifier = modifier.padding(top = 12.dp)
                             )
                         }
+                        Spacer(modifier = Modifier.size(12.dp))
                         QShimmer(controller = !isUserEmpty) { modifier ->
                             Settings(viewModel, state.user, modifier)
                         }

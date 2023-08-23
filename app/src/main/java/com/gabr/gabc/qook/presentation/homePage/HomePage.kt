@@ -35,8 +35,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -49,6 +52,7 @@ import com.gabr.gabc.qook.domain.user.User
 import com.gabr.gabc.qook.presentation.homePage.viewModel.HomeViewModel
 import com.gabr.gabc.qook.presentation.homePage.viewModel.UserState
 import com.gabr.gabc.qook.presentation.profilePage.ProfilePage
+import com.gabr.gabc.qook.presentation.recipesPage.RecipesPage
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.shared.components.QContentCard
 import com.gabr.gabc.qook.presentation.shared.components.QImage
@@ -57,6 +61,7 @@ import com.gabr.gabc.qook.presentation.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -170,9 +175,16 @@ class HomePage : ComponentActivity() {
     fun Body(
         state: UserState
     ) {
+        var showActions by remember { mutableStateOf(false) }
+
+        LaunchedEffect(key1 = Unit, block = {
+            delay(500)
+            showActions = true
+        })
+
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
+            verticalArrangement = Arrangement.Center
         ) {
             QShimmer(controller = state.user != User.EMPTY_USER) {
                 Text(
@@ -189,25 +201,45 @@ class HomePage : ComponentActivity() {
                     .weight(1f),
                 content = {
                     items(UserAction.values()) { userAction ->
-                        QContentCard(
-                            modifier = Modifier
-                                .padding(8.dp)
-                                .height(124.dp),
-                            onClick = {},
-                            backgroundContent = {
-                                Icon(
-                                    userAction.icon,
-                                    contentDescription = "",
-                                    modifier = it
+                        QShimmer(
+                            controller = showActions,
+                            durationInMillis = 500 * (userAction.ordinal + 1)
+                        ) { modifier ->
+                            QContentCard(
+                                modifier = modifier
+                                    .padding(8.dp)
+                                    .height(124.dp),
+                                onClick = {
+                                    when (userAction) {
+                                        UserAction.RECIPES -> {
+                                            startActivity(
+                                                Intent(
+                                                    this@HomePage,
+                                                    RecipesPage::class.java
+                                                )
+                                            )
+                                        }
+
+                                        UserAction.RANDOM -> {}
+                                        UserAction.PLANNING -> {}
+                                        UserAction.SHOPPING -> {}
+                                    }
+                                },
+                                backgroundContent = {
+                                    Icon(
+                                        userAction.icon,
+                                        contentDescription = "",
+                                        modifier = it
+                                    )
+                                }
+                            ) {
+                                Text(
+                                    stringResource(userAction.title),
+                                    modifier = Modifier.fillMaxWidth(),
+                                    textAlign = TextAlign.Center,
+                                    style = MaterialTheme.typography.titleLarge
                                 )
                             }
-                        ) {
-                            Text(
-                                stringResource(userAction.title),
-                                modifier = Modifier.fillMaxWidth(),
-                                textAlign = TextAlign.Center,
-                                style = MaterialTheme.typography.titleMedium
-                            )
                         }
                     }
                 }

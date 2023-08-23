@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -23,6 +24,7 @@ fun QContentCard(
     onClick: (() -> Unit)? = null,
     color: Color = MaterialTheme.colorScheme.secondaryContainer,
     backgroundContent: (@Composable (Modifier) -> Unit)? = null,
+    backgroundSize: Dp = 148.dp,
     content: @Composable () -> Unit
 ) {
     Surface(
@@ -42,7 +44,7 @@ fun QContentCard(
             if (backgroundContent != null) backgroundContent(
                 Modifier
                     .alpha(0.1f)
-                    .size(148.dp)
+                    .size(backgroundSize)
                     .offset(64.dp, 0.dp)
             )
             Column(
