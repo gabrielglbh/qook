@@ -1,6 +1,5 @@
 package com.gabr.gabc.qook.presentation.shared.components
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -12,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -26,18 +26,19 @@ fun QTag(
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
     icon: ImageVector? = null,
-    isActive: Boolean = false
+    isActive: Boolean = true
 ) {
     Surface(
         shape = MaterialTheme.shapes.large,
-        modifier = modifier,
+        modifier = modifier.alpha(
+            if (isActive) {
+                1f
+            } else {
+                0.2f
+            }
+        ),
         color = tag.color,
         enabled = onClick != null,
-        border = if (isActive) {
-            BorderStroke(2.dp, MaterialTheme.colorScheme.onSecondaryContainer)
-        } else {
-            null
-        },
         onClick = {
             onClick?.let { it() }
         },

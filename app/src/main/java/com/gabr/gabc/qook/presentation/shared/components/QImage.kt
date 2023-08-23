@@ -7,7 +7,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ImageNotSupported
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -62,9 +61,6 @@ fun QImage(
         else -> {
             SubcomposeAsyncImage(
                 model = uri.toString(),
-                loading = {
-                    CircularProgressIndicator()
-                },
                 error = {
                     Icon(
                         Icons.Outlined.ImageNotSupported,

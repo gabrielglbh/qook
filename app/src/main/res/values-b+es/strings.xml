@@ -23,7 +23,7 @@
     <string name="home_add_recipe_bnb">Añadir receta</string>
     <string name="home_recipes_bnb">Recetas</string>
     <string name="home_welcome_message">Hola %1$s, ¿qué cocinamos hoy?</string>
-    <string name="home_get_random_recipe">Prepara una receta aleatoria de tu lista</string>
+    <string name="home_get_random_recipe">¡Cocina algo aleatorio!</string>
     <string name="home_planning_bnb">Planificación</string>
 
     <string name="profile_settings_label">Ajustes</string>
