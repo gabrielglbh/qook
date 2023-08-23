@@ -31,7 +31,7 @@ class RecipeDetailsViewModel @Inject constructor(
     fun removeRecipe(onError: (String) -> Unit, onSuccess: () -> Unit) {
         viewModelScope.launch {
             isLoading.value = true
-            val res = recipeRepository.removeRecipe(recipe.value.id)
+            val res = recipeRepository.removeRecipe(recipe.value)
             res.fold(
                 ifLeft = { e -> onError(e.error) },
                 ifRight = { onSuccess() }

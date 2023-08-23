@@ -111,6 +111,7 @@ fun Recipe.toDto(): RecipeDto {
         updateDate.time,
         easiness.name,
         time,
+        photo != Uri.EMPTY,
         description,
         ingredients,
         tags.map { it.id }

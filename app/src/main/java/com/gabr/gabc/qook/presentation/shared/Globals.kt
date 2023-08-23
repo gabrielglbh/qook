@@ -19,6 +19,7 @@ class Globals {
         const val OBJ_RECIPE_UPDATE = "updateDate"
         const val OBJ_RECIPE_DESCRIPTION = "description"
         const val OBJ_RECIPE_INGREDIENTS = "ingredients"
+        const val OBJ_RECIPE_HAS_PHOTO = "hasPhoto"
 
         const val OBJ_TAG_NAME = "text"
         const val OBJ_TAG_KEYWORDS = "keywords"

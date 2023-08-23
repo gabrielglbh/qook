@@ -45,9 +45,7 @@ fun RecipeDescription(
     ) {
         Text(
             stringResource(R.string.add_recipe_description_title),
-            style = MaterialTheme.typography.titleLarge.copy(
-                fontWeight = FontWeight.Bold,
-            ),
+            style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.size(12.dp))

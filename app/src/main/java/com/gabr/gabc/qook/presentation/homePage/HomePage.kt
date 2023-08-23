@@ -199,6 +199,8 @@ class HomePage : ComponentActivity() {
                 modifier = Modifier
                     .padding(8.dp)
                     .weight(1f),
+                verticalArrangement = Arrangement.Center,
+                horizontalArrangement = Arrangement.Center,
                 content = {
                     items(UserAction.values()) { userAction ->
                         QShimmer(

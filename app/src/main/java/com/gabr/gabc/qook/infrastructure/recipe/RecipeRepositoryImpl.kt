@@ -114,16 +114,15 @@ class RecipeRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun removeRecipe(id: String): Either<RecipeFailure, Unit> {
+    override suspend fun removeRecipe(recipe: Recipe): Either<RecipeFailure, Unit> {
         try {
             auth.currentUser?.let {
                 db.collection(Globals.DB_USER).document(it.uid)
-                    .collection(Globals.DB_RECIPES).document(id)
+                    .collection(Globals.DB_RECIPES).document(recipe.id)
                     .delete().await()
 
-                try {
-                    storage.deleteImage("${Globals.STORAGE_RECIPES}$id.jpg")
-                } catch (_: StorageException) {
+                if (recipe.photo != Uri.EMPTY) {
+                    storage.deleteImage("${Globals.STORAGE_RECIPES}${recipe.id}.jpg")
                 }
 
                 return Right(Unit)
@@ -139,10 +138,6 @@ class RecipeRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getSearchedRecipes(filters: Map<String, String>): List<Recipe> {
-        TODO("Not yet implemented")
-    }
-
     override suspend fun getRecipe(id: String): Either<RecipeFailure, Recipe> {
         try {
             auth.currentUser?.let {
@@ -151,13 +146,12 @@ class RecipeRepositoryImpl @Inject constructor(
                 query.toObject<RecipeDto>()?.let { recipeDto ->
                     var recipe = recipeDto.toDomain()
 
-                    try {
+                    if (recipeDto.hasPhoto) {
                         val res = storage.getDownloadUrl("${Globals.STORAGE_RECIPES}${id}.jpg")
                         res.fold(
                             ifLeft = {},
                             ifRight = { uri -> recipe = recipe.copy(photo = uri) }
                         )
-                    } catch (_: StorageException) {
                     }
 
                     val tagsRes = tagRepository.getTags(id)
