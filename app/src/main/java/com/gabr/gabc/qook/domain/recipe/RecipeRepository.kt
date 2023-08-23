@@ -6,7 +6,6 @@ import com.gabr.gabc.qook.presentation.shared.Globals
 interface RecipeRepository {
     suspend fun getRecipes(
         orderBy: String = Globals.OBJ_RECIPE_CREATION,
-        ascending: Boolean = true,
         query: String? = null,
         tagId: String? = null,
     ): Either<RecipeFailure, List<Recipe>>

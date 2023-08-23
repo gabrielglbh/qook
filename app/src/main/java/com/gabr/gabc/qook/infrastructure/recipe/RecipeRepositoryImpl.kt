@@ -17,6 +17,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.storage.StorageException
 import kotlinx.coroutines.tasks.await
@@ -31,31 +32,33 @@ class RecipeRepositoryImpl @Inject constructor(
 ) : RecipeRepository {
     override suspend fun getRecipes(
         orderBy: String,
-        ascending: Boolean,
         query: String?,
         tagId: String?
     ): Either<RecipeFailure, List<Recipe>> {
         try {
             auth.currentUser?.let {
-                val collection = db.collection(Globals.DB_USER).document(it.uid)
-                    .collection(Globals.DB_RECIPES)
-
+                lateinit var querySnapshot: QuerySnapshot
                 if (tagId != null) {
-                    collection.whereArrayContains(Globals.OBJ_RECIPE_TAG_IDS, tagId)
+                    querySnapshot = db.collection(Globals.DB_USER).document(it.uid)
+                        .collection(Globals.DB_RECIPES)
+                        .whereArrayContains(Globals.OBJ_RECIPE_TAG_IDS, tagId)
+                        .orderBy(orderBy, Query.Direction.DESCENDING)
+                        .get().await()
+                } else if (query != null && query.trim().isNotEmpty()) {
+                    querySnapshot = db.collection(Globals.DB_USER).document(it.uid)
+                        .collection(Globals.DB_RECIPES)
+                        .whereArrayContains(Globals.OBJ_RECIPE_KEYWORDS, query.lowercase())
+                        .orderBy(orderBy, Query.Direction.DESCENDING)
+                        .get().await()
+                } else {
+                    querySnapshot = db.collection(Globals.DB_USER).document(it.uid)
+                        .collection(Globals.DB_RECIPES)
+                        .orderBy(orderBy, Query.Direction.DESCENDING)
+                        .get().await()
                 }
-                if (query != null && query.trim().isNotEmpty()) {
-                    collection.whereArrayContains(Globals.OBJ_RECIPE_KEYWORDS, query.lowercase())
-                }
-                val snapshot = collection.orderBy(
-                    orderBy, if (ascending) {
-                        Query.Direction.ASCENDING
-                    } else {
-                        Query.Direction.DESCENDING
-                    }
-                ).get().await()
 
                 val recipes = mutableListOf<Recipe>()
-                snapshot.documents.forEach { doc ->
+                querySnapshot.documents.forEach { doc ->
                     val result = getRecipe(doc.id)
                     result.fold(
                         ifLeft = {},

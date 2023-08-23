@@ -67,13 +67,11 @@ class RecipesViewModel @Inject constructor(
         }
     }
 
-    // TODO: not working
     fun onSearch() {
         viewModelScope.launch {
             isLoadingRecipes.value = true
             val result = recipeRepository.getRecipes(
                 orderBy = searchState.value.orderBy,
-                ascending = searchState.value.ascending,
                 query = searchState.value.query,
                 tagId = searchState.value.tag?.id
             )

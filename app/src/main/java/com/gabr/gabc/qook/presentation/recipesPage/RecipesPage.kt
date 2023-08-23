@@ -231,10 +231,14 @@ class RecipesPage : ComponentActivity() {
                                 modifier = Modifier.padding(4.dp),
                                 isActive = selectedFilterTag == tag,
                                 onClick = {
-                                    selectedFilterTag = tag
+                                    selectedFilterTag = if (selectedFilterTag == tag) {
+                                        null
+                                    } else {
+                                        tag
+                                    }
                                     viewModel.updateSearchState(
                                         searchState.copy(
-                                            tag = tag,
+                                            tag = selectedFilterTag,
                                             query = ""
                                         )
                                     )
