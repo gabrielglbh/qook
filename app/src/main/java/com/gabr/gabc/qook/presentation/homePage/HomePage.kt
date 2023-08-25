@@ -51,6 +51,7 @@ import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.user.User
 import com.gabr.gabc.qook.presentation.homePage.viewModel.HomeViewModel
 import com.gabr.gabc.qook.presentation.homePage.viewModel.UserState
+import com.gabr.gabc.qook.presentation.planningPage.PlanningPage
 import com.gabr.gabc.qook.presentation.profilePage.ProfilePage
 import com.gabr.gabc.qook.presentation.recipesPage.RecipesPage
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
@@ -223,7 +224,15 @@ class HomePage : ComponentActivity() {
                                         }
 
                                         UserAction.RANDOM -> {}
-                                        UserAction.PLANNING -> {}
+                                        UserAction.PLANNING -> {
+                                            startActivity(
+                                                Intent(
+                                                    this@HomePage,
+                                                    PlanningPage::class.java
+                                                )
+                                            )
+                                        }
+
                                         UserAction.SHOPPING -> {}
                                     }
                                 },

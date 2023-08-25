@@ -108,4 +108,6 @@
     <string name="err_plannings_retrieval">No se ha podido recoger el planning, prueba otra vez</string>
     <string name="err_planning_update">No se ha podido actualizar el planning, prueba otra vez</string>
     <string name="err_planning_reset">No se ha podido limpiar el planning, prueba otra vez</string>
+    <string name="planning_lunch">Comida</string>
+    <string name="planning_dinner">Cena</string>
 </resources>

@@ -107,4 +107,6 @@
     <string name="err_plannings_retrieval">Could not retrieve planning, try again</string>
     <string name="err_planning_update">Could not update planning, try again</string>
     <string name="err_planning_reset">Could not reset planning, try again</string>
+    <string name="planning_lunch">Lunch</string>
+    <string name="planning_dinner">Dinner</string>
 </resources>

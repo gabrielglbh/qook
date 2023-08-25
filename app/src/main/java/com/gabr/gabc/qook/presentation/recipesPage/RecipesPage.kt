@@ -271,7 +271,8 @@ class RecipesPage : ComponentActivity() {
                     ) {
                         items(state.searchedRecipes) { recipe ->
                             QRecipeItem(recipe = recipe, modifier = Modifier.padding(8.dp)) {
-                                val intent = Intent(this@RecipesPage, RecipeDetailsPage::class.java)
+                                val intent =
+                                    Intent(this@RecipesPage, RecipeDetailsPage::class.java)
                                 intent.putExtra(RECIPE_FROM_LIST, recipe)
                                 resultLauncher.launch(intent)
                             }
