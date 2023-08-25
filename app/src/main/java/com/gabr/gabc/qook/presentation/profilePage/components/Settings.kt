@@ -51,6 +51,7 @@ fun Settings(
             },
             list = days,
             onClick = {
+                // TODO: Update PLANNING dayIndexes
                 viewModel.updateUser(user.copy(beginningWeekDay = it)) {}
             }
         )

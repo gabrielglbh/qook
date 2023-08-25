@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 fun QImageContainer(
     uri: Uri,
     placeholder: ImageVector,
+    modifier: Modifier = Modifier,
     size: Dp? = null,
     borderColor: Color = MaterialTheme.colorScheme.primaryContainer,
     shape: Shape = CircleShape,
@@ -33,7 +34,7 @@ fun QImageContainer(
 
     OutlinedButton(
         onClick = { onClick?.let { it() } },
-        modifier = Modifier.size(size ?: sizeDefault),
+        modifier = modifier.size(size ?: sizeDefault),
         shape = shape,
         enabled = onClick != null,
         border = BorderStroke(2.dp, borderColor),

@@ -110,4 +110,6 @@
     <string name="err_planning_reset">No se ha podido limpiar el planning, prueba otra vez</string>
     <string name="planning_lunch">Comida</string>
     <string name="planning_dinner">Cena</string>
+    <string name="add_recipe_to_planning">Añadir receta al planning semanal</string>
+    <string name="planning_confirmation_msg">¿Seguro que quieres añadir %1$s al planning para el %2$s?</string>
 </resources>

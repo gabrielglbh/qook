@@ -109,4 +109,6 @@
     <string name="err_planning_reset">Could not reset planning, try again</string>
     <string name="planning_lunch">Lunch</string>
     <string name="planning_dinner">Dinner</string>
+    <string name="add_recipe_to_planning">Add recipe to weekly planning</string>
+    <string name="planning_confirmation_msg">Are you sure you want to add %1$s to the planning for %2$s?</string>
 </resources>

@@ -24,5 +24,13 @@ class Globals {
 
         const val OBJ_TAG_NAME = "text"
         const val OBJ_TAG_KEYWORDS = "keywords"
+
+        const val OBJ_PLANNING_FIRST_DAY = "firstDay"
+        const val OBJ_PLANNING_SECOND_DAY = "secondDay"
+        const val OBJ_PLANNING_THIRD_DAY = "thirdDay"
+        const val OBJ_PLANNING_FOURTH_DAY = "fourthDay"
+        const val OBJ_PLANNING_FIFTH_DAY = "fifthDay"
+        const val OBJ_PLANNING_SIXTH_DAY = "sixthDay"
+        const val OBJ_PLANNING_SEVENTH_DAY = "seventhDay"
     }
 }

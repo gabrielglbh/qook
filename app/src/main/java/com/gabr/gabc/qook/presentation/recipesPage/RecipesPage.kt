@@ -23,6 +23,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Clear
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.PostAdd
 import androidx.compose.material.icons.outlined.Receipt
 import androidx.compose.material.icons.outlined.Search
@@ -31,6 +32,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -42,16 +44,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
+import com.gabr.gabc.qook.domain.planning.DayPlanning
 import com.gabr.gabc.qook.domain.recipe.Recipe
 import com.gabr.gabc.qook.domain.tag.Tag
 import com.gabr.gabc.qook.presentation.addRecipePage.AddRecipePage
+import com.gabr.gabc.qook.presentation.planningPage.PlanningPage
 import com.gabr.gabc.qook.presentation.recipeDetailsPage.RecipeDetailsPage
-import com.gabr.gabc.qook.presentation.recipesPage.viewModel.RecipesState
 import com.gabr.gabc.qook.presentation.recipesPage.viewModel.RecipesViewModel
+import com.gabr.gabc.qook.presentation.shared.QDateUtils
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
+import com.gabr.gabc.qook.presentation.shared.components.QDialog
 import com.gabr.gabc.qook.presentation.shared.components.QEmptyBox
 import com.gabr.gabc.qook.presentation.shared.components.QLoadingScreen
 import com.gabr.gabc.qook.presentation.shared.components.QRecipeItem
@@ -66,6 +72,8 @@ import kotlinx.coroutines.launch
 class RecipesPage : ComponentActivity() {
     companion object {
         const val RECIPE_FROM_LIST = "RECIPE_FROM_LIST"
+        const val HAS_UPDATED_PLANNING = "HAS_UPDATED_PLANNING"
+        const val HAS_UPDATED_PLANNING_RECIPE = "HAS_UPDATED_PLANNING_RECIPE"
     }
 
     private val resultLauncher =
@@ -113,6 +121,23 @@ class RecipesPage : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val viewModel: RecipesViewModel by viewModels()
+
+        val dayPlanning = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.getParcelableExtra(PlanningPage.FROM_PLANNING, DayPlanning::class.java)
+        } else {
+            intent.getParcelableExtra(PlanningPage.FROM_PLANNING)
+        }
+        val isLunchFromPlanning = intent.getBooleanExtra(PlanningPage.IS_LUNCH, false)
+        dayPlanning?.let {
+            viewModel.updatePlanning(
+                viewModel.planningState.value.copy(
+                    dayPlanning = it,
+                    isLunch = isLunchFromPlanning
+                )
+            )
+        }
+
         setContent {
             AppTheme {
                 RecipesView()
@@ -129,6 +154,19 @@ class RecipesPage : ComponentActivity() {
         val scope = rememberCoroutineScope()
         val snackbarHostState = remember { SnackbarHostState() }
 
+        val searchState = viewModel.searchState.collectAsState().value
+        val planningState = viewModel.planningState.collectAsState().value
+
+        val focusManager = LocalFocusManager.current
+        var selectedFilterTag by remember { mutableStateOf<Tag?>(null) }
+        var selectedRecipeForPlanning by remember { mutableStateOf(Recipe.EMPTY_RECIPE) }
+
+        fun clearSearch() {
+            viewModel.updateSearchState(searchState.copy(query = ""))
+            viewModel.clearSearch()
+            focusManager.clearFocus()
+        }
+
         LaunchedEffect(key1 = Unit) {
             viewModel.getRecipes { errorMessage ->
                 scope.launch {
@@ -141,6 +179,41 @@ class RecipesPage : ComponentActivity() {
                 }
             }
         }
+
+        if (selectedRecipeForPlanning != Recipe.EMPTY_RECIPE)
+            QDialog(
+                onDismissRequest = { selectedRecipeForPlanning = Recipe.EMPTY_RECIPE },
+                leadingIcon = Icons.Outlined.Delete,
+                title = R.string.add_recipe_to_planning,
+                content = {
+                    Text(
+                        stringResource(
+                            R.string.planning_confirmation_msg,
+                            selectedRecipeForPlanning.name,
+                            stringResource(QDateUtils.getWeekDayStringRes(planningState.dayPlanning.dayIndex))
+                        )
+                    )
+                },
+                onSubmit = {
+                    viewModel.updatePlanningWith(
+                        selectedRecipeForPlanning,
+                        onError = { e ->
+                            scope.launch {
+                                snackbarHostState.showSnackbar(e)
+                            }
+                        },
+                        onSuccess = { dayPlanning ->
+                            val intent = Intent()
+                            intent.putExtra(HAS_UPDATED_PLANNING, dayPlanning)
+                            intent.putExtra(PlanningPage.IS_LUNCH, planningState.isLunch!!)
+                            intent.putExtra(HAS_UPDATED_PLANNING_RECIPE, selectedRecipeForPlanning)
+                            setResult(RESULT_OK, intent)
+                            finish()
+                        },
+                    )
+                    selectedRecipeForPlanning = Recipe.EMPTY_RECIPE
+                },
+            )
 
         Box {
             Scaffold(
@@ -170,116 +243,110 @@ class RecipesPage : ComponentActivity() {
                         .padding(it)
                         .consumeWindowInsets(it)
                 ) {
-                    RecipesContent(viewModel, state)
-                }
-            }
-            if (viewModel.isLoadingRecipes.value || viewModel.isLoadingTags.value) QLoadingScreen()
-        }
-    }
-
-    @Composable
-    fun RecipesContent(viewModel: RecipesViewModel, state: RecipesState) {
-        val searchState = viewModel.searchState.collectAsState().value
-
-        val focusManager = LocalFocusManager.current
-        var selectedFilterTag by remember { mutableStateOf<Tag?>(null) }
-
-        fun clearSearch() {
-            viewModel.updateSearchState(searchState.copy(query = ""))
-            viewModel.clearSearch()
-            focusManager.clearFocus()
-        }
-
-        Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 12.dp)
-        ) {
-            QTextForm(
-                labelId = R.string.recipes_search_recipes,
-                value = searchState.query,
-                onValueChange = {
-                    viewModel.updateSearchState(searchState.copy(query = it))
-                },
-                leadingIcon = Icons.Outlined.Search,
-                trailingIcon = if (searchState.query.isEmpty()) {
-                    null
-                } else {
-                    {
-                        IconButton(onClick = { clearSearch() }) {
-                            Icon(Icons.Outlined.Clear, contentDescription = null)
-                        }
-                    }
-                },
-                imeAction = ImeAction.Search,
-                onSubmitWithImeAction = {
-                    selectedFilterTag = null
-                    viewModel.onSearch()
-                    focusManager.clearFocus()
-                }
-            )
-            Spacer(modifier = Modifier.size(8.dp))
-            QShimmer(controller = state.tags.isNotEmpty()) { modifier ->
-                LazyRow(
-                    modifier = modifier.fillMaxWidth(),
-                    content = {
-                        items(state.tags) { tag ->
-                            QTag(
-                                tag = tag,
-                                modifier = Modifier.padding(4.dp),
-                                isActive = selectedFilterTag == tag,
-                                onClick = {
-                                    selectedFilterTag = if (selectedFilterTag == tag) {
-                                        null
-                                    } else {
-                                        tag
+                    Column(
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 12.dp)
+                    ) {
+                        QTextForm(
+                            labelId = R.string.recipes_search_recipes,
+                            value = searchState.query,
+                            onValueChange = {
+                                viewModel.updateSearchState(searchState.copy(query = it))
+                            },
+                            leadingIcon = Icons.Outlined.Search,
+                            trailingIcon = if (searchState.query.isEmpty()) {
+                                null
+                            } else {
+                                {
+                                    IconButton(onClick = { clearSearch() }) {
+                                        Icon(Icons.Outlined.Clear, contentDescription = null)
                                     }
-                                    viewModel.updateSearchState(
-                                        searchState.copy(
-                                            tag = selectedFilterTag,
-                                            query = ""
+                                }
+                            },
+                            imeAction = ImeAction.Search,
+                            onSubmitWithImeAction = {
+                                selectedFilterTag = null
+                                viewModel.onSearch()
+                                focusManager.clearFocus()
+                            }
+                        )
+                        Spacer(modifier = Modifier.size(8.dp))
+                        QShimmer(controller = state.tags.isNotEmpty()) { modifier ->
+                            LazyRow(
+                                modifier = modifier.fillMaxWidth(),
+                                content = {
+                                    items(state.tags) { tag ->
+                                        QTag(
+                                            tag = tag,
+                                            modifier = Modifier.padding(4.dp),
+                                            isActive = selectedFilterTag == tag,
+                                            onClick = {
+                                                selectedFilterTag = if (selectedFilterTag == tag) {
+                                                    null
+                                                } else {
+                                                    tag
+                                                }
+                                                viewModel.updateSearchState(
+                                                    searchState.copy(
+                                                        tag = selectedFilterTag,
+                                                        query = ""
+                                                    )
+                                                )
+                                                viewModel.onSearch()
+                                            }
                                         )
-                                    )
-                                    viewModel.onSearch()
+                                    }
                                 }
                             )
                         }
-                    }
-                )
-            }
-            Spacer(modifier = Modifier.size(8.dp))
-            Box(
-                modifier = Modifier.weight(1f),
-                contentAlignment = if (state.recipes.isEmpty() || state.searchedRecipes.isEmpty()) {
-                    Alignment.Center
-                } else {
-                    Alignment.TopCenter
-                }
-            ) {
-                QShimmer(controller = state.recipes.isEmpty() || state.searchedRecipes.isEmpty()) { modifier ->
-                    QEmptyBox(
-                        message = R.string.recipes_empty,
-                        icon = Icons.Outlined.Receipt,
-                        modifier = modifier
-                    )
-                }
-                QShimmer(controller = state.searchedRecipes.isNotEmpty()) { modifier ->
-                    LazyColumn(
-                        modifier = modifier
-                    ) {
-                        items(state.searchedRecipes) { recipe ->
-                            QRecipeItem(recipe = recipe, modifier = Modifier.padding(8.dp)) {
-                                val intent =
-                                    Intent(this@RecipesPage, RecipeDetailsPage::class.java)
-                                intent.putExtra(RECIPE_FROM_LIST, recipe)
-                                resultLauncher.launch(intent)
+                        Spacer(modifier = Modifier.size(8.dp))
+                        Box(
+                            modifier = Modifier.weight(1f),
+                            contentAlignment = if (state.recipes.isEmpty() || state.searchedRecipes.isEmpty()) {
+                                Alignment.Center
+                            } else {
+                                Alignment.TopCenter
+                            }
+                        ) {
+                            QShimmer(controller = state.recipes.isEmpty() || state.searchedRecipes.isEmpty()) { modifier ->
+                                QEmptyBox(
+                                    message = R.string.recipes_empty,
+                                    icon = Icons.Outlined.Receipt,
+                                    modifier = modifier
+                                )
+                            }
+                            QShimmer(controller = state.searchedRecipes.isNotEmpty()) { modifier ->
+                                LazyColumn(
+                                    modifier = modifier
+                                ) {
+                                    items(state.searchedRecipes) { recipe ->
+                                        QRecipeItem(
+                                            recipe = recipe,
+                                            modifier = Modifier.padding(8.dp)
+                                        ) {
+                                            if (planningState.dayPlanning != DayPlanning.EMPTY_DAY_PLANNING || planningState.isLunch != null) {
+                                                selectedRecipeForPlanning = recipe
+                                            } else {
+                                                val intent =
+                                                    Intent(
+                                                        this@RecipesPage,
+                                                        RecipeDetailsPage::class.java
+                                                    )
+                                                intent.putExtra(RECIPE_FROM_LIST, recipe)
+                                                resultLauncher.launch(intent)
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
+            if (viewModel.isLoadingRecipes.value || viewModel.isLoadingTags.value) QLoadingScreen()
         }
     }
 }

@@ -3,6 +3,8 @@ package com.gabr.gabc.qook.presentation.recipesPage.viewModel
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gabr.gabc.qook.domain.planning.DayPlanning
+import com.gabr.gabc.qook.domain.planning.PlanningRepository
 import com.gabr.gabc.qook.domain.recipe.Recipe
 import com.gabr.gabc.qook.domain.recipe.RecipeRepository
 import com.gabr.gabc.qook.domain.tag.TagRepository
@@ -16,13 +18,17 @@ import javax.inject.Inject
 @HiltViewModel
 class RecipesViewModel @Inject constructor(
     private val recipeRepository: RecipeRepository,
-    private val tagRepository: TagRepository
+    private val tagRepository: TagRepository,
+    private val planningRepository: PlanningRepository,
 ) : ViewModel() {
     private val _recipesState = MutableStateFlow(RecipesState())
     val recipesState: StateFlow<RecipesState> = _recipesState.asStateFlow()
 
     private val _searchState = MutableStateFlow(SearchState())
     val searchState: StateFlow<SearchState> = _searchState.asStateFlow()
+
+    private val _planningState = MutableStateFlow(PlanningState())
+    val planningState: StateFlow<PlanningState> = _planningState.asStateFlow()
 
     var isLoadingRecipes = mutableStateOf(false)
         private set
@@ -99,6 +105,10 @@ class RecipesViewModel @Inject constructor(
         _searchState.value = searchState
     }
 
+    fun updatePlanning(value: PlanningState) {
+        _planningState.value = value
+    }
+
     fun getTags(onError: (String) -> Unit) {
         viewModelScope.launch {
             isLoadingTags.value = true
@@ -112,6 +122,30 @@ class RecipesViewModel @Inject constructor(
                 }
             )
             isLoadingTags.value = false
+        }
+    }
+
+    fun updatePlanningWith(
+        recipe: Recipe,
+        onError: (String) -> Unit,
+        onSuccess: (DayPlanning) -> Unit
+    ) {
+        viewModelScope.launch {
+            isLoadingRecipes.value = true
+            _planningState.value.isLunch?.let { isLunch ->
+                val dayPlanning = if (isLunch) {
+                    _planningState.value.dayPlanning.copy(lunch = recipe)
+                } else {
+                    _planningState.value.dayPlanning.copy(dinner = recipe)
+                }
+
+                val result = planningRepository.updateRecipeFromPlanning(dayPlanning)
+                result.fold(
+                    ifLeft = { e -> onError(e.error) },
+                    ifRight = { onSuccess(dayPlanning) }
+                )
+            }
+            isLoadingRecipes.value = false
         }
     }
 

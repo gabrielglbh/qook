@@ -40,7 +40,7 @@ import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.recipe.Easiness
 import com.gabr.gabc.qook.domain.recipe.Recipe
 import com.gabr.gabc.qook.domain.tag.Tag
-import com.gabr.gabc.qook.presentation.shared.DateFormatters.Companion.formatDate
+import com.gabr.gabc.qook.presentation.shared.QDateUtils.Companion.formatDate
 import com.gabr.gabc.qook.presentation.theme.AppTheme
 import java.util.Calendar
 

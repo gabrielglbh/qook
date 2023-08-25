@@ -36,18 +36,3 @@ fun RecipeDto.toDomain(): Recipe {
         listOf()
     )
 }
-
-fun RecipeDto.toMap(): Map<String, Any?> {
-    return mapOf(
-        Pair(Globals.OBJ_RECIPE_NAME, name),
-        Pair(Globals.OBJ_RECIPE_KEYWORDS, keywords),
-        Pair(Globals.OBJ_RECIPE_CREATION, creationDate),
-        Pair(Globals.OBJ_RECIPE_UPDATE, updateDate),
-        Pair(Globals.OBJ_RECIPE_EASINESS, easiness),
-        Pair("time", time),
-        Pair(Globals.OBJ_RECIPE_HAS_PHOTO, hasPhoto),
-        Pair(Globals.OBJ_RECIPE_DESCRIPTION, description),
-        Pair(Globals.OBJ_RECIPE_INGREDIENTS, ingredients),
-        Pair(Globals.OBJ_RECIPE_TAG_IDS, tagIds),
-    )
-}

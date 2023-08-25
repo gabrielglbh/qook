@@ -46,7 +46,7 @@ class PlanningRepositoryImpl @Inject constructor(
             )
         }
 
-        return DayPlanning(lunch, dinner)
+        return DayPlanning(dayPlanningDto.id, dayPlanningDto.dayIndex, lunch, dinner)
     }
 
     override suspend fun getPlanning(): Either<PlanningFailure, Planning> {
@@ -57,17 +57,16 @@ class PlanningRepositoryImpl @Inject constructor(
                     .get().await()
 
                 res.toObject<PlanningDto>()?.let { planningDto ->
-                    return Right(
-                        Planning(
-                            firstDay = getRecipesFrom(planningDto.firstDay),
-                            secondDay = getRecipesFrom(planningDto.secondDay),
-                            thirdDay = getRecipesFrom(planningDto.thirdDay),
-                            fourthDay = getRecipesFrom(planningDto.fourthDay),
-                            fifthDay = getRecipesFrom(planningDto.fifthDay),
-                            sixthDay = getRecipesFrom(planningDto.sixthDay),
-                            seventhDay = getRecipesFrom(planningDto.seventhDay),
-                        )
+                    val planning = Planning(
+                        firstDay = getRecipesFrom(planningDto.firstDay),
+                        secondDay = getRecipesFrom(planningDto.secondDay),
+                        thirdDay = getRecipesFrom(planningDto.thirdDay),
+                        fourthDay = getRecipesFrom(planningDto.fourthDay),
+                        fifthDay = getRecipesFrom(planningDto.fifthDay),
+                        sixthDay = getRecipesFrom(planningDto.sixthDay),
+                        seventhDay = getRecipesFrom(planningDto.seventhDay),
                     )
+                    return Right(planning)
                 }
             }
             return Left(PlanningFailure.NotAuthenticated(res.getString(R.string.error_user_not_auth)))
@@ -76,17 +75,14 @@ class PlanningRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun updateRecipeFromPlanning(
-        dayPlanning: DayPlanning,
-        day: Int
-    ): Either<PlanningFailure, Unit> {
+    override suspend fun updateRecipeFromPlanning(dayPlanning: DayPlanning): Either<PlanningFailure, Unit> {
         try {
             auth.currentUser?.let {
                 db.collection(Globals.DB_USER).document(it.uid)
                     .collection(Globals.DB_PLANNING).document(Globals.DB_PLANNING)
                     .update(
                         mapOf(
-                            Pair(day.toString(), dayPlanning.toDto())
+                            Pair(dayPlanning.id, dayPlanning.toDto())
                         )
                     ).await()
 
