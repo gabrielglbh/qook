@@ -104,4 +104,8 @@
     <string name="recipe_details">Detalles</string>
     <string name="recipe_details_remove_recipe">Eliminar receta</string>
     <string name="recipe_details_delete_warning">¿Estás seguro de que quieres eliminar %1$s?</string>
+
+    <string name="err_plannings_retrieval">No se ha podido recoger el planning, prueba otra vez</string>
+    <string name="err_planning_update">No se ha podido actualizar el planning, prueba otra vez</string>
+    <string name="err_planning_reset">No se ha podido limpiar el planning, prueba otra vez</string>
 </resources>

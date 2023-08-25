@@ -7,6 +7,7 @@ class Globals {
         const val DB_USER = "USERS"
         const val DB_RECIPES = "RECIPES"
         const val DB_TAGS = "TAGS"
+        const val DB_PLANNING = "PLANNING"
 
         const val STORAGE_RECIPES = "recipes/"
         const val STORAGE_AVATAR = "avatar/photo.jpg"
@@ -23,5 +24,7 @@ class Globals {
 
         const val OBJ_TAG_NAME = "text"
         const val OBJ_TAG_KEYWORDS = "keywords"
+
+        const val OBJ_PLANNING_DAY_PLANNINGS = "dayPlannings"
     }
 }
