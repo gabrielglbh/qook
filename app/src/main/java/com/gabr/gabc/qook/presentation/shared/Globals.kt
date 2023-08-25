@@ -24,7 +24,5 @@ class Globals {
 
         const val OBJ_TAG_NAME = "text"
         const val OBJ_TAG_KEYWORDS = "keywords"
-
-        const val OBJ_PLANNING_DAY_PLANNINGS = "dayPlannings"
     }
 }

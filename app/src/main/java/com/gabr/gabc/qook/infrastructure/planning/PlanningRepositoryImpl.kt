@@ -26,6 +26,29 @@ class PlanningRepositoryImpl @Inject constructor(
     private val recipeRepository: RecipeRepository,
     private val res: StringResourcesProvider
 ) : PlanningRepository {
+    private suspend fun getRecipesFrom(dayPlanningDto: DayPlanningDto): DayPlanning {
+        var lunch = Recipe.EMPTY_RECIPE
+        var dinner = Recipe.EMPTY_RECIPE
+
+        if (dayPlanningDto.lunch.isNotEmpty()) {
+            val lunchRes = recipeRepository.getRecipe(dayPlanningDto.lunch)
+            lunchRes.fold(
+                ifLeft = {},
+                ifRight = { recipe -> lunch = recipe }
+            )
+        }
+
+        if (dayPlanningDto.dinner.isNotEmpty()) {
+            val dinnerRes = recipeRepository.getRecipe(dayPlanningDto.dinner)
+            dinnerRes.fold(
+                ifLeft = {},
+                ifRight = { recipe -> dinner = recipe }
+            )
+        }
+
+        return DayPlanning(lunch, dinner)
+    }
+
     override suspend fun getPlanning(): Either<PlanningFailure, Planning> {
         try {
             auth.currentUser?.let {
@@ -34,33 +57,17 @@ class PlanningRepositoryImpl @Inject constructor(
                     .get().await()
 
                 res.toObject<PlanningDto>()?.let { planningDto ->
-                    val planning = planningDto.toDomain()
-                    val dayPlannings = mutableListOf<DayPlanning>()
-
-                    planningDto.dayPlannings.forEach { dayPlanningDto ->
-                        var lunch = Recipe.EMPTY_RECIPE
-                        var dinner = Recipe.EMPTY_RECIPE
-
-                        if (dayPlanningDto.lunch.isNotEmpty()) {
-                            val lunchRes = recipeRepository.getRecipe(dayPlanningDto.lunch)
-                            lunchRes.fold(
-                                ifLeft = {},
-                                ifRight = { recipe -> lunch = recipe }
-                            )
-                        }
-
-                        if (dayPlanningDto.dinner.isNotEmpty()) {
-                            val dinnerRes = recipeRepository.getRecipe(dayPlanningDto.dinner)
-                            dinnerRes.fold(
-                                ifLeft = {},
-                                ifRight = { recipe -> dinner = recipe }
-                            )
-                        }
-
-                        dayPlannings.add(DayPlanning(lunch, dinner))
-                    }
-
-                    return Right(planning.copy(dayPlannings = dayPlannings))
+                    return Right(
+                        Planning(
+                            firstDay = getRecipesFrom(planningDto.firstDay),
+                            secondDay = getRecipesFrom(planningDto.secondDay),
+                            thirdDay = getRecipesFrom(planningDto.thirdDay),
+                            fourthDay = getRecipesFrom(planningDto.fourthDay),
+                            fifthDay = getRecipesFrom(planningDto.fifthDay),
+                            sixthDay = getRecipesFrom(planningDto.sixthDay),
+                            seventhDay = getRecipesFrom(planningDto.seventhDay),
+                        )
+                    )
                 }
             }
             return Left(PlanningFailure.NotAuthenticated(res.getString(R.string.error_user_not_auth)))
@@ -69,12 +76,19 @@ class PlanningRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun updateRecipeFromPlanning(planning: Planning): Either<PlanningFailure, Unit> {
+    override suspend fun updateRecipeFromPlanning(
+        dayPlanning: DayPlanning,
+        day: Int
+    ): Either<PlanningFailure, Unit> {
         try {
             auth.currentUser?.let {
                 db.collection(Globals.DB_USER).document(it.uid)
                     .collection(Globals.DB_PLANNING).document(Globals.DB_PLANNING)
-                    .set(planning.toDto()).await()
+                    .update(
+                        mapOf(
+                            Pair(day.toString(), dayPlanning.toDto())
+                        )
+                    ).await()
 
                 return Right(Unit)
             }

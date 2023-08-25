@@ -5,23 +5,37 @@ import com.gabr.gabc.qook.infrastructure.planning.DayPlanningDto
 import com.gabr.gabc.qook.infrastructure.planning.PlanningDto
 
 data class Planning constructor(
-    val dayPlannings: List<DayPlanning>
+    val firstDay: DayPlanning,
+    val secondDay: DayPlanning,
+    val thirdDay: DayPlanning,
+    val fourthDay: DayPlanning,
+    val fifthDay: DayPlanning,
+    val sixthDay: DayPlanning,
+    val seventhDay: DayPlanning,
 ) {
     companion object {
-        val EMPTY_PLANNING = Planning(mutableListOf<DayPlanning>().apply {
-            add(DayPlanning(Recipe.EMPTY_RECIPE, Recipe.EMPTY_RECIPE))
-            add(DayPlanning(Recipe.EMPTY_RECIPE, Recipe.EMPTY_RECIPE))
-            add(DayPlanning(Recipe.EMPTY_RECIPE, Recipe.EMPTY_RECIPE))
-            add(DayPlanning(Recipe.EMPTY_RECIPE, Recipe.EMPTY_RECIPE))
-            add(DayPlanning(Recipe.EMPTY_RECIPE, Recipe.EMPTY_RECIPE))
-            add(DayPlanning(Recipe.EMPTY_RECIPE, Recipe.EMPTY_RECIPE))
-            add(DayPlanning(Recipe.EMPTY_RECIPE, Recipe.EMPTY_RECIPE))
-        })
+        val EMPTY_PLANNING = Planning(
+            DayPlanning(Recipe.EMPTY_RECIPE, Recipe.EMPTY_RECIPE),
+            DayPlanning(Recipe.EMPTY_RECIPE, Recipe.EMPTY_RECIPE),
+            DayPlanning(Recipe.EMPTY_RECIPE, Recipe.EMPTY_RECIPE),
+            DayPlanning(Recipe.EMPTY_RECIPE, Recipe.EMPTY_RECIPE),
+            DayPlanning(Recipe.EMPTY_RECIPE, Recipe.EMPTY_RECIPE),
+            DayPlanning(Recipe.EMPTY_RECIPE, Recipe.EMPTY_RECIPE),
+            DayPlanning(Recipe.EMPTY_RECIPE, Recipe.EMPTY_RECIPE),
+        )
     }
 }
 
 fun Planning.toDto(): PlanningDto {
-    return PlanningDto(dayPlannings.map { it.toDto() })
+    return PlanningDto(
+        firstDay.toDto(),
+        secondDay.toDto(),
+        thirdDay.toDto(),
+        fourthDay.toDto(),
+        fifthDay.toDto(),
+        sixthDay.toDto(),
+        seventhDay.toDto(),
+    )
 }
 
 data class DayPlanning constructor(
