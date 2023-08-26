@@ -111,4 +111,10 @@
     <string name="planning_dinner">Dinner</string>
     <string name="add_recipe_to_planning">Add recipe to weekly planning</string>
     <string name="planning_confirmation_msg">Are you sure you want to add %1$s to the planning for %2$s?</string>
+    <string name="planning_description">Plan your week with lunch and dinners with your recipes</string>
+    <string name="planning_no_recipe_added">No recipe added yet</string>
+    <string name="reset_planning">Reset planning</string>
+    <string name="reset_planning_description">All planning will be emptied to make a new planning from scratch</string>
+    <string name="planning_reset_button">Reset</string>
+    <string name="planning_add_to_planning_button">Add to planning</string>
 </resources>

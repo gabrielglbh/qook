@@ -34,6 +34,34 @@ class PlanningViewModel @Inject constructor(
         }
     }
 
+    fun resetPlanning(onError: (String) -> Unit) {
+        viewModelScope.launch {
+            isLoading.value = true
+            val res = planningRepository.resetPlanning()
+            res.fold(
+                ifLeft = { e -> onError(e.error) },
+                ifRight = {
+                    planning.value = Planning.EMPTY_PLANNING
+                }
+            )
+            isLoading.value = false
+        }
+    }
+
+    fun updatePlanning(dayPlanning: DayPlanning, onError: (String) -> Unit) {
+        viewModelScope.launch {
+            isLoading.value = true
+            val res = planningRepository.updateRecipeFromPlanning(dayPlanning)
+            res.fold(
+                ifLeft = { e -> onError(e.error) },
+                ifRight = {
+                    updatePlanningLocally(dayPlanning)
+                }
+            )
+            isLoading.value = false
+        }
+    }
+
     fun updatePlanningLocally(dayPlanning: DayPlanning) {
         when (dayPlanning.id) {
             Globals.OBJ_PLANNING_FIRST_DAY -> planning.value =

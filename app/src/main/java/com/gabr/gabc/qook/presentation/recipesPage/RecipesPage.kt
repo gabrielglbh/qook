@@ -22,8 +22,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.Clear
-import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.PostAdd
 import androidx.compose.material.icons.outlined.Receipt
 import androidx.compose.material.icons.outlined.Search
@@ -183,8 +183,9 @@ class RecipesPage : ComponentActivity() {
         if (selectedRecipeForPlanning != Recipe.EMPTY_RECIPE)
             QDialog(
                 onDismissRequest = { selectedRecipeForPlanning = Recipe.EMPTY_RECIPE },
-                leadingIcon = Icons.Outlined.Delete,
+                leadingIcon = Icons.Outlined.CalendarMonth,
                 title = R.string.add_recipe_to_planning,
+                buttonTitle = R.string.planning_add_to_planning_button,
                 content = {
                     Text(
                         stringResource(
@@ -202,11 +203,11 @@ class RecipesPage : ComponentActivity() {
                                 snackbarHostState.showSnackbar(e)
                             }
                         },
-                        onSuccess = { dayPlanning ->
+                        onSuccess = { recipe, dayPlanning ->
                             val intent = Intent()
                             intent.putExtra(HAS_UPDATED_PLANNING, dayPlanning)
                             intent.putExtra(PlanningPage.IS_LUNCH, planningState.isLunch!!)
-                            intent.putExtra(HAS_UPDATED_PLANNING_RECIPE, selectedRecipeForPlanning)
+                            intent.putExtra(HAS_UPDATED_PLANNING_RECIPE, recipe)
                             setResult(RESULT_OK, intent)
                             finish()
                         },

@@ -72,7 +72,10 @@ fun QDialog(
                             },
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text(stringResource(buttonTitle))
+                            QAutoSizeText(
+                                stringResource(buttonTitle),
+                                color = MaterialTheme.colorScheme.onPrimary
+                            )
                         }
                     }
                 }

@@ -20,11 +20,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.ClearAll
 import androidx.compose.material.icons.outlined.NightlightRound
+import androidx.compose.material.icons.outlined.RestartAlt
 import androidx.compose.material.icons.outlined.WbSunny
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -32,11 +37,16 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.planning.DayPlanning
@@ -47,6 +57,8 @@ import com.gabr.gabc.qook.presentation.recipeDetailsPage.RecipeDetailsPage
 import com.gabr.gabc.qook.presentation.recipesPage.RecipesPage
 import com.gabr.gabc.qook.presentation.shared.QDateUtils
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
+import com.gabr.gabc.qook.presentation.shared.components.QAutoSizeText
+import com.gabr.gabc.qook.presentation.shared.components.QDialog
 import com.gabr.gabc.qook.presentation.shared.components.QImageContainer
 import com.gabr.gabc.qook.presentation.shared.components.QLoadingScreen
 import com.gabr.gabc.qook.presentation.shared.components.QRecipeItem
@@ -114,17 +126,45 @@ class PlanningPage : ComponentActivity() {
 
         val scope = rememberCoroutineScope()
         val snackbarHostState = remember { SnackbarHostState() }
+        var showResetDialog by remember { mutableStateOf(false) }
 
         LaunchedEffect(key1 = Unit, block = {
             viewModel.loadPlanning { error -> scope.launch { snackbarHostState.showSnackbar(error) } }
         })
+
+        if (showResetDialog) {
+            QDialog(
+                onDismissRequest = { showResetDialog = false },
+                leadingIcon = Icons.Outlined.RestartAlt,
+                title = R.string.reset_planning,
+                content = {
+                    Text(stringResource(R.string.reset_planning_description))
+                },
+                buttonTitle = R.string.planning_reset_button,
+                onSubmit = {
+                    viewModel.resetPlanning() { e ->
+                        scope.launch {
+                            snackbarHostState.showSnackbar(e)
+                        }
+                    }
+                    showResetDialog = false
+                },
+            )
+        }
 
         Box {
             Scaffold(
                 topBar = {
                     QActionBar(
                         title = R.string.home_planning_bnb,
-                        onBack = { finish() }
+                        onBack = { finish() },
+                        actions = listOf {
+                            IconButton(onClick = {
+                                showResetDialog = true
+                            }) {
+                                Icon(Icons.Outlined.RestartAlt, "")
+                            }
+                        }
                     )
                 },
                 snackbarHost = {
@@ -138,7 +178,20 @@ class PlanningPage : ComponentActivity() {
                         .padding(it)
                         .consumeWindowInsets(it)
                 ) {
-                    Body(planning)
+                    Column(
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Text(
+                            stringResource(R.string.planning_description),
+                            style = MaterialTheme.typography.titleSmall.copy(
+                                color = MaterialTheme.colorScheme.outline
+                            ),
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.size(8.dp))
+                        Body(planning)
+                    }
                 }
             }
             if (viewModel.isLoading.value) QLoadingScreen()
@@ -149,7 +202,8 @@ class PlanningPage : ComponentActivity() {
     fun Body(planning: Planning) {
         Column(
             verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.verticalScroll(rememberScrollState())
         ) {
             PlanningDay(dayPlanning = planning.firstDay)
             PlanningDay(dayPlanning = planning.secondDay)
@@ -163,21 +217,38 @@ class PlanningPage : ComponentActivity() {
 
     @Composable
     fun PlanningDay(dayPlanning: DayPlanning) {
+        val viewModel: PlanningViewModel by viewModels()
+
         Column(
             verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .padding(12.dp)
-                .fillMaxWidth(),
+            horizontalAlignment = Alignment.Start,
+            modifier = Modifier.fillMaxWidth(),
         ) {
-            Text(
-                stringResource(QDateUtils.getWeekDayStringRes(dayPlanning.dayIndex)),
-                style = MaterialTheme.typography.titleLarge
-            )
-            Spacer(modifier = Modifier.size(12.dp))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceAround,
+                modifier = Modifier.padding(start = 12.dp, end = 12.dp, top = 24.dp),
+            ) {
+                Text(
+                    stringResource(QDateUtils.getWeekDayStringRes(dayPlanning.dayIndex)),
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.weight(1f)
+                )
+                IconButton(onClick = {
+                    viewModel.updatePlanning(
+                        dayPlanning.copy(
+                            lunch = Recipe.EMPTY_RECIPE, dinner = Recipe.EMPTY_RECIPE
+                        )
+                    ) { }
+                }) {
+                    Icon(Icons.Outlined.ClearAll, "")
+                }
+            }
+            Spacer(modifier = Modifier.size(8.dp))
             Column(
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.padding(horizontal = 12.dp)
             ) {
                 PlanningDayRecipe(dayPlanning, dayPlanning.lunch, true)
                 PlanningDayRecipe(dayPlanning, dayPlanning.dinner, false)
@@ -185,12 +256,11 @@ class PlanningPage : ComponentActivity() {
         }
     }
 
-    // TODO: Remove lunch or dinner
     @Composable
     fun PlanningDayRecipe(dayPlanning: DayPlanning, recipe: Recipe, isLunch: Boolean) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Start
+            horizontalArrangement = Arrangement.Start,
         ) {
             Icon(
                 imageVector = if (isLunch) {
@@ -200,15 +270,23 @@ class PlanningPage : ComponentActivity() {
                 }, contentDescription = ""
             )
             Spacer(modifier = Modifier.size(12.dp))
+            if (recipe == Recipe.EMPTY_RECIPE) QAutoSizeText(
+                stringResource(R.string.planning_no_recipe_added),
+                style = MaterialTheme.typography.titleMedium.copy(
+                    color = MaterialTheme.colorScheme.outline,
+                    fontWeight = FontWeight.Normal,
+                ),
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 12.dp)
+            )
             if (recipe == Recipe.EMPTY_RECIPE) {
                 QImageContainer(
                     uri = Uri.EMPTY,
                     placeholder = Icons.Outlined.Add,
                     shape = MaterialTheme.shapes.large,
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .weight(1f),
-                    size = 128f.dp,
+                    modifier = Modifier.padding(8.dp),
+                    size = 72.dp,
                 ) {
                     val intent = Intent(this@PlanningPage, RecipesPage::class.java)
                     intent.putExtra(FROM_PLANNING, dayPlanning)
@@ -218,9 +296,10 @@ class PlanningPage : ComponentActivity() {
             } else {
                 QRecipeItem(
                     recipe = recipe,
+                    simplified = true,
                     modifier = Modifier
-                        .padding(8.dp)
                         .weight(1f)
+                        .padding(4.dp)
                 ) {
                     val intent = Intent(this@PlanningPage, RecipeDetailsPage::class.java)
                     intent.putExtra(RecipesPage.RECIPE_FROM_LIST, recipe)

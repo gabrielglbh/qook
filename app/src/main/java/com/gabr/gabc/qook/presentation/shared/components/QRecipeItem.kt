@@ -35,7 +35,12 @@ import com.gabr.gabc.qook.presentation.theme.AppTheme
 import java.util.Calendar
 
 @Composable
-fun QRecipeItem(recipe: Recipe, modifier: Modifier, onClick: (() -> Unit)? = null) {
+fun QRecipeItem(
+    recipe: Recipe,
+    modifier: Modifier,
+    simplified: Boolean = false,
+    onClick: (() -> Unit)? = null
+) {
     Surface(
         enabled = onClick != null,
         onClick = { onClick?.let { it() } },
@@ -50,7 +55,11 @@ fun QRecipeItem(recipe: Recipe, modifier: Modifier, onClick: (() -> Unit)? = nul
                 uri = recipe.photo,
                 placeholder = Icons.Outlined.Photo,
                 shape = MaterialTheme.shapes.large,
-                size = 128f.dp
+                size = if (simplified) {
+                    72.dp
+                } else {
+                    128.dp
+                }
             )
             Spacer(modifier = Modifier.size(12.dp))
             Column(
@@ -63,8 +72,8 @@ fun QRecipeItem(recipe: Recipe, modifier: Modifier, onClick: (() -> Unit)? = nul
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
-                Spacer(modifier = Modifier.size(8.dp))
-                TextWithIcon(
+                if (!simplified) Spacer(modifier = Modifier.size(8.dp))
+                if (!simplified) TextWithIcon(
                     icon = Icons.Outlined.Bolt,
                     text = when (recipe.easiness) {
                         Easiness.EASY -> stringResource(R.string.add_recipe_easiness_EASY)
@@ -72,8 +81,8 @@ fun QRecipeItem(recipe: Recipe, modifier: Modifier, onClick: (() -> Unit)? = nul
                         Easiness.HARD -> stringResource(R.string.add_recipe_easiness_HARD)
                     },
                 )
-                Spacer(modifier = Modifier.size(8.dp))
-                TextWithIcon(
+                if (!simplified) Spacer(modifier = Modifier.size(8.dp))
+                if (!simplified) TextWithIcon(
                     icon = Icons.Outlined.Timer,
                     text = recipe.time,
                 )
@@ -83,7 +92,7 @@ fun QRecipeItem(recipe: Recipe, modifier: Modifier, onClick: (() -> Unit)? = nul
                         items(recipe.tags) { tag ->
                             QTag(
                                 tag = tag,
-                                modifier = Modifier.padding(4.dp)
+                                modifier = Modifier.padding(horizontal = 4.dp)
                             )
                         }
                     }
@@ -159,7 +168,7 @@ fun PreviewQRecipeItem() {
                     Tag("", "Rápido", Color.Red),
                     Tag("", "Vegetal", Color.Green)
                 )
-            ), modifier = Modifier.padding(4.dp)
+            ), modifier = Modifier.padding(4.dp), simplified = true
         )
     }
 }

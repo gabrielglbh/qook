@@ -128,7 +128,7 @@ class RecipesViewModel @Inject constructor(
     fun updatePlanningWith(
         recipe: Recipe,
         onError: (String) -> Unit,
-        onSuccess: (DayPlanning) -> Unit
+        onSuccess: (Recipe, DayPlanning) -> Unit
     ) {
         viewModelScope.launch {
             isLoadingRecipes.value = true
@@ -142,7 +142,7 @@ class RecipesViewModel @Inject constructor(
                 val result = planningRepository.updateRecipeFromPlanning(dayPlanning)
                 result.fold(
                     ifLeft = { e -> onError(e.error) },
-                    ifRight = { onSuccess(dayPlanning) }
+                    ifRight = { onSuccess(recipe, dayPlanning) }
                 )
             }
             isLoadingRecipes.value = false
