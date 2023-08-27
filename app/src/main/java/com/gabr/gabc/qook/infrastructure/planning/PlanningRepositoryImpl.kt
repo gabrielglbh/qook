@@ -5,7 +5,6 @@ import arrow.core.Either.Left
 import arrow.core.Either.Right
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.planning.DayPlanning
-import com.gabr.gabc.qook.domain.planning.Planning
 import com.gabr.gabc.qook.domain.planning.PlanningFailure
 import com.gabr.gabc.qook.domain.planning.PlanningRepository
 import com.gabr.gabc.qook.domain.planning.toDto
@@ -49,25 +48,21 @@ class PlanningRepositoryImpl @Inject constructor(
         return DayPlanning(dayPlanningDto.id, dayPlanningDto.dayIndex, lunch, dinner)
     }
 
-    override suspend fun getPlanning(): Either<PlanningFailure, Planning> {
+    override suspend fun getPlanning(): Either<PlanningFailure, List<DayPlanning>> {
         try {
             auth.currentUser?.let {
+                val planning = mutableListOf<DayPlanning>()
                 val res = db.collection(Globals.DB_USER).document(it.uid)
-                    .collection(Globals.DB_PLANNING).document(Globals.DB_PLANNING)
-                    .get().await()
+                    .collection(Globals.DB_PLANNING)
+                    .orderBy(Globals.OBJ_PLANNING_DAY_INDEX)
+                    .get()
+                    .await()
 
-                res.toObject<PlanningDto>()?.let { planningDto ->
-                    val planning = Planning(
-                        firstDay = getRecipesFrom(planningDto.firstDay),
-                        secondDay = getRecipesFrom(planningDto.secondDay),
-                        thirdDay = getRecipesFrom(planningDto.thirdDay),
-                        fourthDay = getRecipesFrom(planningDto.fourthDay),
-                        fifthDay = getRecipesFrom(planningDto.fifthDay),
-                        sixthDay = getRecipesFrom(planningDto.sixthDay),
-                        seventhDay = getRecipesFrom(planningDto.seventhDay),
-                    )
-                    return Right(planning)
+                res.forEach { doc ->
+                    planning.add(getRecipesFrom(doc.toObject()))
                 }
+
+                return Right(planning)
             }
             return Left(PlanningFailure.NotAuthenticated(res.getString(R.string.error_user_not_auth)))
         } catch (err: FirebaseFirestoreException) {
@@ -79,12 +74,8 @@ class PlanningRepositoryImpl @Inject constructor(
         try {
             auth.currentUser?.let {
                 db.collection(Globals.DB_USER).document(it.uid)
-                    .collection(Globals.DB_PLANNING).document(Globals.DB_PLANNING)
-                    .update(
-                        mapOf(
-                            Pair(dayPlanning.id, dayPlanning.toDto())
-                        )
-                    ).await()
+                    .collection(Globals.DB_PLANNING).document(dayPlanning.id)
+                    .update(dayPlanning.toDto().toMap()).await()
 
                 return Right(Unit)
             }
@@ -97,10 +88,61 @@ class PlanningRepositoryImpl @Inject constructor(
     override suspend fun resetPlanning(): Either<PlanningFailure, Unit> {
         try {
             auth.currentUser?.let {
-                db.collection(Globals.DB_USER).document(it.uid)
-                    .collection(Globals.DB_PLANNING).document(Globals.DB_PLANNING)
-                    .set(Planning.EMPTY_PLANNING.toDto()).await()
+                val planningCollection = db.collection(Globals.DB_USER).document(it.uid)
+                    .collection(Globals.DB_PLANNING)
+                val batch = db.batch()
 
+                batch.set(
+                    planningCollection.document(Globals.OBJ_PLANNING_FIRST_DAY),
+                    DayPlanning.EMPTY_DAY_PLANNING.copy(
+                        dayIndex = 0,
+                        id = Globals.OBJ_PLANNING_FIRST_DAY
+                    ).toDto()
+                )
+                batch.set(
+                    planningCollection.document(Globals.OBJ_PLANNING_SECOND_DAY),
+                    DayPlanning.EMPTY_DAY_PLANNING.copy(
+                        dayIndex = 1,
+                        id = Globals.OBJ_PLANNING_SECOND_DAY
+                    ).toDto()
+                )
+                batch.set(
+                    planningCollection.document(Globals.OBJ_PLANNING_THIRD_DAY),
+                    DayPlanning.EMPTY_DAY_PLANNING.copy(
+                        dayIndex = 2,
+                        id = Globals.OBJ_PLANNING_THIRD_DAY
+                    ).toDto()
+                )
+                batch.set(
+                    planningCollection.document(Globals.OBJ_PLANNING_FOURTH_DAY),
+                    DayPlanning.EMPTY_DAY_PLANNING.copy(
+                        dayIndex = 3,
+                        id = Globals.OBJ_PLANNING_FOURTH_DAY
+                    ).toDto()
+                )
+                batch.set(
+                    planningCollection.document(Globals.OBJ_PLANNING_FIFTH_DAY),
+                    DayPlanning.EMPTY_DAY_PLANNING.copy(
+                        dayIndex = 4,
+                        id = Globals.OBJ_PLANNING_FIFTH_DAY
+                    ).toDto()
+                )
+                batch.set(
+                    planningCollection.document(Globals.OBJ_PLANNING_SIXTH_DAY),
+                    DayPlanning.EMPTY_DAY_PLANNING.copy(
+                        dayIndex = 5,
+                        id = Globals.OBJ_PLANNING_SIXTH_DAY
+                    ).toDto()
+                )
+                batch.set(
+                    planningCollection.document(Globals.OBJ_PLANNING_SEVENTH_DAY),
+                    DayPlanning.EMPTY_DAY_PLANNING.copy(
+                        dayIndex = 6,
+                        id = Globals.OBJ_PLANNING_SEVENTH_DAY
+                    ).toDto()
+                )
+
+                batch.commit().await()
                 return Right(Unit)
             }
             return Left(PlanningFailure.NotAuthenticated(res.getString(R.string.error_user_not_auth)))

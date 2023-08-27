@@ -50,7 +50,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.planning.DayPlanning
-import com.gabr.gabc.qook.domain.planning.Planning
 import com.gabr.gabc.qook.domain.recipe.Recipe
 import com.gabr.gabc.qook.presentation.homePage.HomePage
 import com.gabr.gabc.qook.presentation.planningPage.viewModel.PlanningViewModel
@@ -116,12 +115,12 @@ class PlanningPage : ComponentActivity() {
 
         val viewModel: PlanningViewModel by viewModels()
         val planning = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent.getParcelableExtra(HomePage.HOME_PLANNING, Planning::class.java)
+            intent.getParcelableArrayExtra(HomePage.HOME_PLANNING, DayPlanning::class.java)
         } else {
-            intent.getParcelableExtra(HomePage.HOME_PLANNING)
+            intent.getParcelableArrayExtra(HomePage.HOME_PLANNING)
         }
 
-        planning?.let { viewModel.setDataForLocalLoading(it) }
+        planning?.let { p -> viewModel.setDataForLocalLoading(p.map { it as DayPlanning }) }
 
         setContent {
             AppTheme {
@@ -223,19 +222,13 @@ class PlanningPage : ComponentActivity() {
     }
 
     @Composable
-    fun Body(planning: Planning, modifier: Modifier) {
+    fun Body(planning: List<DayPlanning>, modifier: Modifier) {
         Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = modifier.verticalScroll(rememberScrollState())
         ) {
-            PlanningDay(dayPlanning = planning.firstDay)
-            PlanningDay(dayPlanning = planning.secondDay)
-            PlanningDay(dayPlanning = planning.thirdDay)
-            PlanningDay(dayPlanning = planning.fourthDay)
-            PlanningDay(dayPlanning = planning.fifthDay)
-            PlanningDay(dayPlanning = planning.sixthDay)
-            PlanningDay(dayPlanning = planning.seventhDay)
+            planning.forEach { PlanningDay(dayPlanning = it) }
         }
     }
 

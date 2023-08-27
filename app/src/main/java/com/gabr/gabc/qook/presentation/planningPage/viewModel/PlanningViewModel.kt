@@ -4,9 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gabr.gabc.qook.domain.planning.DayPlanning
-import com.gabr.gabc.qook.domain.planning.Planning
 import com.gabr.gabc.qook.domain.planning.PlanningRepository
-import com.gabr.gabc.qook.presentation.shared.Globals
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -15,12 +13,12 @@ import javax.inject.Inject
 class PlanningViewModel @Inject constructor(
     private val planningRepository: PlanningRepository
 ) : ViewModel() {
-    var planning = mutableStateOf<Planning?>(null)
+    var planning = mutableStateOf<List<DayPlanning>?>(null)
         private set
     var isLoading = mutableStateOf(false)
         private set
 
-    fun setDataForLocalLoading(planning: Planning) {
+    fun setDataForLocalLoading(planning: List<DayPlanning>) {
         this.planning.value = planning
     }
 
@@ -45,7 +43,7 @@ class PlanningViewModel @Inject constructor(
             res.fold(
                 ifLeft = { e -> onError(e.error) },
                 ifRight = {
-                    planning.value = Planning.EMPTY_PLANNING
+                    planning.value = DayPlanning.EMPTY_PLANNING
                 }
             )
             isLoading.value = false
@@ -67,27 +65,10 @@ class PlanningViewModel @Inject constructor(
     }
 
     fun updatePlanningLocally(dayPlanning: DayPlanning) {
-        when (dayPlanning.id) {
-            Globals.OBJ_PLANNING_FIRST_DAY -> planning.value =
-                planning.value?.copy(firstDay = dayPlanning)
-
-            Globals.OBJ_PLANNING_SECOND_DAY -> planning.value =
-                planning.value?.copy(secondDay = dayPlanning)
-
-            Globals.OBJ_PLANNING_THIRD_DAY -> planning.value =
-                planning.value?.copy(thirdDay = dayPlanning)
-
-            Globals.OBJ_PLANNING_FOURTH_DAY -> planning.value =
-                planning.value?.copy(fourthDay = dayPlanning)
-
-            Globals.OBJ_PLANNING_FIFTH_DAY -> planning.value =
-                planning.value?.copy(fifthDay = dayPlanning)
-
-            Globals.OBJ_PLANNING_SIXTH_DAY -> planning.value =
-                planning.value?.copy(sixthDay = dayPlanning)
-
-            Globals.OBJ_PLANNING_SEVENTH_DAY -> planning.value =
-                planning.value?.copy(seventhDay = dayPlanning)
-        }
+        val auxPlanning = mutableListOf<DayPlanning>().apply { addAll(planning.value ?: listOf()) }
+        val aux = auxPlanning.map { it.id }
+        val dayPlanningToUpdateIndex = aux.indexOf(dayPlanning.id)
+        auxPlanning[dayPlanningToUpdateIndex] = dayPlanning
+        planning.value = auxPlanning
     }
 }

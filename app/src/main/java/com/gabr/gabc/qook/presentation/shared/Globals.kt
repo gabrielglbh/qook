@@ -32,5 +32,6 @@ class Globals {
         const val OBJ_PLANNING_FIFTH_DAY = "fifthDay"
         const val OBJ_PLANNING_SIXTH_DAY = "sixthDay"
         const val OBJ_PLANNING_SEVENTH_DAY = "seventhDay"
+        const val OBJ_PLANNING_DAY_INDEX = "dayIndex"
     }
 }

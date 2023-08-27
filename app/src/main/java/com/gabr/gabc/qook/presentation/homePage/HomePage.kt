@@ -49,7 +49,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
-import com.gabr.gabc.qook.domain.planning.Planning
+import com.gabr.gabc.qook.domain.planning.DayPlanning
 import com.gabr.gabc.qook.domain.user.User
 import com.gabr.gabc.qook.presentation.homePage.viewModel.HomeViewModel
 import com.gabr.gabc.qook.presentation.homePage.viewModel.UserState
@@ -92,9 +92,12 @@ class HomePage : ComponentActivity() {
                 }
 
                 val updatedPlanning = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    extras?.getParcelable(PlanningPage.HAS_UPDATED_PLANNING, Planning::class.java)
+                    extras?.getParcelableArray(
+                        PlanningPage.HAS_UPDATED_PLANNING,
+                        DayPlanning::class.java
+                    )
                 } else {
-                    extras?.getParcelable(PlanningPage.HAS_UPDATED_PLANNING)
+                    extras?.getParcelableArray(PlanningPage.HAS_UPDATED_PLANNING)
                 }
 
                 updatedPlanning?.let { viewModel.getPlanning() }
@@ -148,7 +151,7 @@ class HomePage : ComponentActivity() {
                     .padding(it)
                     .consumeWindowInsets(it)
             ) {
-                Body(state.value, viewModel.planning.value)
+                Body(state.value, viewModel.planning)
             }
         }
     }
@@ -185,7 +188,7 @@ class HomePage : ComponentActivity() {
     }
 
     @Composable
-    fun Body(state: UserState, planning: Planning) {
+    fun Body(state: UserState, planning: List<DayPlanning>) {
         var showActions by remember { mutableStateOf(false) }
 
         LaunchedEffect(key1 = Unit, block = {
@@ -235,11 +238,11 @@ class HomePage : ComponentActivity() {
 
                                         UserAction.RANDOM -> {}
                                         UserAction.PLANNING -> {
-                                            Intent(
+                                            val intent = Intent(
                                                 this@HomePage,
                                                 PlanningPage::class.java
                                             )
-                                            intent.putExtra(HOME_PLANNING, planning)
+                                            intent.putExtra(HOME_PLANNING, planning.toTypedArray())
                                             resultLauncher.launch(intent)
                                         }
 
@@ -266,16 +269,24 @@ class HomePage : ComponentActivity() {
                 }
             )
             // TODO: Get somehow the dayPlanning for this day
-            QShimmer(controller = planning != Planning.EMPTY_PLANNING) {
+            QShimmer(controller = planning != listOf<DayPlanning>()) {
                 Column {
                     Text(
-                        planning.firstDay.lunch.name,
+                        if (planning.isNotEmpty()) {
+                            planning[0].lunch.name
+                        } else {
+                            ""
+                        },
                         style = MaterialTheme.typography.headlineSmall,
                         modifier = it.padding(horizontal = 64.dp, vertical = 32.dp),
                         textAlign = TextAlign.Center
                     )
                     Text(
-                        planning.firstDay.dinner.name,
+                        if (planning.isNotEmpty()) {
+                            planning[0].dinner.name
+                        } else {
+                            ""
+                        },
                         style = MaterialTheme.typography.headlineSmall,
                         modifier = it.padding(horizontal = 64.dp, vertical = 32.dp),
                         textAlign = TextAlign.Center
