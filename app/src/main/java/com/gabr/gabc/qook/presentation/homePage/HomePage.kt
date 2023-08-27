@@ -3,6 +3,7 @@ package com.gabr.gabc.qook.presentation.homePage
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -48,6 +49,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
+import com.gabr.gabc.qook.domain.planning.Planning
 import com.gabr.gabc.qook.domain.user.User
 import com.gabr.gabc.qook.presentation.homePage.viewModel.HomeViewModel
 import com.gabr.gabc.qook.presentation.homePage.viewModel.UserState
@@ -69,6 +71,7 @@ import kotlinx.coroutines.launch
 class HomePage : ComponentActivity() {
     companion object {
         const val HOME_USER = "HOME_USER"
+        const val HOME_PLANNING = "HOME_PLANNING"
     }
 
     private val resultLauncher =
@@ -87,6 +90,14 @@ class HomePage : ComponentActivity() {
                         }
                     }
                 }
+
+                val updatedPlanning = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    extras?.getParcelable(PlanningPage.HAS_UPDATED_PLANNING, Planning::class.java)
+                } else {
+                    extras?.getParcelable(PlanningPage.HAS_UPDATED_PLANNING)
+                }
+
+                updatedPlanning?.let { viewModel.getPlanning() }
             }
         }
 
@@ -115,6 +126,7 @@ class HomePage : ComponentActivity() {
                     snackbarHostState.showSnackbar(errorMessage)
                 }
             }
+            viewModel.getPlanning()
         }
 
         Scaffold(
@@ -136,7 +148,7 @@ class HomePage : ComponentActivity() {
                     .padding(it)
                     .consumeWindowInsets(it)
             ) {
-                Body(state.value)
+                Body(state.value, viewModel.planning.value)
             }
         }
     }
@@ -173,9 +185,7 @@ class HomePage : ComponentActivity() {
     }
 
     @Composable
-    fun Body(
-        state: UserState
-    ) {
+    fun Body(state: UserState, planning: Planning) {
         var showActions by remember { mutableStateOf(false) }
 
         LaunchedEffect(key1 = Unit, block = {
@@ -225,12 +235,12 @@ class HomePage : ComponentActivity() {
 
                                         UserAction.RANDOM -> {}
                                         UserAction.PLANNING -> {
-                                            startActivity(
-                                                Intent(
-                                                    this@HomePage,
-                                                    PlanningPage::class.java
-                                                )
+                                            Intent(
+                                                this@HomePage,
+                                                PlanningPage::class.java
                                             )
+                                            intent.putExtra(HOME_PLANNING, planning)
+                                            resultLauncher.launch(intent)
                                         }
 
                                         UserAction.SHOPPING -> {}
@@ -255,6 +265,23 @@ class HomePage : ComponentActivity() {
                     }
                 }
             )
+            // TODO: Get somehow the dayPlanning for this day
+            QShimmer(controller = planning != Planning.EMPTY_PLANNING) {
+                Column {
+                    Text(
+                        planning.firstDay.lunch.name,
+                        style = MaterialTheme.typography.headlineSmall,
+                        modifier = it.padding(horizontal = 64.dp, vertical = 32.dp),
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        planning.firstDay.dinner.name,
+                        style = MaterialTheme.typography.headlineSmall,
+                        modifier = it.padding(horizontal = 64.dp, vertical = 32.dp),
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
         }
     }
 }

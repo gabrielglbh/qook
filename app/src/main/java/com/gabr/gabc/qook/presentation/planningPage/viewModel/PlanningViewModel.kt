@@ -15,10 +15,14 @@ import javax.inject.Inject
 class PlanningViewModel @Inject constructor(
     private val planningRepository: PlanningRepository
 ) : ViewModel() {
-    var planning = mutableStateOf(Planning.EMPTY_PLANNING)
+    var planning = mutableStateOf<Planning?>(null)
         private set
     var isLoading = mutableStateOf(false)
         private set
+
+    fun setDataForLocalLoading(planning: Planning) {
+        this.planning.value = planning
+    }
 
     fun loadPlanning(onError: (String) -> Unit) {
         viewModelScope.launch {
@@ -65,25 +69,25 @@ class PlanningViewModel @Inject constructor(
     fun updatePlanningLocally(dayPlanning: DayPlanning) {
         when (dayPlanning.id) {
             Globals.OBJ_PLANNING_FIRST_DAY -> planning.value =
-                planning.value.copy(firstDay = dayPlanning)
+                planning.value?.copy(firstDay = dayPlanning)
 
             Globals.OBJ_PLANNING_SECOND_DAY -> planning.value =
-                planning.value.copy(secondDay = dayPlanning)
+                planning.value?.copy(secondDay = dayPlanning)
 
             Globals.OBJ_PLANNING_THIRD_DAY -> planning.value =
-                planning.value.copy(thirdDay = dayPlanning)
+                planning.value?.copy(thirdDay = dayPlanning)
 
             Globals.OBJ_PLANNING_FOURTH_DAY -> planning.value =
-                planning.value.copy(fourthDay = dayPlanning)
+                planning.value?.copy(fourthDay = dayPlanning)
 
             Globals.OBJ_PLANNING_FIFTH_DAY -> planning.value =
-                planning.value.copy(fifthDay = dayPlanning)
+                planning.value?.copy(fifthDay = dayPlanning)
 
             Globals.OBJ_PLANNING_SIXTH_DAY -> planning.value =
-                planning.value.copy(sixthDay = dayPlanning)
+                planning.value?.copy(sixthDay = dayPlanning)
 
             Globals.OBJ_PLANNING_SEVENTH_DAY -> planning.value =
-                planning.value.copy(seventhDay = dayPlanning)
+                planning.value?.copy(seventhDay = dayPlanning)
         }
     }
 }

@@ -52,6 +52,7 @@ import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.planning.DayPlanning
 import com.gabr.gabc.qook.domain.planning.Planning
 import com.gabr.gabc.qook.domain.recipe.Recipe
+import com.gabr.gabc.qook.presentation.homePage.HomePage
 import com.gabr.gabc.qook.presentation.planningPage.viewModel.PlanningViewModel
 import com.gabr.gabc.qook.presentation.recipeDetailsPage.RecipeDetailsPage
 import com.gabr.gabc.qook.presentation.recipesPage.RecipesPage
@@ -62,6 +63,7 @@ import com.gabr.gabc.qook.presentation.shared.components.QDialog
 import com.gabr.gabc.qook.presentation.shared.components.QImageContainer
 import com.gabr.gabc.qook.presentation.shared.components.QLoadingScreen
 import com.gabr.gabc.qook.presentation.shared.components.QRecipeItem
+import com.gabr.gabc.qook.presentation.shared.components.QShimmer
 import com.gabr.gabc.qook.presentation.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -71,6 +73,7 @@ class PlanningPage : ComponentActivity() {
     companion object {
         const val FROM_PLANNING = "FROM_PLANNING"
         const val IS_LUNCH = "IS_LUNCH"
+        const val HAS_UPDATED_PLANNING = "HAS_UPDATED_PLANNING"
     }
 
     private val resultLauncher =
@@ -111,6 +114,15 @@ class PlanningPage : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val viewModel: PlanningViewModel by viewModels()
+        val planning = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.getParcelableExtra(HomePage.HOME_PLANNING, Planning::class.java)
+        } else {
+            intent.getParcelableExtra(HomePage.HOME_PLANNING)
+        }
+
+        planning?.let { viewModel.setDataForLocalLoading(it) }
+
         setContent {
             AppTheme {
                 PlanningView()
@@ -128,9 +140,19 @@ class PlanningPage : ComponentActivity() {
         val snackbarHostState = remember { SnackbarHostState() }
         var showResetDialog by remember { mutableStateOf(false) }
 
-        LaunchedEffect(key1 = Unit, block = {
-            viewModel.loadPlanning { error -> scope.launch { snackbarHostState.showSnackbar(error) } }
-        })
+        val isPlanningEmpty = planning == null
+
+        if (isPlanningEmpty) {
+            LaunchedEffect(key1 = Unit, block = {
+                viewModel.loadPlanning { error ->
+                    scope.launch {
+                        snackbarHostState.showSnackbar(
+                            error
+                        )
+                    }
+                }
+            })
+        }
 
         if (showResetDialog) {
             QDialog(
@@ -190,7 +212,9 @@ class PlanningPage : ComponentActivity() {
                             textAlign = TextAlign.Center
                         )
                         Spacer(modifier = Modifier.size(8.dp))
-                        Body(planning)
+                        QShimmer(controller = !isPlanningEmpty) { modifier ->
+                            Body(planning!!, modifier)
+                        }
                     }
                 }
             }
@@ -199,11 +223,11 @@ class PlanningPage : ComponentActivity() {
     }
 
     @Composable
-    fun Body(planning: Planning) {
+    fun Body(planning: Planning, modifier: Modifier) {
         Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.verticalScroll(rememberScrollState())
+            modifier = modifier.verticalScroll(rememberScrollState())
         ) {
             PlanningDay(dayPlanning = planning.firstDay)
             PlanningDay(dayPlanning = planning.secondDay)

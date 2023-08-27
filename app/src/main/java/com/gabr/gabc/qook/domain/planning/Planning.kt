@@ -7,6 +7,7 @@ import com.gabr.gabc.qook.infrastructure.planning.PlanningDto
 import com.gabr.gabc.qook.presentation.shared.Globals
 import kotlinx.parcelize.Parcelize
 
+@Parcelize
 data class Planning constructor(
     val firstDay: DayPlanning,
     val secondDay: DayPlanning,
@@ -15,7 +16,7 @@ data class Planning constructor(
     val fifthDay: DayPlanning,
     val sixthDay: DayPlanning,
     val seventhDay: DayPlanning,
-) {
+) : Parcelable {
     companion object {
         val EMPTY_PLANNING = Planning(
             DayPlanning(
