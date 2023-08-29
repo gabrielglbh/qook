@@ -160,7 +160,7 @@ class HomePage : ComponentActivity() {
                     .padding(it)
                     .consumeWindowInsets(it)
             ) {
-                Body(state.value, viewModel.planning)
+                Body(viewModel, state.value, viewModel.planning)
             }
         }
     }
@@ -197,7 +197,8 @@ class HomePage : ComponentActivity() {
     }
 
     @Composable
-    fun Body(state: UserState, planning: List<DayPlanning>) {
+    fun Body(viewModel: HomeViewModel, state: UserState, planning: List<DayPlanning>) {
+
         var showActions by remember { mutableStateOf(false) }
         val day = QDateUtils.getDayOfWeekIndex()
 
@@ -290,7 +291,17 @@ class HomePage : ComponentActivity() {
                                             )
                                         }
 
-                                        UserAction.RANDOM -> {}
+                                        UserAction.RANDOM -> {
+                                            viewModel.getRandomRecipe {
+                                                val intent = Intent(
+                                                    this@HomePage,
+                                                    RecipeDetailsPage::class.java
+                                                )
+                                                intent.putExtra(RecipeDetailsPage.RECIPE, it)
+                                                startActivity(intent)
+                                            }
+                                        }
+
                                         UserAction.PLANNING -> {
                                             val intent = Intent(
                                                 this@HomePage,

@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gabr.gabc.qook.domain.planning.DayPlanning
 import com.gabr.gabc.qook.domain.planning.PlanningRepository
+import com.gabr.gabc.qook.domain.recipe.Recipe
+import com.gabr.gabc.qook.domain.recipe.RecipeRepository
 import com.gabr.gabc.qook.domain.user.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,11 +14,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.random.Random
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val planningRepository: PlanningRepository,
+    private val recipeRepository: RecipeRepository,
 ) : ViewModel() {
     private val _userState = MutableStateFlow(UserState())
     val userState: StateFlow<UserState> = _userState.asStateFlow()
@@ -45,6 +49,19 @@ class HomeViewModel @Inject constructor(
             result.fold(
                 ifLeft = {},
                 ifRight = { p -> updatePlanningLocally(p) }
+            )
+        }
+    }
+
+    fun getRandomRecipe(onSuccess: (Recipe) -> Unit) {
+        viewModelScope.launch {
+            val result = recipeRepository.getRecipes()
+            result.fold(
+                ifLeft = {},
+                ifRight = { recipes ->
+                    val random = Random.nextInt(0, recipes.size)
+                    onSuccess(recipes[random])
+                }
             )
         }
     }
