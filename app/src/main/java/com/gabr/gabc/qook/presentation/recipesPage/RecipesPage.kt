@@ -71,7 +71,6 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class RecipesPage : ComponentActivity() {
     companion object {
-        const val RECIPE_FROM_LIST = "RECIPE_FROM_LIST"
         const val HAS_UPDATED_PLANNING = "HAS_UPDATED_PLANNING"
         const val HAS_UPDATED_PLANNING_RECIPE = "HAS_UPDATED_PLANNING_RECIPE"
     }
@@ -336,7 +335,7 @@ class RecipesPage : ComponentActivity() {
                                                         this@RecipesPage,
                                                         RecipeDetailsPage::class.java
                                                     )
-                                                intent.putExtra(RECIPE_FROM_LIST, recipe)
+                                                intent.putExtra(RecipeDetailsPage.RECIPE, recipe)
                                                 resultLauncher.launch(intent)
                                             }
                                         }

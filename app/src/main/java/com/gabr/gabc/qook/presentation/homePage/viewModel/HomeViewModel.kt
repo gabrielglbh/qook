@@ -1,12 +1,12 @@
 package com.gabr.gabc.qook.presentation.homePage.viewModel
 
+import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gabr.gabc.qook.domain.planning.DayPlanning
 import com.gabr.gabc.qook.domain.planning.PlanningRepository
 import com.gabr.gabc.qook.domain.user.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,11 +21,11 @@ class HomeViewModel @Inject constructor(
     private val _userState = MutableStateFlow(UserState())
     val userState: StateFlow<UserState> = _userState.asStateFlow()
 
-    var planning = mutableListOf<DayPlanning>()
+    var planning = mutableStateListOf<DayPlanning>()
         private set
 
     fun getUser(onError: (String) -> Unit) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             val result = userRepository.getUser()
             result.fold(
                 ifLeft = {
@@ -40,11 +40,14 @@ class HomeViewModel @Inject constructor(
     }
 
     fun getPlanning() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             val result = planningRepository.getPlanning()
             result.fold(
                 ifLeft = {},
-                ifRight = { p -> planning.addAll(p) }
+                ifRight = { p ->
+                    planning.clear()
+                    planning.addAll(p)
+                }
             )
         }
     }

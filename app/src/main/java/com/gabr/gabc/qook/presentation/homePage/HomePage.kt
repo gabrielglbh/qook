@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,6 +28,10 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
+import androidx.compose.material.icons.outlined.DoubleArrow
+import androidx.compose.material.icons.outlined.NightlightRound
+import androidx.compose.material.icons.outlined.Today
+import androidx.compose.material.icons.outlined.WbSunny
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -51,11 +56,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.planning.DayPlanning
+import com.gabr.gabc.qook.domain.recipe.Recipe
 import com.gabr.gabc.qook.domain.user.User
 import com.gabr.gabc.qook.presentation.homePage.viewModel.HomeViewModel
 import com.gabr.gabc.qook.presentation.homePage.viewModel.UserState
 import com.gabr.gabc.qook.presentation.planningPage.PlanningPage
 import com.gabr.gabc.qook.presentation.profilePage.ProfilePage
+import com.gabr.gabc.qook.presentation.recipeDetailsPage.RecipeDetailsPage
 import com.gabr.gabc.qook.presentation.recipesPage.RecipesPage
 import com.gabr.gabc.qook.presentation.shared.QDateUtils
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
@@ -192,6 +199,7 @@ class HomePage : ComponentActivity() {
     @Composable
     fun Body(state: UserState, planning: List<DayPlanning>) {
         var showActions by remember { mutableStateOf(false) }
+        val day = QDateUtils.getDayOfWeekIndex()
 
         LaunchedEffect(key1 = Unit, block = {
             delay(500)
@@ -206,16 +214,50 @@ class HomePage : ComponentActivity() {
                 Text(
                     stringResource(R.string.home_welcome_message, state.user.name),
                     style = MaterialTheme.typography.headlineSmall,
-                    modifier = it.padding(horizontal = 64.dp, vertical = 32.dp),
+                    modifier = it.padding(start = 64.dp, end = 64.dp, top = 24.dp),
                     textAlign = TextAlign.Center
                 )
+            }
+            Spacer(modifier = Modifier.size(24.dp))
+            QShimmer(controller = planning.isNotEmpty()) {
+                QContentCard(
+                    modifier = it.padding(12.dp),
+                    arrangement = Arrangement.Top,
+                    alignment = Alignment.CenterHorizontally,
+                    backgroundContent = { mod -> Icon(Icons.Outlined.Today, "", modifier = mod) }
+                ) {
+                    Text(
+                        stringResource(R.string.home_today_food),
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                    Spacer(modifier = Modifier.size(6.dp))
+                    Column(
+                        verticalArrangement = Arrangement.Top,
+                        horizontalAlignment = Alignment.Start,
+                    ) {
+                        PlanningTodayItem(
+                            if (planning.isEmpty()) {
+                                Recipe.EMPTY_RECIPE
+                            } else {
+                                planning[day].lunch
+                            }, true
+                        )
+                        PlanningTodayItem(
+                            if (planning.isEmpty()) {
+                                Recipe.EMPTY_RECIPE
+                            } else {
+                                planning[day].dinner
+                            }, false
+                        )
+                    }
+                }
             }
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
                 modifier = Modifier
                     .padding(8.dp)
                     .weight(1f),
-                verticalArrangement = Arrangement.Center,
+                verticalArrangement = Arrangement.Top,
                 horizontalArrangement = Arrangement.Center,
                 content = {
                     items(UserAction.values()) { userAction ->
@@ -270,49 +312,43 @@ class HomePage : ComponentActivity() {
                     }
                 }
             )
-            QShimmer(controller = planning != listOf<DayPlanning>()) {
-                val day = QDateUtils.getDayOfWeekIndex()
-                Column(
-                    verticalArrangement = Arrangement.Top,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = it
-                ) {
-                    Surface(
-                        color = MaterialTheme.colorScheme.primary,
-                        shape = MaterialTheme.shapes.large,
-                    ) {
-                        Text(
-                            stringResource(R.string.home_today_food),
-                            color = MaterialTheme.colorScheme.onPrimary
-                        )
-                    }
-                    Spacer(modifier = Modifier.size(8.dp))
-                    Column(
-                        verticalArrangement = Arrangement.Top,
-                        horizontalAlignment = Alignment.Start,
-                    ) {
-                        Text(
-                            if (planning.isNotEmpty()) {
-                                planning[day].lunch.name
-                            } else {
-                                ""
-                            },
-                            style = MaterialTheme.typography.headlineSmall,
-                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 32.dp),
-                            textAlign = TextAlign.Center
-                        )
-                        Text(
-                            if (planning.isNotEmpty()) {
-                                planning[day].dinner.name
-                            } else {
-                                ""
-                            },
-                            style = MaterialTheme.typography.headlineSmall,
-                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 32.dp),
-                            textAlign = TextAlign.Center
-                        )
-                    }
+        }
+    }
+
+    @Composable
+    fun PlanningTodayItem(recipe: Recipe, isLunch: Boolean) {
+        Surface(
+            color = Color.Transparent,
+            shape = MaterialTheme.shapes.medium,
+            onClick = {
+                if (recipe != Recipe.EMPTY_RECIPE) {
+                    val intent = Intent(this@HomePage, RecipeDetailsPage::class.java)
+                    intent.putExtra(RecipeDetailsPage.RECIPE, recipe)
+                    intent.putExtra(RecipeDetailsPage.ALLOW_TO_UPDATE, false)
+                    startActivity(intent)
                 }
+            }
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start,
+                modifier = Modifier.padding(4.dp)
+            ) {
+                Icon(
+                    if (isLunch) {
+                        Icons.Outlined.WbSunny
+                    } else {
+                        Icons.Outlined.NightlightRound
+                    }, ""
+                )
+                Spacer(modifier = Modifier.size(8.dp))
+                Text(
+                    recipe.name.ifEmpty { "-" },
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.weight(1f),
+                )
+                Spacer(modifier = Modifier.size(8.dp))
+                Icon(Icons.Outlined.DoubleArrow, "")
             }
         }
     }

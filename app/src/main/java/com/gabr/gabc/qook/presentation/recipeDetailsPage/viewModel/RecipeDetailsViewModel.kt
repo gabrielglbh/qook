@@ -19,6 +19,8 @@ class RecipeDetailsViewModel @Inject constructor(
         private set
     var isLoading = mutableStateOf(false)
         private set
+    var canUpdate = mutableStateOf(false)
+        private set
 
     fun updateRecipe(r: Recipe) {
         recipe.value = r
@@ -26,6 +28,10 @@ class RecipeDetailsViewModel @Inject constructor(
 
     fun isUpdating(value: Boolean) {
         isUpdate.value = value
+    }
+
+    fun canUpdate(value: Boolean) {
+        canUpdate.value = value
     }
 
     fun removeRecipe(onError: (String) -> Unit, onSuccess: () -> Unit) {

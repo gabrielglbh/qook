@@ -319,9 +319,9 @@ class PlanningPage : ComponentActivity() {
                         .padding(4.dp)
                 ) {
                     val intent = Intent(this@PlanningPage, RecipeDetailsPage::class.java)
-                    intent.putExtra(RecipesPage.RECIPE_FROM_LIST, recipe)
+                    intent.putExtra(RecipeDetailsPage.RECIPE, recipe)
+                    intent.putExtra(RecipeDetailsPage.ALLOW_TO_UPDATE, false)
                     startActivity(intent)
-                    // TODO: If updated, must reload planning to refresh data
                 }
             }
         }

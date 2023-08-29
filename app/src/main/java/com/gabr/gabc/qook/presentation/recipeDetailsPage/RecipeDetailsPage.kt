@@ -34,7 +34,6 @@ import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.recipe.Recipe
 import com.gabr.gabc.qook.presentation.addRecipePage.AddRecipePage
 import com.gabr.gabc.qook.presentation.recipeDetailsPage.viewModel.RecipeDetailsViewModel
-import com.gabr.gabc.qook.presentation.recipesPage.RecipesPage
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.shared.components.QDialog
 import com.gabr.gabc.qook.presentation.shared.components.QLoadingScreen
@@ -49,6 +48,8 @@ class RecipeDetailsPage : ComponentActivity() {
         const val HAS_UPDATED_RECIPE = "HAS_UPDATED_RECIPE"
         const val HAS_DELETED_RECIPE = "HAS_DELETED_RECIPE"
         const val RECIPE_FROM_DETAILS = "RECIPE_FROM_DETAILS"
+        const val ALLOW_TO_UPDATE = "ALLOW_TO_UPDATE"
+        const val RECIPE = "RECIPE"
     }
 
     private val resultLauncher =
@@ -76,11 +77,12 @@ class RecipeDetailsPage : ComponentActivity() {
         val viewModel: RecipeDetailsViewModel by viewModels()
 
         val recipeFromList = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent.getParcelableExtra(RecipesPage.RECIPE_FROM_LIST, Recipe::class.java)
+            intent.getParcelableExtra(RECIPE, Recipe::class.java)
         } else {
-            intent.getParcelableExtra(RecipesPage.RECIPE_FROM_LIST)
+            intent.getParcelableExtra(RECIPE)
         }
 
+        viewModel.canUpdate(intent.getBooleanExtra(ALLOW_TO_UPDATE, true))
         viewModel.updateRecipe(recipeFromList!!)
 
         setContent {
@@ -138,44 +140,54 @@ class RecipeDetailsPage : ComponentActivity() {
                 topBar = {
                     QActionBar(
                         title = R.string.recipe_details,
-                        onBack = {
+                        onBack =
+                        {
                             if (viewModel.isUpdate.value) {
                                 val resultIntent = Intent()
-                                resultIntent.putExtra(HAS_UPDATED_RECIPE, viewModel.recipe.value)
+                                resultIntent.putExtra(
+                                    HAS_UPDATED_RECIPE,
+                                    viewModel.recipe.value
+                                )
                                 setResult(RESULT_OK, resultIntent)
                             }
                             finish()
                         },
-                        actions = listOf(
-                            {
-                                IconButton(
-                                    modifier = Modifier.padding(end = 8.dp),
-                                    onClick = {
-                                        showConfirmationDialog.value = true
-                                    }
-                                ) {
-                                    Icon(
-                                        Icons.Outlined.Delete,
-                                        "",
-                                        tint = MaterialTheme.colorScheme.error
-                                    )
-                                }
-                            },
-                            {
-                                IconButton(
-                                    onClick = {
-                                        val intent = Intent(
-                                            this@RecipeDetailsPage,
-                                            AddRecipePage::class.java
+                        actions = if (viewModel.canUpdate.value) {
+                            listOf(
+                                {
+                                    IconButton(
+                                        modifier = Modifier.padding(end = 8.dp),
+                                        onClick = {
+                                            showConfirmationDialog.value = true
+                                        }
+                                    ) {
+                                        Icon(
+                                            Icons.Outlined.Delete,
+                                            "",
+                                            tint = MaterialTheme.colorScheme.error
                                         )
-                                        intent.putExtra(RECIPE_FROM_DETAILS, viewModel.recipe.value)
-                                        resultLauncher.launch(intent)
                                     }
-                                ) {
-                                    Icon(Icons.Outlined.ModeEdit, "")
-                                }
-                            }
-                        )
+                                },
+                                {
+                                    IconButton(
+                                        onClick = {
+                                            val intent = Intent(
+                                                this@RecipeDetailsPage,
+                                                AddRecipePage::class.java
+                                            )
+                                            intent.putExtra(
+                                                RECIPE_FROM_DETAILS,
+                                                viewModel.recipe.value
+                                            )
+                                            resultLauncher.launch(intent)
+                                        }
+                                    ) {
+                                        Icon(Icons.Outlined.ModeEdit, "")
+                                    }
+                                })
+                        } else {
+                            null
+                        }
                     )
                 },
                 snackbarHost = {
