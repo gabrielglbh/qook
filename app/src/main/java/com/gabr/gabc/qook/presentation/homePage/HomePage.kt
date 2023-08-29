@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -56,6 +57,7 @@ import com.gabr.gabc.qook.presentation.homePage.viewModel.UserState
 import com.gabr.gabc.qook.presentation.planningPage.PlanningPage
 import com.gabr.gabc.qook.presentation.profilePage.ProfilePage
 import com.gabr.gabc.qook.presentation.recipesPage.RecipesPage
+import com.gabr.gabc.qook.presentation.shared.QDateUtils
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.shared.components.QContentCard
 import com.gabr.gabc.qook.presentation.shared.components.QImage
@@ -268,29 +270,48 @@ class HomePage : ComponentActivity() {
                     }
                 }
             )
-            // TODO: Get somehow the dayPlanning for this day
             QShimmer(controller = planning != listOf<DayPlanning>()) {
-                Column {
-                    Text(
-                        if (planning.isNotEmpty()) {
-                            planning[0].lunch.name
-                        } else {
-                            ""
-                        },
-                        style = MaterialTheme.typography.headlineSmall,
-                        modifier = it.padding(horizontal = 64.dp, vertical = 32.dp),
-                        textAlign = TextAlign.Center
-                    )
-                    Text(
-                        if (planning.isNotEmpty()) {
-                            planning[0].dinner.name
-                        } else {
-                            ""
-                        },
-                        style = MaterialTheme.typography.headlineSmall,
-                        modifier = it.padding(horizontal = 64.dp, vertical = 32.dp),
-                        textAlign = TextAlign.Center
-                    )
+                val day = QDateUtils.getDayOfWeekIndex()
+                Column(
+                    verticalArrangement = Arrangement.Top,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = it
+                ) {
+                    Surface(
+                        color = MaterialTheme.colorScheme.primary,
+                        shape = MaterialTheme.shapes.large,
+                    ) {
+                        Text(
+                            stringResource(R.string.home_today_food),
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
+                    Spacer(modifier = Modifier.size(8.dp))
+                    Column(
+                        verticalArrangement = Arrangement.Top,
+                        horizontalAlignment = Alignment.Start,
+                    ) {
+                        Text(
+                            if (planning.isNotEmpty()) {
+                                planning[day].lunch.name
+                            } else {
+                                ""
+                            },
+                            style = MaterialTheme.typography.headlineSmall,
+                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 32.dp),
+                            textAlign = TextAlign.Center
+                        )
+                        Text(
+                            if (planning.isNotEmpty()) {
+                                planning[day].dinner.name
+                            } else {
+                                ""
+                            },
+                            style = MaterialTheme.typography.headlineSmall,
+                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 32.dp),
+                            textAlign = TextAlign.Center
+                        )
+                    }
                 }
             }
         }
