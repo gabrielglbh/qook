@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.Either.Left
 import arrow.core.Either.Right
 import com.gabr.gabc.qook.R
+import com.gabr.gabc.qook.domain.ingredients.IngredientsRepository
 import com.gabr.gabc.qook.domain.planning.PlanningRepository
 import com.gabr.gabc.qook.domain.storage.StorageRepository
 import com.gabr.gabc.qook.domain.user.UserFailure
@@ -28,6 +29,7 @@ class UserRepositoryImpl @Inject constructor(
     private val storage: StorageRepository,
     private val res: StringResourcesProvider,
     private val planningRepository: PlanningRepository,
+    private val ingredientsRepository: IngredientsRepository,
 ) : UserRepository {
     override suspend fun getCurrentUser(): FirebaseUser? = auth.currentUser
 
@@ -110,7 +112,19 @@ class UserRepositoryImpl @Inject constructor(
                             UserFailure.UserCreationFailed(res.getString(R.string.error_register_failed))
                         )
                     },
-                    ifRight = { return Right(Unit) }
+                    ifRight = {
+                        val ingredientsRes = ingredientsRepository.resetIngredients()
+                        return ingredientsRes.fold<Either<UserFailure, Unit>>(
+                            ifLeft = {
+                                return Left(
+                                    UserFailure.UserCreationFailed(res.getString(R.string.error_register_failed))
+                                )
+                            },
+                            ifRight = {
+                                return Right(Unit)
+                            }
+                        )
+                    }
                 )
             }
             return Left(UserFailure.NotAuthenticated(res.getString(R.string.error_user_not_auth)))

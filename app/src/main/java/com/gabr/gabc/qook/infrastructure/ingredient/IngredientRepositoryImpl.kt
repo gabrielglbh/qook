@@ -7,6 +7,7 @@ import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.ingredients.Ingredients
 import com.gabr.gabc.qook.domain.ingredients.IngredientsFailure
 import com.gabr.gabc.qook.domain.ingredients.IngredientsRepository
+import com.gabr.gabc.qook.domain.ingredients.toDto
 import com.gabr.gabc.qook.presentation.shared.Globals
 import com.gabr.gabc.qook.presentation.shared.providers.StringResourcesProvider
 import com.google.firebase.auth.FirebaseAuth
@@ -40,14 +41,17 @@ class IngredientRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun removeIngredient(ingredient: String): Either<IngredientsFailure, Unit> {
+    override suspend fun removeIngredient(ingredients: Ingredients): Either<IngredientsFailure, Unit> {
         try {
             auth.currentUser?.let {
+                val ingredientsMapped = mutableMapOf<String, Boolean>()
+                ingredients.list.forEach { (key, _) ->
+                    ingredientsMapped["${Globals.OBJ_SHOPPING_LIST}.$key"] to FieldValue.delete()
+                }
+
                 db.collection(Globals.DB_USER).document(it.uid)
                     .collection(Globals.DB_SHOPPING_LIST).document(Globals.DB_INGREDIENTS)
-                    .set(
-                        mapOf("${Globals.OBJ_SHOPPING_LIST}.$ingredient" to FieldValue.delete())
-                    ).await()
+                    .update(ingredientsMapped.toMap()).await()
 
                 return Right(Unit)
             }
@@ -59,19 +63,32 @@ class IngredientRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun updateIngredient(ingredient: Pair<String, Boolean>): Either<IngredientsFailure, Unit> {
+    override suspend fun updateIngredient(ingredients: Ingredients): Either<IngredientsFailure, Unit> {
+        try {
+            auth.currentUser?.let {
+                val ingredientsMapped = mutableMapOf<String, Boolean>()
+                ingredients.list.forEach { (key, value) ->
+                    ingredientsMapped["${Globals.OBJ_SHOPPING_LIST}.$key"] = value
+                }
+
+                db.collection(Globals.DB_USER).document(it.uid)
+                    .collection(Globals.DB_SHOPPING_LIST).document(Globals.DB_INGREDIENTS)
+                    .update(ingredientsMapped.toMap()).await()
+
+                return Right(Unit)
+            }
+            return Left(IngredientsFailure.NotAuthenticated(res.getString(R.string.error_user_not_auth)))
+        } catch (err: FirebaseFirestoreException) {
+            return Left(IngredientsFailure.IngredientsUpdateFailed(res.getString(R.string.err_ingredients_update)))
+        }
+    }
+
+    override suspend fun resetIngredients(): Either<IngredientsFailure, Unit> {
         try {
             auth.currentUser?.let {
                 db.collection(Globals.DB_USER).document(it.uid)
                     .collection(Globals.DB_SHOPPING_LIST).document(Globals.DB_INGREDIENTS)
-                    .update(
-                        mapOf(
-                            Pair(
-                                "${Globals.OBJ_SHOPPING_LIST}.${ingredient.first}",
-                                ingredient.second
-                            )
-                        )
-                    ).await()
+                    .set(Ingredients(mapOf()).toDto()).await()
 
                 return Right(Unit)
             }

@@ -124,4 +124,8 @@
     <string name="err_ingredients_retrieval">No se han podido recoger los ingredientes, prueba otra vez</string>
     <string name="err_ingredients_delete">No se han podido eliminar los ingredientes, prueba otra vez</string>
     <string name="err_ingredients_update">No se han podido actualizar los ingredientes, prueba otra vez</string>
+    <string name="ingredients_description">Aquí puedes gestionar los ingredientes de tus recetas planificadas para la semana y añadir o eliminar nuevos ingredientes también</string>
+    <string name="ingredients_reload_dialog_description">La lista de la compra actual se recargará con los ingredientes de las recetas del planning actuales. El estado actual (marcado o desmarcado) de cada ingrediente y los añadidos fuera de las recetas del planning se guardarán. ¿Estás seguro de que quieres recargar?</string>
+    <string name="ingredients_dialog_reload_button">Recargar</string>
+    <string name="ingredients_reload_dialog_title">Recargar lista de compra desde el planning</string>
 </resources>

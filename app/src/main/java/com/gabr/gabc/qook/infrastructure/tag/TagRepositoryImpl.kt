@@ -86,7 +86,6 @@ class TagRepositoryImpl @Inject constructor(
         return Left(TagFailure.NotAuthenticated(res.getString(R.string.error_user_not_auth)))
     }
 
-    // TODO: Get Tags through KEYWORDS as in Recipes
     override suspend fun getTags(): Either<TagFailure, List<Tag>> {
         try {
             auth.currentUser?.let {

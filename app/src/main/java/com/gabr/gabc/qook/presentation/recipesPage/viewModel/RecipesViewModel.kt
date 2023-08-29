@@ -3,6 +3,8 @@ package com.gabr.gabc.qook.presentation.recipesPage.viewModel
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gabr.gabc.qook.domain.ingredients.Ingredients
+import com.gabr.gabc.qook.domain.ingredients.IngredientsRepository
 import com.gabr.gabc.qook.domain.planning.DayPlanning
 import com.gabr.gabc.qook.domain.planning.PlanningRepository
 import com.gabr.gabc.qook.domain.recipe.Recipe
@@ -20,6 +22,7 @@ class RecipesViewModel @Inject constructor(
     private val recipeRepository: RecipeRepository,
     private val tagRepository: TagRepository,
     private val planningRepository: PlanningRepository,
+    private val ingredientsRepository: IngredientsRepository,
 ) : ViewModel() {
     private val _recipesState = MutableStateFlow(RecipesState())
     val recipesState: StateFlow<RecipesState> = _recipesState.asStateFlow()
@@ -132,6 +135,10 @@ class RecipesViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             isLoadingRecipes.value = true
+
+            val ingredients = mutableMapOf<String, Boolean>()
+            recipe.ingredients.forEach { i -> ingredients[i] = false }
+
             _planningState.value.isLunch?.let { isLunch ->
                 val dayPlanning = if (isLunch) {
                     _planningState.value.dayPlanning.copy(lunch = recipe)
@@ -142,7 +149,14 @@ class RecipesViewModel @Inject constructor(
                 val result = planningRepository.updateRecipeFromPlanning(dayPlanning)
                 result.fold(
                     ifLeft = { e -> onError(e.error) },
-                    ifRight = { onSuccess(recipe, dayPlanning) }
+                    ifRight = {
+                        val iResult =
+                            ingredientsRepository.updateIngredient(Ingredients(ingredients))
+                        iResult.fold(
+                            ifLeft = { e -> onError(e.error) },
+                            ifRight = { onSuccess(recipe, dayPlanning) }
+                        )
+                    }
                 )
             }
             isLoadingRecipes.value = false

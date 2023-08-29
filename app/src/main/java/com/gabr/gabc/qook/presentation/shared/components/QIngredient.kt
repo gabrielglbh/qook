@@ -14,11 +14,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun QIngredient(ingredient: String, onClick: (() -> Unit)? = null, onClear: (() -> Unit)? = null) {
+fun QIngredient(
+    ingredient: String,
+    strikeThrough: Boolean = false,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    onClick: (() -> Unit)? = null,
+    onClear: (() -> Unit)? = null
+) {
     Surface(
         onClick = { onClick?.let { it() } },
         enabled = onClick != null,
@@ -29,17 +36,27 @@ fun QIngredient(ingredient: String, onClick: (() -> Unit)? = null, onClear: (() 
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(4.dp)
         ) {
-            Text(
-                "•",
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                modifier = Modifier.padding(end = 8.dp)
-            )
+            if (leadingIcon == null) {
+                Text(
+                    "•",
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                )
+            } else {
+                leadingIcon()
+            }
             Text(
                 ingredient,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 8.dp),
+                textDecoration = if (strikeThrough) {
+                    TextDecoration.LineThrough
+                } else {
+                    null
+                },
             )
             if (onClear != null) IconButton(
                 modifier = Modifier.size(24.dp),
