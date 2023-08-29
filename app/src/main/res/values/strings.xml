@@ -25,6 +25,7 @@
     <string name="home_get_random_recipe">Cook something random!</string>
     <string name="home_planning_bnb">Planning</string>
     <string name="home_today_food">Today you have:</string>
+    <string name="home_planning_empty_today">You have nothing planned for today. Go to your planning and save some recipes for the week!</string>
 
     <string name="profile_settings_label">Settings</string>
     <string name="profile_change_week_beginning">Plan week from…</string>

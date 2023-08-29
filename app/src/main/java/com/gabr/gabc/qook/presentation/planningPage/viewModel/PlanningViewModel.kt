@@ -17,6 +17,8 @@ class PlanningViewModel @Inject constructor(
         private set
     var isLoading = mutableStateOf(false)
         private set
+    var hasUpdated = mutableStateOf(false)
+        private set
 
     fun setDataForLocalLoading(planning: List<DayPlanning>) {
         this.planning.value = planning
@@ -43,6 +45,7 @@ class PlanningViewModel @Inject constructor(
             res.fold(
                 ifLeft = { e -> onError(e.error) },
                 ifRight = {
+                    hasUpdated.value = true
                     planning.value = DayPlanning.EMPTY_PLANNING
                 }
             )
@@ -57,6 +60,7 @@ class PlanningViewModel @Inject constructor(
             res.fold(
                 ifLeft = { e -> onError(e.error) },
                 ifRight = {
+                    hasUpdated.value = true
                     updatePlanningLocally(dayPlanning)
                 }
             )

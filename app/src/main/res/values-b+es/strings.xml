@@ -24,8 +24,9 @@
     <string name="home_recipes_bnb">Recetas</string>
     <string name="home_welcome_message">Hola %1$s, ¿qué cocinamos hoy?</string>
     <string name="home_get_random_recipe">¡Cocina algo aleatorio!</string>
-    <string name="home_planning_bnb">Planificación</string>
+    <string name="home_planning_bnb">Planning</string>
     <string name="home_today_food">Hoy tienes:</string>
+    <string name="home_planning_empty_today">No tienes nada planificado para hoy. ¡Ve a tu planning y guarda algunas recetas para la semana!</string>
 
     <string name="profile_settings_label">Ajustes</string>
     <string name="profile_change_week_beginning">Planificar semana desde…</string>

@@ -44,11 +44,13 @@ class HomeViewModel @Inject constructor(
             val result = planningRepository.getPlanning()
             result.fold(
                 ifLeft = {},
-                ifRight = { p ->
-                    planning.clear()
-                    planning.addAll(p)
-                }
+                ifRight = { p -> updatePlanningLocally(p) }
             )
         }
+    }
+
+    fun updatePlanningLocally(planning: List<DayPlanning>) {
+        this.planning.clear()
+        this.planning.addAll(planning)
     }
 }

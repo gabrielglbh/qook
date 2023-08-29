@@ -3,9 +3,11 @@ package com.gabr.gabc.qook.presentation.profilePage.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Face
 import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -14,7 +16,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.user.User
@@ -76,7 +77,10 @@ fun Account(
     QContentCard(
         modifier = modifier.padding(12.dp),
         arrangement = Arrangement.Top,
-        alignment = Alignment.Start
+        alignment = Alignment.Start,
+        backgroundContent = {
+            Icon(Icons.Outlined.AccountCircle, "", modifier = it)
+        }
     ) {
         Text(
             stringResource(R.string.profile_account_label),

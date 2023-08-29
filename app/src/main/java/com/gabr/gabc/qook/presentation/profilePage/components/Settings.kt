@@ -5,7 +5,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -61,7 +63,10 @@ fun Settings(
     QContentCard(
         modifier = modifier.padding(12.dp),
         arrangement = Arrangement.Top,
-        alignment = Alignment.Start
+        alignment = Alignment.Start,
+        backgroundContent = {
+            Icon(Icons.Outlined.Settings, "", modifier = it)
+        }
     ) {
         Text(
             stringResource(R.string.profile_settings_label),

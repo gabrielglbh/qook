@@ -109,7 +109,7 @@ class HomePage : ComponentActivity() {
                     extras?.getParcelableArray(PlanningPage.HAS_UPDATED_PLANNING)
                 }
 
-                updatedPlanning?.let { viewModel.getPlanning() }
+                updatedPlanning?.let { p -> viewModel.updatePlanningLocally(p.map { it as DayPlanning }) }
             }
         }
 
@@ -221,7 +221,7 @@ class HomePage : ComponentActivity() {
             Spacer(modifier = Modifier.size(24.dp))
             QShimmer(controller = planning.isNotEmpty()) {
                 QContentCard(
-                    modifier = it.padding(12.dp),
+                    modifier = it.padding(16.dp),
                     arrangement = Arrangement.Top,
                     alignment = Alignment.CenterHorizontally,
                     backgroundContent = { mod -> Icon(Icons.Outlined.Today, "", modifier = mod) }
@@ -231,24 +231,34 @@ class HomePage : ComponentActivity() {
                         style = MaterialTheme.typography.titleLarge
                     )
                     Spacer(modifier = Modifier.size(6.dp))
-                    Column(
-                        verticalArrangement = Arrangement.Top,
-                        horizontalAlignment = Alignment.Start,
+                    if (planning.isNotEmpty() && planning[day].lunch == Recipe.EMPTY_RECIPE &&
+                        planning[day].dinner == Recipe.EMPTY_RECIPE
                     ) {
-                        PlanningTodayItem(
-                            if (planning.isEmpty()) {
-                                Recipe.EMPTY_RECIPE
-                            } else {
-                                planning[day].lunch
-                            }, true
+                        Text(
+                            stringResource(R.string.home_planning_empty_today),
+                            style = MaterialTheme.typography.titleSmall,
+                            textAlign = TextAlign.Center,
                         )
-                        PlanningTodayItem(
-                            if (planning.isEmpty()) {
-                                Recipe.EMPTY_RECIPE
-                            } else {
-                                planning[day].dinner
-                            }, false
-                        )
+                    } else {
+                        Column(
+                            verticalArrangement = Arrangement.Top,
+                            horizontalAlignment = Alignment.Start,
+                        ) {
+                            PlanningTodayItem(
+                                if (planning.isEmpty()) {
+                                    Recipe.EMPTY_RECIPE
+                                } else {
+                                    planning[day].lunch
+                                }, true
+                            )
+                            PlanningTodayItem(
+                                if (planning.isEmpty()) {
+                                    Recipe.EMPTY_RECIPE
+                                } else {
+                                    planning[day].dinner
+                                }, false
+                            )
+                        }
                     }
                 }
             }

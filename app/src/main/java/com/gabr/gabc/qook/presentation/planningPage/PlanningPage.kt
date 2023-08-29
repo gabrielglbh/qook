@@ -178,7 +178,17 @@ class PlanningPage : ComponentActivity() {
                 topBar = {
                     QActionBar(
                         title = R.string.home_planning_bnb,
-                        onBack = { finish() },
+                        onBack = {
+                            if (viewModel.hasUpdated.value) {
+                                val resultIntent = Intent()
+                                resultIntent.putExtra(
+                                    HAS_UPDATED_PLANNING,
+                                    viewModel.planning.value?.toTypedArray()
+                                )
+                                setResult(RESULT_OK, resultIntent)
+                            }
+                            finish()
+                        },
                         actions = listOf {
                             IconButton(onClick = {
                                 showResetDialog = true
