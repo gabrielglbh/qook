@@ -8,6 +8,8 @@ class Globals {
         const val DB_RECIPES = "RECIPES"
         const val DB_TAGS = "TAGS"
         const val DB_PLANNING = "PLANNING"
+        const val DB_SHOPPING_LIST = "SHOPPING_LIST"
+        const val DB_INGREDIENTS = "INGREDIENTS"
 
         const val STORAGE_RECIPES = "recipes/"
         const val STORAGE_AVATAR = "avatar/photo.jpg"
@@ -33,5 +35,7 @@ class Globals {
         const val OBJ_PLANNING_SIXTH_DAY = "sixthDay"
         const val OBJ_PLANNING_SEVENTH_DAY = "seventhDay"
         const val OBJ_PLANNING_DAY_INDEX = "dayIndex"
+
+        const val OBJ_SHOPPING_LIST = "list"
     }
 }

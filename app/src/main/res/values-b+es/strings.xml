@@ -120,4 +120,8 @@
     <string name="reset_planning_description">Todo el planning será vaciado para hacer uno nuevo desde el principio</string>
     <string name="planning_reset_button">Reestablecer</string>
     <string name="planning_add_to_planning_button">Añadir al planning</string>
+
+    <string name="err_ingredients_retrieval">No se han podido recoger los ingredientes, prueba otra vez</string>
+    <string name="err_ingredients_delete">No se han podido eliminar los ingredientes, prueba otra vez</string>
+    <string name="err_ingredients_update">No se han podido actualizar los ingredientes, prueba otra vez</string>
 </resources>

@@ -74,6 +74,11 @@
             android:exported="true"
             android:theme="@style/Theme.Qook"
             android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".presentation.shoppingListPage.ShoppingListPage"
+            android:exported="true"
+            android:theme="@style/Theme.Qook"
+            android:windowSoftInputMode="adjustResize" />
     </application>
 
 </manifest>

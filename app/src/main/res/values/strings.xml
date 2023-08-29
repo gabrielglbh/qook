@@ -119,4 +119,8 @@
     <string name="reset_planning_description">All planning will be emptied to make a new planning from scratch</string>
     <string name="planning_reset_button">Reset</string>
     <string name="planning_add_to_planning_button">Add to planning</string>
+
+    <string name="err_ingredients_retrieval">Could not retrieve ingredients, try again</string>
+    <string name="err_ingredients_delete">Could not delete the ingredient, try again</string>
+    <string name="err_ingredients_update">Could not update the ingredient, try again</string>
 </resources>

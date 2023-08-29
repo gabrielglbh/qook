@@ -69,6 +69,7 @@ import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.shared.components.QContentCard
 import com.gabr.gabc.qook.presentation.shared.components.QImage
 import com.gabr.gabc.qook.presentation.shared.components.QShimmer
+import com.gabr.gabc.qook.presentation.shoppingListPage.ShoppingListPage
 import com.gabr.gabc.qook.presentation.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -311,7 +312,14 @@ class HomePage : ComponentActivity() {
                                             resultLauncher.launch(intent)
                                         }
 
-                                        UserAction.SHOPPING -> {}
+                                        UserAction.SHOPPING -> {
+                                            startActivity(
+                                                Intent(
+                                                    this@HomePage,
+                                                    ShoppingListPage::class.java
+                                                )
+                                            )
+                                        }
                                     }
                                 },
                                 backgroundContent = {
