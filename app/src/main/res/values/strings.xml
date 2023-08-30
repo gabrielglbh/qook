@@ -28,7 +28,8 @@
     <string name="home_planning_empty_today">You have nothing planned for today. Go to your planning and save some recipes for the week!</string>
 
     <string name="profile_settings_label">Settings</string>
-    <string name="profile_change_week_beginning">Plan week from…</string>
+    <string name="profile_change_reset_timing">Plan week from…</string>
+    <string name="profile_change_reset_description">Define when your planning will be reset for a new upcoming week. You will be notified</string>
     <string name="profile_about_qook">About Qook</string>
     <string name="profile_account_label">Account</string>
     <string name="profile_change_name">Change name</string>
@@ -127,4 +128,6 @@
     <string name="ingredients_reload_dialog_description">The current shopping list will reload with the ingredients present in the current planning recipes. Ingredient\'s current status (checked or unchecked) and ingredients added outside planning\'s recipes will be saved. Are you sure you want to reload?</string>
     <string name="ingredients_dialog_reload_button">Reload</string>
     <string name="ingredients_reload_dialog_title">Reload shopping list from planning</string>
+
+    <string name="default_notification_channel_id">QOOK_DEFAULT</string>
 </resources>

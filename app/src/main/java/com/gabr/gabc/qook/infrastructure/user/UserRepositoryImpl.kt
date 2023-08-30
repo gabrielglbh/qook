@@ -20,6 +20,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.ktx.toObject
 import kotlinx.coroutines.tasks.await
+import java.util.Locale
 import javax.inject.Inject
 import com.gabr.gabc.qook.domain.user.User as domainUser
 
@@ -102,7 +103,7 @@ class UserRepositoryImpl @Inject constructor(
             auth.currentUser?.let {
                 db.collection(Globals.DB_USER)
                     .document(it.uid)
-                    .set(user.toDto())
+                    .set(user.toDto().copy(language = Locale.getDefault().language.uppercase()))
                     .await()
 
                 val planningRes = planningRepository.resetPlanning()

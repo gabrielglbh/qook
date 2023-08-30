@@ -9,7 +9,7 @@ import kotlinx.parcelize.Parcelize
 data class User(
     val name: String,
     val email: String,
-    val beginningWeekDay: Int = 1,
+    val resetDay: Int = 0,
     val photo: Uri = Uri.EMPTY
 ) : Parcelable {
     companion object {
@@ -18,5 +18,5 @@ data class User(
 }
 
 fun User.toDto(): UserDto {
-    return UserDto(name, email, beginningWeekDay)
+    return UserDto(name, email, resetDay)
 }

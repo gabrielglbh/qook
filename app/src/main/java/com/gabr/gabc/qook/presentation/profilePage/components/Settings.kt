@@ -53,8 +53,7 @@ fun Settings(
             },
             list = days,
             onClick = {
-                // TODO: Update PLANNING dayIndexes
-                viewModel.updateUser(user.copy(beginningWeekDay = it)) {}
+                viewModel.updateUser(user.copy(resetDay = it)) {}
             }
         )
     }
@@ -75,8 +74,8 @@ fun Settings(
         )
         ProfileRow(
             icon = Icons.Outlined.CalendarMonth,
-            text = stringResource(R.string.profile_change_week_beginning),
-            trailingText = days[user.beginningWeekDay]
+            text = stringResource(R.string.profile_change_reset_timing),
+            trailingText = days[user.resetDay]
         ) {
             showWeekBeginningBottomSheet = true
         }

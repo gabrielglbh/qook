@@ -6,17 +6,19 @@ import com.google.firebase.firestore.PropertyName
 data class UserDto(
     @PropertyName("name") val name: String = "",
     @PropertyName("email") val email: String = "",
-    @PropertyName("beginningWeekDay") val beginningWeekDay: Int = 1
+    @PropertyName("resetDay") val resetDay: Int = 1,
+    @PropertyName("language") val language: String = ""
 )
 
 fun UserDto.toDomain(): User {
-    return User(name, email, beginningWeekDay)
+    return User(name, email, resetDay)
 }
 
 fun UserDto.toMap(): Map<String, Any?> {
     return mapOf(
         Pair("name", name),
         Pair("email", email),
-        Pair("beginningWeekDay", beginningWeekDay),
+        Pair("resetDay", resetDay),
+        Pair("language", language),
     )
 }
