@@ -233,6 +233,7 @@ class LoginPage : ComponentActivity() {
                         R.string.register_toggle_1
                     }
                 ),
+                color = colors.onBackground,
                 modifier = Modifier
                     .clickable {
                         isRegisterMode = !isRegisterMode

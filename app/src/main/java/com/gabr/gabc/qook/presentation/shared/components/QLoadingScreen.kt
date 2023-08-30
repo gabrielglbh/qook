@@ -13,13 +13,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun QLoadingScreen() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f))
+            .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f))
             .clickable(enabled = false) {},
         contentAlignment = Alignment.Center
     ) {

@@ -246,18 +246,18 @@ class HomePage : ComponentActivity() {
                 )
             }
             Spacer(modifier = Modifier.size(24.dp))
-            QShimmer(controller = planning.isNotEmpty()) {
-                QContentCard(
-                    modifier = it.padding(16.dp),
-                    arrangement = Arrangement.Top,
-                    alignment = Alignment.CenterHorizontally,
-                    backgroundContent = { mod -> Icon(Icons.Outlined.Today, "", modifier = mod) }
-                ) {
-                    Text(
-                        stringResource(R.string.home_today_food),
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                    Spacer(modifier = Modifier.size(6.dp))
+            QContentCard(
+                modifier = Modifier.padding(16.dp),
+                arrangement = Arrangement.Top,
+                alignment = Alignment.CenterHorizontally,
+                backgroundContent = { mod -> Icon(Icons.Outlined.Today, "", modifier = mod) }
+            ) {
+                Text(
+                    stringResource(R.string.home_today_food),
+                    style = MaterialTheme.typography.titleLarge
+                )
+                Spacer(modifier = Modifier.size(6.dp))
+                QShimmer(controller = planning.isNotEmpty()) {
                     if (planning.isNotEmpty() && planning[day].lunch == Recipe.EMPTY_RECIPE &&
                         planning[day].dinner == Recipe.EMPTY_RECIPE
                     ) {
@@ -265,11 +265,13 @@ class HomePage : ComponentActivity() {
                             stringResource(R.string.home_planning_empty_today),
                             style = MaterialTheme.typography.titleSmall,
                             textAlign = TextAlign.Center,
+                            modifier = it
                         )
                     } else {
                         Column(
                             verticalArrangement = Arrangement.Top,
                             horizontalAlignment = Alignment.Start,
+                            modifier = it
                         ) {
                             PlanningTodayItem(
                                 if (planning.isEmpty()) {

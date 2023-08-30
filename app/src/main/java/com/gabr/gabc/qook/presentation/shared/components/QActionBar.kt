@@ -1,5 +1,6 @@
 package com.gabr.gabc.qook.presentation.shared.components
 
+import androidx.activity.compose.BackHandler
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,6 +31,10 @@ fun QActionBar(
     onBack: (() -> Unit)? = null,
     @StringRes title: Int = R.string.app_name,
 ) {
+    BackHandler {
+        onBack?.let { it() }
+    }
+
     Box(
         modifier = Modifier
             .height(64.dp)

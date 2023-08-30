@@ -10,6 +10,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -22,7 +23,6 @@ import com.gabr.gabc.qook.presentation.shared.components.QImage
 import com.gabr.gabc.qook.presentation.shared.components.QImageType
 import com.gabr.gabc.qook.presentation.splashPage.viewModel.SplashViewModel
 import com.gabr.gabc.qook.presentation.theme.AppTheme
-import com.gabr.gabc.qook.presentation.theme.seed
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 
@@ -41,7 +41,7 @@ class SplashPage : ComponentActivity() {
         val viewModel: SplashViewModel by viewModels()
 
         LaunchedEffect(key1 = Unit) {
-            delay(2000)
+            delay(1800)
             viewModel.checkIfUserIsSignedIn(
                 ifUserExists = {
                     startActivity(Intent(this@SplashPage, HomePage::class.java))
@@ -55,7 +55,7 @@ class SplashPage : ComponentActivity() {
         AppTheme {
             Box(
                 modifier = Modifier
-                    .background(seed)
+                    .background(MaterialTheme.colorScheme.primary)
                     .fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {

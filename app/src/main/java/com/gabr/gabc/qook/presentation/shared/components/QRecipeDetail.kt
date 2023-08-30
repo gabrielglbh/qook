@@ -97,7 +97,10 @@ fun QRecipeDetail(recipe: Recipe, modifier: Modifier) {
                     modifier = Modifier.weight(1f)
                 )
             }
-            Divider(modifier = Modifier.padding(vertical = 8.dp))
+            Divider(
+                modifier = Modifier.padding(vertical = 8.dp),
+                color = MaterialTheme.colorScheme.onSecondaryContainer
+            )
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
@@ -129,14 +132,17 @@ fun QRecipeDetail(recipe: Recipe, modifier: Modifier) {
                 stringResource(R.string.recipe_details_ingredients),
                 style = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onPrimaryContainer
+                color = MaterialTheme.colorScheme.onSecondaryContainer
             )
             Spacer(modifier = Modifier.size(12.dp))
             Column(
                 horizontalAlignment = Alignment.Start
             ) {
                 recipe.ingredients.forEach {
-                    QIngredient(ingredient = it)
+                    QIngredient(
+                        ingredient = it,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
                 }
             }
         }
@@ -154,12 +160,12 @@ fun QRecipeDetail(recipe: Recipe, modifier: Modifier) {
                 stringResource(R.string.recipe_details_steps),
                 style = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onPrimaryContainer
+                color = MaterialTheme.colorScheme.onSecondaryContainer
             )
             Spacer(modifier = Modifier.size(8.dp))
             Text(
                 recipe.description, textAlign = TextAlign.Justify,
-                color = MaterialTheme.colorScheme.onPrimaryContainer
+                color = MaterialTheme.colorScheme.onSecondaryContainer
             )
         }
         Spacer(modifier = Modifier.size(12.dp))
@@ -171,13 +177,13 @@ private fun TextWithIcon(icon: ImageVector, text: String, modifier: Modifier = M
     Icon(
         icon,
         "",
-        tint = MaterialTheme.colorScheme.onPrimaryContainer
+        tint = MaterialTheme.colorScheme.onSecondaryContainer
     )
     Spacer(modifier = Modifier.size(4.dp))
     Text(
         text,
         style = MaterialTheme.typography.titleSmall.copy(
-            color = MaterialTheme.colorScheme.onPrimaryContainer
+            color = MaterialTheme.colorScheme.onSecondaryContainer
         ),
         modifier = modifier,
         maxLines = 1,
