@@ -19,8 +19,8 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.ktx.toObject
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.tasks.await
-import java.util.Locale
 import javax.inject.Inject
 import com.gabr.gabc.qook.domain.user.User as domainUser
 
@@ -31,6 +31,7 @@ class UserRepositoryImpl @Inject constructor(
     private val res: StringResourcesProvider,
     private val planningRepository: PlanningRepository,
     private val ingredientsRepository: IngredientsRepository,
+    private val msg: FirebaseMessaging,
 ) : UserRepository {
     override suspend fun getCurrentUser(): FirebaseUser? = auth.currentUser
 
@@ -103,7 +104,7 @@ class UserRepositoryImpl @Inject constructor(
             auth.currentUser?.let {
                 db.collection(Globals.DB_USER)
                     .document(it.uid)
-                    .set(user.toDto().copy(language = Locale.getDefault().language.uppercase()))
+                    .set(user.toDto())
                     .await()
 
                 val planningRes = planningRepository.resetPlanning()
@@ -160,7 +161,9 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun updateUser(user: domainUser): Either<UserFailure, Unit> {
         auth.currentUser?.let {
-            db.collection(Globals.DB_USER).document(it.uid).update(user.toDto().toMap()).await()
+            db.collection(Globals.DB_USER).document(it.uid).update(
+                user.toDto().toMap()
+            ).await()
             return Right(Unit)
         }
         return Left(UserFailure.NotAuthenticated(res.getString(R.string.error_user_not_auth)))
@@ -197,5 +200,13 @@ class UserRepositoryImpl @Inject constructor(
                 )
             )
         }
+    }
+
+    override suspend fun updateFCM(user: domainUser): Either<UserFailure, Unit> {
+        val token = msg.token.await()
+        if (token != user.messagingToken) {
+            updateUser(user.copy(messagingToken = token))
+        }
+        return Right(Unit)
     }
 }

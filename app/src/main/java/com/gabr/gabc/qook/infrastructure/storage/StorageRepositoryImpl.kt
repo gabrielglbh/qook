@@ -10,6 +10,7 @@ import com.gabr.gabc.qook.domain.storage.StorageRepository
 import com.gabr.gabc.qook.presentation.shared.providers.StringResourcesProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageException
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -32,10 +33,14 @@ class StorageRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getDownloadUrl(path: String): Either<StorageFailure, Uri> {
-        auth.currentUser?.let {
-            return Right(storage.reference.child("${it.uid}/$path").downloadUrl.await())
+        try {
+            auth.currentUser?.let {
+                return Right(storage.reference.child("${it.uid}/$path").downloadUrl.await())
+            }
+            return Left(StorageFailure.NotAuthenticated(res.getString(R.string.err_storage_retrieval)))
+        } catch (err: StorageException) {
+            return Left(StorageFailure.ImageUpdateFailed(res.getString(R.string.err_storage_retrieval)))
         }
-        return Left(StorageFailure.NotAuthenticated(res.getString(R.string.err_storage_retrieval)))
     }
 
     override suspend fun deleteImage(path: String): Either<StorageFailure, Unit> {

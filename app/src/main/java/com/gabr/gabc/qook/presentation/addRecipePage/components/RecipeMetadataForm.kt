@@ -117,13 +117,14 @@ fun RecipeMetadataForm(
         }
         Button(
             onClick = {
-                if (state.recipe.name.trim().isNotEmpty() && state.recipe.time.trim()
-                        .isNotEmpty()
+                if (state.recipe.name.trim()
+                        .isNotEmpty() && !nameFieldError && state.recipe.time.trim()
+                        .isNotEmpty() && !timeFieldError
                 ) {
                     onNavigate()
                 } else {
-                    if (state.recipe.name.trim().isEmpty()) nameFieldError = true
-                    if (state.recipe.time.trim().isEmpty()) timeFieldError = true
+                    nameFieldError = Validators.isNameInvalid(state.recipe.name)
+                    timeFieldError = Validators.isNameInvalid(state.recipe.time)
                 }
             },
             modifier = Modifier

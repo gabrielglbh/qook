@@ -11,14 +11,33 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.gabr.gabc.qook.R
+import com.gabr.gabc.qook.domain.user.UserRepository
 import com.gabr.gabc.qook.presentation.splashPage.SplashPage
 import com.gabr.gabc.qook.presentation.theme.seed
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.Date
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class NotificationsService : FirebaseMessagingService() {
-    override fun onNewToken(token: String) {}
+@Singleton
+class NotificationsService @Inject constructor(
+    private val userRepository: UserRepository
+) : FirebaseMessagingService() {
+    override fun onNewToken(token: String) {
+        CoroutineScope(Dispatchers.Main).launch {
+            val resUser = userRepository.getUser()
+            resUser.fold(
+                ifLeft = {},
+                ifRight = { u ->
+                    userRepository.updateUser(u.copy(messagingToken = token))
+                }
+            )
+        }
+    }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         try {
@@ -69,14 +88,4 @@ class NotificationsService : FirebaseMessagingService() {
     }
 
     override fun onDeletedMessages() {}
-
-    /*private fun updateTokenToUser(token: String) {
-        CoroutineScope(Dispatchers.Main).launch {
-            val user = UserQueries().getUser(SharedPreferences.userId, SharedPreferences.groupId)
-            user?.let { u ->
-                u.messagingToken = token
-                UserQueries().updateUser(u, SharedPreferences.groupId)
-            }
-        }
-    }*/
 }

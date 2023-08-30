@@ -147,6 +147,7 @@ class HomePage : ComponentActivity() {
 
         val scope = rememberCoroutineScope()
         val snackbarHostState = remember { SnackbarHostState() }
+        val emptyRecipesMsg = stringResource(R.string.err_home_empty_recipes)
 
         LaunchedEffect(key1 = Unit) {
             viewModel.getUser { errorMessage ->
@@ -176,7 +177,11 @@ class HomePage : ComponentActivity() {
                     .padding(it)
                     .consumeWindowInsets(it)
             ) {
-                Body(viewModel, state.value, viewModel.planning)
+                Body(viewModel, state.value, viewModel.planning) {
+                    scope.launch {
+                        snackbarHostState.showSnackbar(emptyRecipesMsg)
+                    }
+                }
             }
         }
     }
@@ -213,7 +218,12 @@ class HomePage : ComponentActivity() {
     }
 
     @Composable
-    fun Body(viewModel: HomeViewModel, state: UserState, planning: List<DayPlanning>) {
+    fun Body(
+        viewModel: HomeViewModel,
+        state: UserState,
+        planning: List<DayPlanning>,
+        onRecipesEmpty: () -> Unit
+    ) {
 
         var showActions by remember { mutableStateOf(false) }
         val day = QDateUtils.getDayOfWeekIndex()
@@ -308,14 +318,19 @@ class HomePage : ComponentActivity() {
                                         }
 
                                         UserAction.RANDOM -> {
-                                            viewModel.getRandomRecipe {
-                                                val intent = Intent(
-                                                    this@HomePage,
-                                                    RecipeDetailsPage::class.java
-                                                )
-                                                intent.putExtra(RecipeDetailsPage.RECIPE, it)
-                                                startActivity(intent)
-                                            }
+                                            viewModel.getRandomRecipe(
+                                                onSuccess = {
+                                                    val intent = Intent(
+                                                        this@HomePage,
+                                                        RecipeDetailsPage::class.java
+                                                    )
+                                                    intent.putExtra(RecipeDetailsPage.RECIPE, it)
+                                                    startActivity(intent)
+                                                },
+                                                onEmptyRecipes = {
+                                                    onRecipesEmpty()
+                                                }
+                                            )
                                         }
 
                                         UserAction.PLANNING -> {

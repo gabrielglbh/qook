@@ -79,7 +79,6 @@ class PlanningViewModel @Inject constructor(
                     iResult.fold(
                         ifLeft = { e -> onError(e.error) },
                         ifRight = {
-                            hasUpdated.value = true
                             updatePlanningLocally(dayPlanning)
                         }
                     )
@@ -95,5 +94,6 @@ class PlanningViewModel @Inject constructor(
         val dayPlanningToUpdateIndex = aux.indexOf(dayPlanning.id)
         auxPlanning[dayPlanningToUpdateIndex] = dayPlanning
         planning.value = auxPlanning
+        hasUpdated.value = true
     }
 }

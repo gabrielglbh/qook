@@ -18,4 +18,5 @@ interface UserRepository {
     suspend fun createUserInDB(user: domainUser): Either<UserFailure, Unit>
     suspend fun updateUser(user: domainUser): Either<UserFailure, Unit>
     suspend fun getUser(): Either<UserFailure, domainUser>
+    suspend fun updateFCM(user: domainUser): Either<UserFailure, Unit>
 }

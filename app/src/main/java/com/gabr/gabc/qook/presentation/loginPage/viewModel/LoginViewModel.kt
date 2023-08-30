@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -77,7 +78,14 @@ class LoginViewModel @Inject constructor(
                     },
                     ifRight = {
                         val userCreationInDB =
-                            repository.createUserInDB(User(state.name, state.email))
+                            repository.createUserInDB(
+                                User(
+                                    name = state.name,
+                                    email = state.email,
+                                    language = Locale.getDefault().language.uppercase(),
+                                    messagingToken = ""
+                                )
+                            )
                         userCreationInDB.fold(
                             ifLeft = {
                                 _formState.value = state.copy(error = it.error, password = "")

@@ -36,8 +36,9 @@ class HomeViewModel @Inject constructor(
                     _userState.value = _userState.value.copy(error = it.error)
                     onError(it.error)
                 },
-                ifRight = {
-                    _userState.value = _userState.value.copy(user = it)
+                ifRight = { user ->
+                    userRepository.updateFCM(user)
+                    _userState.value = _userState.value.copy(user = user)
                 }
             )
         }
@@ -53,14 +54,18 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun getRandomRecipe(onSuccess: (Recipe) -> Unit) {
+    fun getRandomRecipe(onSuccess: (Recipe) -> Unit, onEmptyRecipes: () -> Unit) {
         viewModelScope.launch {
             val result = recipeRepository.getRecipes()
             result.fold(
                 ifLeft = {},
                 ifRight = { recipes ->
-                    val random = Random.nextInt(0, recipes.size)
-                    onSuccess(recipes[random])
+                    if (recipes.isNotEmpty()) {
+                        val random = Random.nextInt(0, recipes.size)
+                        onSuccess(recipes[random])
+                    } else {
+                        onEmptyRecipes()
+                    }
                 }
             )
         }

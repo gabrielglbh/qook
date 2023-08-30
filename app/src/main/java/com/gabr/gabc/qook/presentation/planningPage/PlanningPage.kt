@@ -141,6 +141,7 @@ class PlanningPage : ComponentActivity() {
 
         val isPlanningEmpty = planning == null
 
+        // TODO: Load recipes to not load them everytime we want to add to planning?
         if (isPlanningEmpty) {
             LaunchedEffect(key1 = Unit, block = {
                 viewModel.loadPlanning { error ->

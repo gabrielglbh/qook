@@ -21,12 +21,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.presentation.addRecipePage.viewModel.AddRecipeViewModel
+import com.gabr.gabc.qook.presentation.shared.Validators
 import com.gabr.gabc.qook.presentation.shared.components.QTextForm
 
 @Composable
@@ -59,7 +59,7 @@ fun RecipeDescription(
             imeAction = ImeAction.Default,
             onValueChange = {
                 viewModel.updateMetadata(description = it)
-                descriptionError = it.trim().isEmpty()
+                descriptionError = Validators.isDescriptionInvalid(it)
             },
             onSubmitWithImeAction = {
                 viewModel.updateMetadata(description = state.recipe.description)
@@ -68,11 +68,11 @@ fun RecipeDescription(
         )
         Button(
             onClick = {
-                if (state.recipe.description.trim().isEmpty()) {
-                    descriptionError = true
-                    return@Button
+                if (state.recipe.description.trim().isNotEmpty() && !descriptionError) {
+                    onNavigate()
+                } else {
+                    descriptionError = Validators.isDescriptionInvalid(state.recipe.description)
                 }
-                onNavigate()
             },
             modifier = Modifier
                 .fillMaxWidth()
