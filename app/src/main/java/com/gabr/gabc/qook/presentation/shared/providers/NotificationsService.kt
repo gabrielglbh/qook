@@ -11,38 +11,19 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.gabr.gabc.qook.R
-import com.gabr.gabc.qook.domain.user.UserRepository
-import com.gabr.gabc.qook.presentation.splashPage.SplashPage
+import com.gabr.gabc.qook.presentation.homePage.HomePage
 import com.gabr.gabc.qook.presentation.theme.seed
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.util.Date
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class NotificationsService @Inject constructor(
-    private val userRepository: UserRepository
-) : FirebaseMessagingService() {
-    override fun onNewToken(token: String) {
-        CoroutineScope(Dispatchers.Main).launch {
-            val resUser = userRepository.getUser()
-            resUser.fold(
-                ifLeft = {},
-                ifRight = { u ->
-                    userRepository.updateUser(u.copy(messagingToken = token))
-                }
-            )
-        }
-    }
+class NotificationsService : FirebaseMessagingService() {
+    override fun onNewToken(token: String) {}
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         try {
             remoteMessage.notification?.let { notification ->
-                val notifyIntent = Intent(this, SplashPage::class.java).apply {
+                val notifyIntent = Intent(this, HomePage::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 }
                 val notifyPendingIntent = PendingIntent.getActivity(

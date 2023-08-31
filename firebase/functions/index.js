@@ -7,14 +7,6 @@ admin.initializeApp({
 
 const database = admin.firestore();
 
-const message = {
-  token: "",
-  notification: {
-    title: "",
-    body: "",
-  },
-};
-
 const intlMessages = {
   "EN": {
     "title": "New week, new planning!",
@@ -27,9 +19,9 @@ const intlMessages = {
 };
 
 exports.scheduleRestartPlanningCron = functions.pubsub
-    .schedule("0 10 * * *")
+    .schedule("0 9 * * *")
     .timeZone("Europe/Madrid")
-    .onRun(async () => {
+    .onRun(async (context) => {
       const userCollection = database.collection("USERS");
 
       try {
@@ -43,55 +35,63 @@ exports.scheduleRestartPlanningCron = functions.pubsub
 
         for (const snapshot of usersSnapshot.docs) {
           if (snapshot.exists) {
-            const userRef = await userCollection.doc(snapshot.ref.id).get();
+            const user = (await userCollection.doc(snapshot.ref.id).get())
+                .data();
             const planningRef = await userCollection.doc(snapshot.ref.id)
                 .collection("PLANNING").get();
 
-            const user = userRef.data();
-
             if (user != undefined) {
-              const batch = database.batch();
-
-              for (const planning of planningRef.docs) {
-                batch.update(database.collection("USERS").doc(snapshot.ref.id)
-                    .collection("PLANNING").doc(planning.id), {
-                  "lunch": "",
-                  "dinner": "",
-                });
-              }
-
-              batch.update(userCollection.doc(snapshot.ref.id)
-                  .collection("SHOPPING_LIST").doc("INGREDIENTS"), {
-                "list": {},
-              });
-
-              await batch.commit();
-
               const resetDay = user.resetDay;
               const language = user.language;
 
               if (resetDay == dayOfWeek) {
-                message.token = user.messagingToken;
-                if (language == "ES") {
-                  message.notification.title = intlMessages.ES.title;
-                  message.notification.body = intlMessages.ES.body;
-                } else {
-                  message.notification.title = intlMessages.EN.title;
-                  message.notification.body = intlMessages.EN.body;
+                console.log("🥷 UID %s", snapshot.ref.id);
+
+                const batch = database.batch();
+
+                for (const planning of planningRef.docs) {
+                  batch.update(database.collection("USERS").doc(snapshot.ref.id)
+                      .collection("PLANNING").doc(planning.id), {
+                    "lunch": "",
+                    "dinner": "",
+                  });
                 }
 
-                admin.messaging().send(message)
-                    .then((response) => {
-                      console.log("Successfully sent message: " + response);
-                    })
-                    .catch((error) => {
-                      console.log("Error sending notification: " + error);
-                    });
+                batch.update(userCollection.doc(snapshot.ref.id)
+                    .collection("SHOPPING_LIST").doc("INGREDIENTS"), {
+                  "list": {},
+                });
+
+                await batch.commit().then((_) => {
+                  console.log("✅ Successfully reset plannings and lists");
+                }).catch((_) => {
+                  console.log("❌ Some error occurred while resetting");
+                });
+
+                const payload = {
+                  token: user.messagingToken,
+                  notification: {
+                    title: language == "ES" ?
+                        intlMessages.ES.title : intlMessages.EN.title,
+                    body: language == "ES" ?
+                        intlMessages.ES.body : intlMessages.EN.body,
+                  },
+                };
+
+                await admin.messaging().send(payload).then((result) => {
+                  console.log("✅ Successfully sent notification to %s",
+                      payload.token);
+                  return {success: true};
+                }).catch((reason) => {
+                  console.log("❌ Error while sending the notification: %s",
+                      reason.toString());
+                  return {success: false};
+                });
               }
             }
           }
         }
       } catch (error) {
-        console.log("Error setting up notifications");
+        console.log("❌ Error setting up notifications");
       }
     });

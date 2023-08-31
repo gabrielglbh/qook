@@ -83,6 +83,7 @@
 
         <service
             android:name=".presentation.shared.providers.NotificationsService"
+            android:directBootAware="true"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
