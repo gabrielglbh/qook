@@ -29,7 +29,7 @@
 
     <string name="profile_settings_label">Settings</string>
     <string name="profile_change_reset_timing">Plan week from…</string>
-    <string name="profile_change_reset_description">Define when your planning will be reset for a new upcoming week. You will be notified</string>
+    <string name="profile_change_reset_description">Define when your planning will be reset for a new upcoming week, so you can go grocery shopping. You will be notified when this happens.</string>
     <string name="profile_about_qook">About Qook</string>
     <string name="profile_account_label">Account</string>
     <string name="profile_change_name">Change name</string>

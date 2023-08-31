@@ -6,6 +6,7 @@ admin.initializeApp({
 });
 
 const database = admin.firestore();
+const storage = admin.storage();
 
 const intlMessages = {
   "EN": {
@@ -17,6 +18,126 @@ const intlMessages = {
     "body": "Empieza a planificar tu semana hoy y ¡asegúrate de comer sano!",
   },
 };
+
+exports.onCreateUser = functions.firestore
+    .document("USERS/{uid}")
+    .onCreate(async (snap, context) => {
+      try {
+        const userId = context.params.uid;
+
+        const planningRef = database.collection("USERS").doc(userId)
+            .collection("PLANNING");
+        const shoppingListRef = database.collection("USERS").doc(userId)
+            .collection("SHOPPING_LIST").doc("INGREDIENTS");
+
+        const batch = database.batch();
+
+        batch.set(
+            planningRef.doc("firstDay"),
+            {"id": "firstDay", "dayIndex": "0", "lunch": "", "dinner": ""},
+        );
+        batch.set(
+            planningRef.doc("secondDay"),
+            {"id": "secondDay", "dayIndex": "1", "lunch": "", "dinner": ""},
+        );
+        batch.set(
+            planningRef.doc("thirdDay"),
+            {"id": "thirdDay", "dayIndex": "2", "lunch": "", "dinner": ""},
+        );
+        batch.set(
+            planningRef.doc("fourthDay"),
+            {"id": "fourthDay", "dayIndex": "3", "lunch": "", "dinner": ""},
+        );
+        batch.set(
+            planningRef.doc("fifthDay"),
+            {"id": "fifthDay", "dayIndex": "4", "lunch": "", "dinner": ""},
+        );
+        batch.set(
+            planningRef.doc("sixthDay"),
+            {"id": "sixthDay", "dayIndex": "5", "lunch": "", "dinner": ""},
+        );
+        batch.set(
+            planningRef.doc("seventhDay"),
+            {"id": "seventhDay", "dayIndex": "6", "lunch": "", "dinner": ""},
+        );
+        batch.set(
+            shoppingListRef,
+            {"list": {}},
+        );
+
+        await batch.commit().then(() => {
+          console.log("✅ Successfully initiated user");
+        }).catch((reason) => {
+          console.log("❌ Error while initializing user %s", reason.toString());
+        });
+      } catch (error) {
+        console.log("❌ Error while initializing user %s", error);
+      }
+    });
+
+exports.onRemoveUser = functions.firestore
+    .document("USERS/{uid}")
+    .onDelete(async (snap, context) => {
+      try {
+        const userId = context.params.uid;
+
+        const planningRef = database.collection("USERS").doc(userId)
+            .collection("PLANNING");
+        const shoppingListRef = database.collection("USERS").doc(userId)
+            .collection("SHOPPING_LIST");
+
+        const batch = database.batch();
+
+        batch.delete(planningRef.doc("firstDay"));
+        batch.delete(planningRef.doc("secondDay"));
+        batch.delete(planningRef.doc("thirdDay"));
+        batch.delete(planningRef.doc("fourthDay"));
+        batch.delete(planningRef.doc("fifthDay"));
+        batch.delete(planningRef.doc("sixthDay"));
+        batch.delete(planningRef.doc("seventhDay"));
+        batch.delete(planningRef);
+        batch.delete(shoppingListRef.doc("INGREDIENTS"));
+        batch.delete(shoppingListRef);
+
+        const recipesRef = database.collection("USERS").doc(userId)
+            .collection("RECIPES");
+        const recipes = await recipesRef.get();
+        if (!recipes.empty) {
+          for (const r of recipes.docs) {
+            batch.delete(recipesRef.doc(r.id));
+          }
+          batch.delete(recipesRef);
+        }
+
+        const tagsRef = database.collection("USERS").doc(userId)
+            .collection("TAGS");
+        const tags = await recipesRef.get();
+        if (!tags.empty) {
+          for (const r of tags.docs) {
+            batch.delete(tagsRef.doc(r.id));
+          }
+          batch.delete(tagsRef);
+        }
+
+        await batch.commit().then(() => {
+          console.log("✅ Successfully removed user");
+        }).catch((reason) => {
+          console.log("❌ Error while removing user %s", reason.toString());
+        });
+
+        const bucket = storage.bucket();
+        await bucket.deleteFiles({
+          prefix: userId,
+        }).then(() => {
+          console.log("✅ Successfully removed user images");
+        }).catch((reason) => {
+          console.log("❌ Error while removing user images %s",
+              reason.toString());
+        });
+      } catch (error) {
+        console.log("❌ Error while removing user %s", error);
+      }
+    });
 
 exports.scheduleRestartPlanningCron = functions.pubsub
     .schedule("0 9 * * *")
@@ -92,6 +213,6 @@ exports.scheduleRestartPlanningCron = functions.pubsub
           }
         }
       } catch (error) {
-        console.log("❌ Error setting up notifications");
+        console.log("❌ Error setting up notifications %s", error);
       }
     });

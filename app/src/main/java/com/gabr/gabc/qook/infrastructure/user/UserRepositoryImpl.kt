@@ -4,8 +4,6 @@ import arrow.core.Either
 import arrow.core.Either.Left
 import arrow.core.Either.Right
 import com.gabr.gabc.qook.R
-import com.gabr.gabc.qook.domain.ingredients.IngredientsRepository
-import com.gabr.gabc.qook.domain.planning.PlanningRepository
 import com.gabr.gabc.qook.domain.storage.StorageRepository
 import com.gabr.gabc.qook.domain.user.UserFailure
 import com.gabr.gabc.qook.domain.user.UserRepository
@@ -29,8 +27,6 @@ class UserRepositoryImpl @Inject constructor(
     private val db: FirebaseFirestore,
     private val storage: StorageRepository,
     private val res: StringResourcesProvider,
-    private val planningRepository: PlanningRepository,
-    private val ingredientsRepository: IngredientsRepository,
     private val msg: FirebaseMessaging,
 ) : UserRepository {
     override suspend fun getCurrentUser(): FirebaseUser? = auth.currentUser
@@ -106,28 +102,7 @@ class UserRepositoryImpl @Inject constructor(
                     .document(it.uid)
                     .set(user.toDto())
                     .await()
-
-                val planningRes = planningRepository.resetPlanning()
-                return planningRes.fold<Either<UserFailure, Unit>>(
-                    ifLeft = {
-                        return Left(
-                            UserFailure.UserCreationFailed(res.getString(R.string.error_register_failed))
-                        )
-                    },
-                    ifRight = {
-                        val ingredientsRes = ingredientsRepository.resetIngredients()
-                        return ingredientsRes.fold<Either<UserFailure, Unit>>(
-                            ifLeft = {
-                                return Left(
-                                    UserFailure.UserCreationFailed(res.getString(R.string.error_register_failed))
-                                )
-                            },
-                            ifRight = {
-                                return Right(Unit)
-                            }
-                        )
-                    }
-                )
+                return Right(Unit)
             }
             return Left(UserFailure.NotAuthenticated(res.getString(R.string.error_user_not_auth)))
         } catch (err: FirebaseFirestoreException) {
@@ -148,8 +123,7 @@ class UserRepositoryImpl @Inject constructor(
             auth.currentUser?.let { user ->
                 val credential = EmailAuthProvider.getCredential(user.email!!, oldPassword)
                 user.reauthenticate(credential).await()
-                // TODO: NEEDS
-                storage.deleteImage(Globals.STORAGE_AVATAR)
+                db.collection(Globals.DB_USER).document(user.uid).delete().await()
                 user.delete().await()
                 return Right(Unit)
             }

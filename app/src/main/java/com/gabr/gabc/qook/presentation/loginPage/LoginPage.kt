@@ -22,6 +22,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.outlined.Face
+import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -50,6 +52,7 @@ import com.gabr.gabc.qook.presentation.loginPage.viewModel.LoginFormState
 import com.gabr.gabc.qook.presentation.loginPage.viewModel.LoginViewModel
 import com.gabr.gabc.qook.presentation.shared.Validators
 import com.gabr.gabc.qook.presentation.shared.components.QLoadingScreen
+import com.gabr.gabc.qook.presentation.shared.components.QQookTitle
 import com.gabr.gabc.qook.presentation.shared.components.QShimmer
 import com.gabr.gabc.qook.presentation.shared.components.QTextForm
 import com.gabr.gabc.qook.presentation.theme.AppTheme
@@ -97,13 +100,7 @@ class LoginPage : ComponentActivity() {
                         configuration.screenHeightDp.dp.value.toInt() / 2
                     }
                 ) {
-                    Text(
-                        getString(R.string.app_name),
-                        style = MaterialTheme.typography.headlineLarge.copy(
-                            color = MaterialTheme.colorScheme.primary
-                        ),
-                        modifier = Modifier.padding(bottom = 48.dp)
-                    )
+                    QQookTitle()
                 }
                 QShimmer(controller = visibilityForm) {
                     LoginForm(
@@ -174,6 +171,7 @@ class LoginPage : ComponentActivity() {
                         errorName = Validators.isNameInvalid(form.name)
                     },
                     value = form.name,
+                    leadingIcon = Icons.Outlined.Face,
                     imeAction = ImeAction.Next,
                     isError = errorName
                 )
@@ -197,6 +195,7 @@ class LoginPage : ComponentActivity() {
                     errorPassword = Validators.isPasswordInvalid(form.password)
                 },
                 value = form.password,
+                leadingIcon = Icons.Outlined.Lock,
                 obscured = true,
                 isError = errorPassword,
                 onSubmitWithImeAction = { onSubmit() }

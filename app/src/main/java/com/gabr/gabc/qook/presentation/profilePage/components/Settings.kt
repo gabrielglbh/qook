@@ -72,7 +72,6 @@ fun Settings(
             style = MaterialTheme.typography.titleLarge,
             modifier = Modifier.padding(start = 16.dp)
         )
-        // TODO: Add CRON to when to notify user about going to the grocery store
         ProfileRow(
             icon = Icons.Outlined.CalendarMonth,
             text = stringResource(R.string.profile_change_reset_timing),

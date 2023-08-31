@@ -28,7 +28,9 @@ fun ChangeWeekBeginningBottomSheet(
     onClick: (Int) -> Unit
 ) {
     QBottomSheet(modalBottomSheetState = modalBottomSheetState, onDismiss = setShowDialog) {
-        Column {
+        Column(
+            modifier = Modifier.padding(horizontal = 12.dp)
+        ) {
             QTextTitle(
                 title = R.string.profile_change_reset_timing,
                 subtitle = R.string.profile_change_reset_description
