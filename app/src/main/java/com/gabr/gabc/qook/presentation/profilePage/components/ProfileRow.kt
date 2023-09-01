@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.presentation.shared.components.QAutoSizeText
 
@@ -70,13 +71,14 @@ fun ProfileRow(
             )
             if (trailingText != null) Text(
                 trailingText,
+                fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(
                     top = 12.dp,
                     start = 8.dp,
                     end = 16.dp,
                     bottom = 12.dp
                 ),
-                color = MaterialTheme.colorScheme.outline,
+                color = textColor,
             )
         }
     }

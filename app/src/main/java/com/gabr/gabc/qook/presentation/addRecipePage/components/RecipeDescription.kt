@@ -5,74 +5,135 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Clear
+import androidx.compose.material.icons.outlined.ListAlt
 import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.presentation.addRecipePage.viewModel.AddRecipeViewModel
 import com.gabr.gabc.qook.presentation.shared.Validators
+import com.gabr.gabc.qook.presentation.shared.components.QDescriptionStep
+import com.gabr.gabc.qook.presentation.shared.components.QEmptyBox
 import com.gabr.gabc.qook.presentation.shared.components.QTextForm
+import com.gabr.gabc.qook.presentation.shared.components.QTextTitle
 
 @Composable
 fun RecipeDescription(
     modifier: Modifier, onNavigate: () -> Unit, viewModel: AddRecipeViewModel
 ) {
     val state = viewModel.recipeState.collectAsState().value
-    val configuration = LocalConfiguration.current
+    val focusManager = LocalFocusManager.current
 
-    var descriptionError by remember { mutableStateOf(false) }
+    var descriptionStep by remember { mutableStateOf("") }
+    var stepError by remember { mutableStateOf(false) }
+    var stepIndexIfUpdating by remember { mutableIntStateOf(-1) }
 
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier.fillMaxSize()
     ) {
-        Text(
-            stringResource(R.string.add_recipe_description_title),
-            style = MaterialTheme.typography.titleLarge,
-            textAlign = TextAlign.Center
+        QTextTitle(
+            title = R.string.add_recipe_description_title,
+            subtitle = R.string.add_recipe_description_description
         )
-        Spacer(modifier = Modifier.size(12.dp))
+        Spacer(modifier = Modifier.size(8.dp))
         QTextForm(
-            labelId = R.string.add_recipe_description,
-            modifier = Modifier
-                .height(configuration.screenHeightDp.dp / 1.5f)
-                .weight(1f),
-            value = state.recipe.description,
+            labelId = R.string.add_recipe_description_step,
+            value = descriptionStep,
             singleLine = false,
-            imeAction = ImeAction.Default,
-            onValueChange = {
-                viewModel.updateMetadata(description = it)
-                descriptionError = Validators.isDescriptionInvalid(it)
+            imeAction = if (descriptionStep.isEmpty()) {
+                ImeAction.Done
+            } else {
+                ImeAction.Send
+            },
+            trailingIcon = if (descriptionStep.isEmpty()) {
+                null
+            } else {
+                {
+                    IconButton(onClick = {
+                        descriptionStep = ""
+                        focusManager.clearFocus()
+                        stepIndexIfUpdating = -1
+                    }) {
+                        Icon(Icons.Outlined.Clear, contentDescription = null)
+                    }
+                }
+            },
+            onValueChange = { value ->
+                descriptionStep = value
+                stepError = Validators.isDescriptionInvalid(value)
             },
             onSubmitWithImeAction = {
-                viewModel.updateMetadata(description = state.recipe.description)
+                if (descriptionStep.trim().isEmpty() || stepError) return@QTextForm
+
+                if (stepIndexIfUpdating != -1) {
+                    if (descriptionStep.trim().isNotEmpty()) {
+                        viewModel.updateStepFromDescription(
+                            stepIndexIfUpdating,
+                            descriptionStep
+                        )
+                    }
+                } else {
+                    viewModel.addStepToDescription(descriptionStep)
+                }
+                descriptionStep = ""
+                stepIndexIfUpdating = -1
+                stepError = false
             },
-            isError = descriptionError
+            isError = stepError
         )
+        Spacer(modifier = Modifier.size(8.dp))
+        if (state.recipe.description.isNotEmpty()) LazyColumn(
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.weight(1f)
+        ) {
+            itemsIndexed(state.recipe.description) { index, step ->
+                QDescriptionStep(
+                    step = step,
+                    stepIndex = index,
+                    onClick = {
+                        stepIndexIfUpdating = index
+                        descriptionStep = step
+                    }, onClear = {
+                        viewModel.deleteStepFromDescription(step)
+                    }
+                )
+            }
+        } else {
+            QEmptyBox(
+                message = R.string.add_recipe_empty_description,
+                icon = Icons.Outlined.ListAlt,
+                modifier = Modifier.weight(1f)
+            )
+        }
         Button(
             onClick = {
-                if (state.recipe.description.trim().isNotEmpty() && !descriptionError) {
-                    onNavigate()
-                } else {
-                    descriptionError = Validators.isDescriptionInvalid(state.recipe.description)
+                if (state.recipe.description.isEmpty()) {
+                    return@Button
                 }
+                onNavigate()
             },
             modifier = Modifier
                 .fillMaxWidth()

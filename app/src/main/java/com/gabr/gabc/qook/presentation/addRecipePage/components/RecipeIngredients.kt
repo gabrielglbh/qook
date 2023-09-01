@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.RemoveShoppingCart
@@ -118,9 +119,7 @@ fun RecipeIngredients(
                     .weight(1f)
                     .padding(top = 8.dp)
             ) {
-                items(state.recipe.ingredients.size) { x ->
-                    val ingredient = state.recipe.ingredients[x]
-
+                itemsIndexed(state.recipe.ingredients) { x, ingredient ->
                     QIngredient(
                         ingredient = ingredient,
                         onClick = {

@@ -47,6 +47,7 @@ fun Settings(
 
     if (showWeekBeginningBottomSheet) {
         ChangeWeekBeginningBottomSheet(
+            selected = user.resetDay,
             modalBottomSheetState = sheetState,
             setShowDialog = {
                 showWeekBeginningBottomSheet = it

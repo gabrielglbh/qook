@@ -74,7 +74,10 @@
     <string name="add_recipe_preview_guideline">In order to modify something, go back or tap on the progress bars</string>
     <string name="add_recipe_tags_title">Select tags for your recipe</string>
     <string name="add_recipe_ingredients_description">To update an ingredient tap on it and change it</string>
+    <string name="add_recipe_description_description">To update a step tap on it and change it</string>
     <string name="err_add_recipe_ingredients_empty">You must add at least 1 ingredient to proceed</string>
+    <string name="add_recipe_empty_description">You have not added a description yet: type a step to add them to it</string>
+    <string name="add_recipe_description_step">Step</string>
 
     <string name="err_recipe_creation">Could not create recipe, try again</string>
     <string name="err_recipes_update">Could not update the recipe, try again</string>
@@ -125,7 +128,7 @@
     <string name="err_ingredients_delete">Could not delete the ingredient, try again</string>
     <string name="err_ingredients_update">Could not update the ingredient, try again</string>
     <string name="ingredients_description">Here you can manage the ingredients of your planned recipes for the week and add or remove new ingredients as well</string>
-    <string name="ingredients_reload_dialog_description">The current shopping list will reload with the ingredients present in the current planning recipes. Ingredient\'s current status (checked or unchecked) and ingredients added outside planning\'s recipes will be saved. Are you sure you want to reload?</string>
+    <string name="ingredients_reload_dialog_description">The shopping list will reload with the ingredients present in the planning recipes. Ingredient\'s current status (checked or unchecked) and ingredients added outside planning\'s recipes will be saved. Are you sure you want to reload?</string>
     <string name="ingredients_dialog_reload_button">Reload</string>
     <string name="ingredients_reload_dialog_title">Reload shopping list from planning</string>
 

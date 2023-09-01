@@ -17,7 +17,7 @@ data class RecipeDto constructor(
     @PropertyName(Globals.OBJ_RECIPE_EASINESS) val easiness: String = "",
     @PropertyName("time") val time: String = "",
     @PropertyName(Globals.OBJ_RECIPE_HAS_PHOTO) val hasPhoto: Boolean = false,
-    @PropertyName(Globals.OBJ_RECIPE_DESCRIPTION) val description: String = "",
+    @PropertyName(Globals.OBJ_RECIPE_DESCRIPTION) val description: List<String> = listOf(),
     @PropertyName(Globals.OBJ_RECIPE_INGREDIENTS) val ingredients: List<String> = listOf(),
     @PropertyName(Globals.OBJ_RECIPE_TAG_IDS) val tagIds: List<String> = listOf(),
 )

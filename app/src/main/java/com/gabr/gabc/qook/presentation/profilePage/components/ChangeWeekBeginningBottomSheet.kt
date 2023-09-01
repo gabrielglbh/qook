@@ -1,13 +1,17 @@
 package com.gabr.gabc.qook.presentation.profilePage.components
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -22,6 +26,7 @@ import com.gabr.gabc.qook.presentation.shared.components.QTextTitle
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChangeWeekBeginningBottomSheet(
+    selected: Int,
     modalBottomSheetState: SheetState,
     setShowDialog: (Boolean) -> Unit,
     list: List<String> = listOf(),
@@ -48,10 +53,17 @@ fun ChangeWeekBeginningBottomSheet(
                             setShowDialog(false)
                         },
                     ) {
-                        Text(
-                            text = list[x],
-                            modifier = Modifier.padding(horizontal = 24.dp)
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = list[x],
+                                modifier = Modifier
+                                    .padding(horizontal = 24.dp)
+                                    .weight(1f)
+                            )
+                            if (selected == x) Icon(Icons.Outlined.Check, contentDescription = "")
+                        }
                     }
                 }
             }

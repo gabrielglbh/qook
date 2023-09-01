@@ -21,7 +21,7 @@ data class Recipe(
     val easiness: Easiness,
     val time: String,
     val photo: Uri,
-    val description: String,
+    val description: List<String>,
     val ingredients: List<String>,
     val tags: List<Tag>
 ) : Parcelable {
@@ -34,7 +34,7 @@ data class Recipe(
             easiness = Easiness.EASY,
             time = "",
             photo = Uri.EMPTY,
-            description = "",
+            description = mutableListOf<String>(),
             ingredients = mutableListOf(),
             tags = mutableListOf()
         )
@@ -67,7 +67,7 @@ data class Recipe(
                 parcel.readEnum(),
                 parcel.readString() ?: "",
                 parcel.readUri(),
-                parcel.readString() ?: "",
+                mutableListOf<String>().apply { parcel.readStringList(this) },
                 mutableListOf<String>().apply { parcel.readStringList(this) },
                 mutableListOf<Tag>().apply {
                     parcel.readTypedList(this, parcelableCreator<Tag>())
@@ -83,7 +83,7 @@ data class Recipe(
             parcel.writeEnum(easiness)
             parcel.writeString(time)
             parcel.writeUri(photo)
-            parcel.writeString(description)
+            parcel.writeStringList(description)
             parcel.writeStringList(ingredients)
             parcel.writeTypedList(tags)
         }
