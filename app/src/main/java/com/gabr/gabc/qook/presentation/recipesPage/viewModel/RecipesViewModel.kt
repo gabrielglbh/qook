@@ -151,7 +151,7 @@ class RecipesViewModel @Inject constructor(
                     ifLeft = { e -> onError(e.error) },
                     ifRight = {
                         val iResult =
-                            ingredientsRepository.updateIngredient(Ingredients(ingredients))
+                            ingredientsRepository.updateIngredients(Ingredients(ingredients))
                         iResult.fold(
                             ifLeft = { e -> onError(e.error) },
                             ifRight = { onSuccess(recipe, dayPlanning) }

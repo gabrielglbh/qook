@@ -105,6 +105,7 @@ class RecipeDetailsPage : ComponentActivity() {
             QDialog(
                 onDismissRequest = { showConfirmationDialog.value = false },
                 leadingIcon = Icons.Outlined.Delete,
+                buttonTitle = R.string.recipe_details_remove_recipe_button,
                 title = R.string.recipe_details_remove_recipe,
                 content = {
                     Text(

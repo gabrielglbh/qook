@@ -78,7 +78,7 @@ class ShoppingListViewModel @Inject constructor(
                 ingredientsMapped[key] = value
             }
 
-            val result = ingredientsRepository.updateIngredient(Ingredients(ingredientsMapped))
+            val result = ingredientsRepository.updateIngredients(Ingredients(ingredientsMapped))
             result.fold(
                 ifLeft = {},
                 ifRight = {
@@ -92,9 +92,7 @@ class ShoppingListViewModel @Inject constructor(
 
     fun addIngredientToList(ingredient: String) {
         viewModelScope.launch {
-            val result = ingredientsRepository.updateIngredient(
-                Ingredients(mapOf(Pair(ingredient, false)))
-            )
+            val result = ingredientsRepository.updateIngredient(Pair(ingredient, false))
             result.fold(
                 ifLeft = {},
                 ifRight = {
@@ -106,9 +104,7 @@ class ShoppingListViewModel @Inject constructor(
 
     fun removeIngredientFromList(ingredient: Pair<String, Boolean>) {
         viewModelScope.launch {
-            val result = ingredientsRepository.removeIngredient(
-                Ingredients(mapOf(ingredient))
-            )
+            val result = ingredientsRepository.removeIngredient(ingredient)
             result.fold(
                 ifLeft = {},
                 ifRight = {
@@ -121,7 +117,7 @@ class ShoppingListViewModel @Inject constructor(
     fun updateIngredient(ingredient: Pair<String, Boolean>) {
         viewModelScope.launch {
             val result = ingredientsRepository.updateIngredient(
-                Ingredients(mapOf(ingredient.copy(second = !ingredient.second)))
+                ingredient.copy(second = !ingredient.second)
             )
             result.fold(
                 ifLeft = {},

@@ -110,6 +110,7 @@
     <string name="recipe_details">Detalles</string>
     <string name="recipe_details_remove_recipe">Eliminar receta</string>
     <string name="recipe_details_delete_warning">¿Estás seguro de que quieres eliminar %1$s?</string>
+    <string name="recipe_details_remove_recipe_button">Eliminar</string>
 
     <string name="err_plannings_retrieval">No se ha podido recoger el planning, prueba otra vez</string>
     <string name="err_planning_update">No se ha podido actualizar el planning, prueba otra vez</string>
@@ -120,7 +121,7 @@
     <string name="planning_confirmation_msg">¿Seguro que quieres añadir %1$s al planning para el %2$s?</string>
     <string name="planning_description">Planifica tu semana con comidas y cenas con tus recetas</string>
     <string name="planning_no_recipe_added">No se ha añadido receta todavía</string>
-    <string name="reset_planning">Reestableces planning</string>
+    <string name="reset_planning">Reestablecer planning</string>
     <string name="reset_planning_description">Todo el planning será vaciado para hacer uno nuevo desde el principio</string>
     <string name="planning_reset_button">Reestablecer</string>
     <string name="planning_add_to_planning_button">Añadir al planning</string>

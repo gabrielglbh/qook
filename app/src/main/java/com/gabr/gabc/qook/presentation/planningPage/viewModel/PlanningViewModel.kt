@@ -75,7 +75,7 @@ class PlanningViewModel @Inject constructor(
             res.fold(
                 ifLeft = { e -> onError(e.error) },
                 ifRight = {
-                    val iResult = ingredientsRepository.removeIngredient(Ingredients(ingredients))
+                    val iResult = ingredientsRepository.removeIngredients(Ingredients(ingredients))
                     iResult.fold(
                         ifLeft = { e -> onError(e.error) },
                         ifRight = {

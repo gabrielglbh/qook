@@ -109,6 +109,7 @@
     <string name="recipe_details">Details</string>
     <string name="recipe_details_remove_recipe">Remove recipe</string>
     <string name="recipe_details_delete_warning">Are you sure you want to remove %1$s?</string>
+    <string name="recipe_details_remove_recipe_button">Remove</string>
 
     <string name="err_plannings_retrieval">Could not retrieve planning, try again</string>
     <string name="err_planning_update">Could not update planning, try again</string>
