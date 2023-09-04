@@ -51,6 +51,7 @@
     <string name="sunday">Sunday</string>
 
     <string name="add_recipe_title">Add Recipe</string>
+    <string name="update_recipe_title">Update recipe</string>
     <string name="add_recipe_next">Next</string>
     <string name="add_recipe_ready">See preview</string>
     <string name="add_recipe_name">Recipe name</string>
@@ -78,6 +79,8 @@
     <string name="err_add_recipe_ingredients_empty">You must add at least 1 ingredient to proceed</string>
     <string name="add_recipe_empty_description">You have not added a description yet: type a step to add them to it</string>
     <string name="add_recipe_description_step">Step</string>
+    <string name="add_recipe_recipe_link">Optional: Recipe link</string>
+    <string name="recipe_details_link">Recipe link</string>
 
     <string name="err_recipe_creation">Could not create recipe, try again</string>
     <string name="err_recipes_update">Could not update the recipe, try again</string>
@@ -110,6 +113,7 @@
     <string name="recipe_details_remove_recipe">Remove recipe</string>
     <string name="recipe_details_delete_warning">Are you sure you want to remove %1$s?</string>
     <string name="recipe_details_remove_recipe_button">Remove</string>
+    <string name="err_recipe_details_open_link">Could not open external link, provide a new one</string>
 
     <string name="err_plannings_retrieval">Could not retrieve planning, try again</string>
     <string name="err_planning_update">Could not update planning, try again</string>

@@ -52,6 +52,7 @@
     <string name="sunday">Domingo</string>
 
     <string name="add_recipe_title">Añadir Receta</string>
+    <string name="update_recipe_title">Actualizar receta</string>
     <string name="add_recipe_next">Siguiente</string>
     <string name="add_recipe_ready">Mirar vista previa</string>
     <string name="add_recipe_name">Nombre de la receta</string>
@@ -79,6 +80,8 @@
     <string name="err_add_recipe_ingredients_empty">Debes añadir por lo menos 1 ingrediente para seguir</string>
     <string name="add_recipe_empty_description">No has añadido ninguna descripción todavía: escribe pasos para añadirlos</string>
     <string name="add_recipe_description_step">Paso</string>
+    <string name="add_recipe_recipe_link">Opcional: Link de la receta</string>
+    <string name="recipe_details_link">Link de la receta</string>
 
     <string name="err_recipe_creation">No se ha podido crear la receta, prueba otra vez</string>
     <string name="err_recipes_retrieve">No se ha podido recoger la receta, prueba otra vez</string>
@@ -111,6 +114,7 @@
     <string name="recipe_details_remove_recipe">Eliminar receta</string>
     <string name="recipe_details_delete_warning">¿Estás seguro de que quieres eliminar %1$s?</string>
     <string name="recipe_details_remove_recipe_button">Eliminar</string>
+    <string name="err_recipe_details_open_link">No se ha podido abrir el link externo, prueba con uno nuevo</string>
 
     <string name="err_plannings_retrieval">No se ha podido recoger el planning, prueba otra vez</string>
     <string name="err_planning_update">No se ha podido actualizar el planning, prueba otra vez</string>

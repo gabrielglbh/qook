@@ -21,6 +21,7 @@ data class Recipe(
     val easiness: Easiness,
     val time: String,
     val photo: Uri,
+    val recipeUrl: String?,
     val description: List<String>,
     val ingredients: List<String>,
     val tags: List<Tag>
@@ -34,7 +35,8 @@ data class Recipe(
             easiness = Easiness.EASY,
             time = "",
             photo = Uri.EMPTY,
-            description = mutableListOf<String>(),
+            recipeUrl = null,
+            description = mutableListOf(),
             ingredients = mutableListOf(),
             tags = mutableListOf()
         )
@@ -67,6 +69,7 @@ data class Recipe(
                 parcel.readEnum(),
                 parcel.readString() ?: "",
                 parcel.readUri(),
+                parcel.readString(),
                 mutableListOf<String>().apply { parcel.readStringList(this) },
                 mutableListOf<String>().apply { parcel.readStringList(this) },
                 mutableListOf<Tag>().apply {
@@ -83,6 +86,7 @@ data class Recipe(
             parcel.writeEnum(easiness)
             parcel.writeString(time)
             parcel.writeUri(photo)
+            parcel.writeString(recipeUrl)
             parcel.writeStringList(description)
             parcel.writeStringList(ingredients)
             parcel.writeTypedList(tags)
@@ -112,6 +116,7 @@ fun Recipe.toDto(): RecipeDto {
         easiness.name,
         time,
         photo != Uri.EMPTY,
+        recipeUrl,
         description,
         ingredients,
         tags.map { it.id }

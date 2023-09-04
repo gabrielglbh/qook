@@ -20,6 +20,7 @@ class Globals {
         const val OBJ_RECIPE_EASINESS = "easiness"
         const val OBJ_RECIPE_CREATION = "creationDate"
         const val OBJ_RECIPE_UPDATE = "updateDate"
+        const val OBJ_RECIPE_URL = "recipeUrl"
         const val OBJ_RECIPE_DESCRIPTION = "description"
         const val OBJ_RECIPE_INGREDIENTS = "ingredients"
         const val OBJ_RECIPE_HAS_PHOTO = "hasPhoto"

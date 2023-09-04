@@ -25,14 +25,17 @@ import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -45,7 +48,9 @@ import com.gabr.gabc.qook.presentation.theme.AppTheme
 import java.util.Calendar
 
 @Composable
-fun QRecipeDetail(recipe: Recipe, modifier: Modifier) {
+fun QRecipeDetail(recipe: Recipe, modifier: Modifier, onRecipeUrlClick: (() -> Unit)? = null) {
+    val config = LocalConfiguration.current
+
     Column(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -53,7 +58,7 @@ fun QRecipeDetail(recipe: Recipe, modifier: Modifier) {
             .fillMaxWidth()
             .verticalScroll(rememberScrollState()),
     ) {
-        QImageContainer(
+        if (recipe.photo != Uri.EMPTY) QImageContainer(
             uri = recipe.photo,
             placeholder = Icons.Outlined.Photo,
         )
@@ -98,7 +103,10 @@ fun QRecipeDetail(recipe: Recipe, modifier: Modifier) {
                 )
             }
             Divider(
-                modifier = Modifier.padding(vertical = 8.dp),
+                modifier = Modifier.padding(
+                    vertical = 8.dp,
+                    horizontal = config.screenWidthDp.dp / 4
+                ),
                 color = MaterialTheme.colorScheme.onSecondaryContainer
             )
             Row(
@@ -117,9 +125,33 @@ fun QRecipeDetail(recipe: Recipe, modifier: Modifier) {
                     modifier = Modifier.weight(1f)
                 )
             }
+            if (recipe.recipeUrl != null) Divider(
+                modifier = Modifier.padding(
+                    vertical = 8.dp,
+                    horizontal = config.screenWidthDp.dp / 4
+                ),
+                color = MaterialTheme.colorScheme.onSecondaryContainer
+            )
+            if (recipe.recipeUrl != null) Surface(
+                onClick = {
+                    onRecipeUrlClick?.let { it() }
+                },
+                shape = MaterialTheme.shapes.small,
+                color = Color.Transparent,
+            ) {
+                Text(
+                    recipe.recipeUrl,
+                    color = Color.Blue,
+                    textDecoration = TextDecoration.Underline,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(2.dp),
+                )
+            }
         }
         Spacer(modifier = Modifier.size(12.dp))
         QContentCard(
+            modifier = Modifier.fillMaxWidth(),
             backgroundContent = {
                 Icon(
                     Icons.Outlined.ReceiptLong,
@@ -148,6 +180,7 @@ fun QRecipeDetail(recipe: Recipe, modifier: Modifier) {
         }
         Spacer(modifier = Modifier.size(12.dp))
         QContentCard(
+            modifier = Modifier.fillMaxWidth(),
             backgroundContent = {
                 Icon(
                     Icons.Outlined.ContentPaste,
@@ -165,10 +198,14 @@ fun QRecipeDetail(recipe: Recipe, modifier: Modifier) {
             Spacer(modifier = Modifier.size(8.dp))
             Column {
                 recipe.description.forEachIndexed { index, step ->
-                    Row (
+                    Row(
                         modifier = Modifier.padding(bottom = 12.dp)
                     ) {
-                        QDescriptionStep(step = step, stepIndex = index, color = MaterialTheme.colorScheme.onSecondaryContainer)
+                        QDescriptionStep(
+                            step = step,
+                            stepIndex = index,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
                     }
                 }
             }
@@ -209,6 +246,7 @@ fun PreviewQRecipeDetail() {
                 Easiness.MEDIUM,
                 "5 minutos",
                 Uri.EMPTY,
+                "url test",
                 listOf(
                     "Cortamos la parte del tallo de la berenjena. Después la cortamos a lo largo, por la mitad y a cada mitad, le vamos a hacer unos cortes con un cuchillo. Sin llegar a la parte de la piel. Le hacemos unos cortes, primero a lo largo y luego a lo ancho, para obtener al final unos cortes «en forma de rejilla». Hecho esto, las ponemos en una bandeja de horno, regamos la parte de la carne con un pequeño chorrito de aceite (la berenjena lo absorberá enseguida) y lo metemos en el horno, previamente calentado a 180ºC. Dejamos aquí unos 20 minutos",
                     "Pasado el tiempo, retiramos y esperamos que se templen un poco. Después, con una cuchara retiramos la pulpa, manteniendo la cáscara intacta. Al estar parcialmente horneada, se separará muy fácil",

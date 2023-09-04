@@ -48,6 +48,8 @@ fun RecipeDescription(
     var stepError by remember { mutableStateOf(false) }
     var stepIndexIfUpdating by remember { mutableIntStateOf(-1) }
 
+    var recipeUrl by remember { mutableStateOf(state.recipe.recipeUrl ?: "") }
+
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -128,6 +130,31 @@ fun RecipeDescription(
                 modifier = Modifier.weight(1f)
             )
         }
+        Spacer(modifier = Modifier.size(8.dp))
+        QTextForm(
+            labelId = R.string.add_recipe_recipe_link,
+            value = recipeUrl,
+            imeAction = ImeAction.Done,
+            trailingIcon = if (recipeUrl.isEmpty()) {
+                null
+            } else {
+                {
+                    IconButton(onClick = {
+                        recipeUrl = ""
+                        focusManager.clearFocus()
+                    }) {
+                        Icon(Icons.Outlined.Clear, contentDescription = null)
+                    }
+                }
+            },
+            onValueChange = { value ->
+                recipeUrl = value
+            },
+            onSubmitWithImeAction = {
+                viewModel.updateMetadata(recipeUrl = recipeUrl)
+                recipeUrl = ""
+            },
+        )
         Button(
             onClick = {
                 if (state.recipe.description.isEmpty()) {

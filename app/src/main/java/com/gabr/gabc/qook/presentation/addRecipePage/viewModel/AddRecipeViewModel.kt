@@ -93,7 +93,12 @@ class AddRecipeViewModel @Inject constructor(
                     } else {
                         Calendar.getInstance().time
                     },
-                    updateDate = Calendar.getInstance().time
+                    updateDate = Calendar.getInstance().time,
+                    recipeUrl = if (recipe.recipeUrl?.trim()?.isEmpty() == true) {
+                        null
+                    } else {
+                        recipe.recipeUrl
+                    }
                 ),
                 id = if (isUpdating) {
                     recipe.id
@@ -128,6 +133,7 @@ class AddRecipeViewModel @Inject constructor(
         photo: Uri? = null,
         easiness: Easiness? = null,
         time: String? = null,
+        recipeUrl: String? = null,
         ingredients: List<String>? = null,
         description: List<String>? = null
     ) {
@@ -139,6 +145,7 @@ class AddRecipeViewModel @Inject constructor(
                 photo = photo ?: recipe.photo,
                 easiness = easiness ?: recipe.easiness,
                 time = time ?: recipe.time,
+                recipeUrl = recipeUrl ?: recipeUrl,
                 ingredients = ingredients ?: recipe.ingredients,
                 description = description ?: recipe.description
             )

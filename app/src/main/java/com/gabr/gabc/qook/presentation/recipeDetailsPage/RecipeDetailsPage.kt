@@ -1,7 +1,9 @@
 package com.gabr.gabc.qook.presentation.recipeDetailsPage
 
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -100,6 +102,8 @@ class RecipeDetailsPage : ComponentActivity() {
         val scope = rememberCoroutineScope()
         val snackbarHostState = remember { SnackbarHostState() }
         val showConfirmationDialog = remember { mutableStateOf(false) }
+
+        val errOpenLink = stringResource(R.string.err_recipe_details_open_link)
 
         if (showConfirmationDialog.value)
             QDialog(
@@ -203,7 +207,21 @@ class RecipeDetailsPage : ComponentActivity() {
                     Column {
                         QRecipeDetail(
                             recipe = viewModel.recipe.value,
-                            modifier = Modifier.padding(start = 12.dp, end = 12.dp, bottom = 12.dp)
+                            modifier = Modifier.padding(start = 12.dp, end = 12.dp, bottom = 12.dp),
+                            onRecipeUrlClick = {
+                                try {
+                                    startActivity(
+                                        Intent(
+                                            Intent.ACTION_VIEW,
+                                            Uri.parse(viewModel.recipe.value.recipeUrl)
+                                        )
+                                    )
+                                } catch (_: ActivityNotFoundException) {
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar(errOpenLink)
+                                    }
+                                }
+                            }
                         )
 
                     }

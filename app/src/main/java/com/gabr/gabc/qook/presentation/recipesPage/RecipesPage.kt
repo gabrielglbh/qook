@@ -21,14 +21,17 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.PostAdd
 import androidx.compose.material.icons.outlined.Receipt
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -322,22 +325,28 @@ class RecipesPage : ComponentActivity() {
                                 LazyColumn(
                                     modifier = modifier
                                 ) {
-                                    items(state.searchedRecipes) { recipe ->
-                                        QRecipeItem(
-                                            recipe = recipe,
-                                            modifier = Modifier.padding(8.dp)
-                                        ) {
-                                            if (planningState.dayPlanning != DayPlanning.EMPTY_DAY_PLANNING || planningState.isLunch != null) {
-                                                selectedRecipeForPlanning = recipe
-                                            } else {
-                                                val intent =
-                                                    Intent(
-                                                        this@RecipesPage,
-                                                        RecipeDetailsPage::class.java
+                                    itemsIndexed(state.searchedRecipes) { x, recipe ->
+                                        Column {
+                                            QRecipeItem(
+                                                recipe = recipe,
+                                                modifier = Modifier.padding(8.dp)
+                                            ) {
+                                                if (planningState.dayPlanning != DayPlanning.EMPTY_DAY_PLANNING || planningState.isLunch != null) {
+                                                    selectedRecipeForPlanning = recipe
+                                                } else {
+                                                    val intent =
+                                                        Intent(
+                                                            this@RecipesPage,
+                                                            RecipeDetailsPage::class.java
+                                                        )
+                                                    intent.putExtra(
+                                                        RecipeDetailsPage.RECIPE,
+                                                        recipe
                                                     )
-                                                intent.putExtra(RecipeDetailsPage.RECIPE, recipe)
-                                                resultLauncher.launch(intent)
+                                                    resultLauncher.launch(intent)
+                                                }
                                             }
+                                            if (x < state.searchedRecipes.size - 1) Divider(color = MaterialTheme.colorScheme.outlineVariant)
                                         }
                                     }
                                 }

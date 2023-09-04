@@ -222,7 +222,11 @@ class AddRecipePage : ComponentActivity() {
             Scaffold(
                 topBar = {
                     QActionBar(
-                        title = R.string.add_recipe_title,
+                        title = if (state.originalRecipe == Recipe.EMPTY_RECIPE) {
+                            R.string.add_recipe_title
+                        } else {
+                            R.string.update_recipe_title
+                        },
                         onBack = {
                             if (currentPage != RecipeStep.DATA) {
                                 navController.popBackStack()

@@ -37,34 +37,27 @@ import java.util.Calendar
 @Composable
 fun QRecipeItem(
     recipe: Recipe,
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     simplified: Boolean = false,
     onClick: (() -> Unit)? = null
 ) {
     Surface(
         enabled = onClick != null,
         onClick = { onClick?.let { it() } },
-        shape = MaterialTheme.shapes.small
+        shape = MaterialTheme.shapes.small,
+        color = Color.Transparent,
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start,
             modifier = modifier.fillMaxWidth()
         ) {
-            QImageContainer(
-                uri = recipe.photo,
-                placeholder = Icons.Outlined.Photo,
-                shape = MaterialTheme.shapes.large,
-                size = if (simplified) {
-                    72.dp
-                } else {
-                    128.dp
-                }
-            )
-            Spacer(modifier = Modifier.size(12.dp))
             Column(
                 verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.Start
+                horizontalAlignment = Alignment.Start,
+                modifier = Modifier
+                    .padding(end = 12.dp)
+                    .weight(1f)
             ) {
                 Text(
                     recipe.name,
@@ -98,6 +91,16 @@ fun QRecipeItem(
                     }
                 )
             }
+            if (recipe.photo != Uri.EMPTY) QImageContainer(
+                uri = recipe.photo,
+                placeholder = Icons.Outlined.Photo,
+                shape = MaterialTheme.shapes.large,
+                size = if (simplified) {
+                    72.dp
+                } else {
+                    128.dp
+                }
+            )
         }
     }
 }
@@ -138,6 +141,7 @@ fun PreviewQRecipeItem() {
                 Easiness.MEDIUM,
                 "5 minutos",
                 Uri.EMPTY,
+                "test url",
                 listOf(
                     "Cortamos la parte del tallo de la berenjena. Después la cortamos a lo largo, por la mitad y a cada mitad, le vamos a hacer unos cortes con un cuchillo. Sin llegar a la parte de la piel. Le hacemos unos cortes, primero a lo largo y luego a lo ancho, para obtener al final unos cortes «en forma de rejilla». Hecho esto, las ponemos en una bandeja de horno, regamos la parte de la carne con un pequeño chorrito de aceite (la berenjena lo absorberá enseguida) y lo metemos en el horno, previamente calentado a 180ºC. Dejamos aquí unos 20 minutos",
                     "Pasado el tiempo, retiramos y esperamos que se templen un poco. Después, con una cuchara retiramos la pulpa, manteniendo la cáscara intacta. Al estar parcialmente horneada, se separará muy fácil",
