@@ -71,7 +71,7 @@ fun Settings(
         Text(
             stringResource(R.string.profile_settings_label),
             style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(start = 16.dp)
+            modifier = Modifier.padding(start = 16.dp, bottom = 12.dp)
         )
         ProfileRow(
             icon = Icons.Outlined.CalendarMonth,

@@ -141,6 +141,7 @@ fun RecipeDescription(
                 {
                     IconButton(onClick = {
                         recipeUrl = ""
+                        viewModel.updateMetadata(recipeUrl = recipeUrl)
                         focusManager.clearFocus()
                     }) {
                         Icon(Icons.Outlined.Clear, contentDescription = null)
@@ -157,6 +158,7 @@ fun RecipeDescription(
         )
         Button(
             onClick = {
+                viewModel.updateMetadata(recipeUrl = recipeUrl)
                 if (state.recipe.description.isEmpty()) {
                     return@Button
                 }

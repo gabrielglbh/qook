@@ -32,8 +32,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.DoubleArrow
 import androidx.compose.material.icons.outlined.NightlightRound
+import androidx.compose.material.icons.outlined.PostAdd
 import androidx.compose.material.icons.outlined.Today
 import androidx.compose.material.icons.outlined.WbSunny
+import androidx.compose.material3.FabPosition
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -60,6 +63,7 @@ import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.planning.DayPlanning
 import com.gabr.gabc.qook.domain.recipe.Recipe
 import com.gabr.gabc.qook.domain.user.User
+import com.gabr.gabc.qook.presentation.addRecipePage.AddRecipePage
 import com.gabr.gabc.qook.presentation.homePage.viewModel.HomeViewModel
 import com.gabr.gabc.qook.presentation.homePage.viewModel.UserState
 import com.gabr.gabc.qook.presentation.planningPage.PlanningPage
@@ -168,7 +172,27 @@ class HomePage : ComponentActivity() {
             },
             snackbarHost = {
                 SnackbarHost(snackbarHostState)
-            }
+            },
+            floatingActionButton = {
+                FloatingActionButton(
+                    onClick = {
+                        startActivity(Intent(this@HomePage, AddRecipePage::class.java))
+                    }
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(4.dp)
+                    ) {
+                        Icon(Icons.Outlined.PostAdd, "")
+                        Spacer(modifier = Modifier.size(8.dp))
+                        Text(
+                            stringResource(R.string.home_add_recipe_bnb),
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                    }
+                }
+            },
+            floatingActionButtonPosition = FabPosition.End
         ) {
             Box(
                 contentAlignment = Alignment.TopCenter,

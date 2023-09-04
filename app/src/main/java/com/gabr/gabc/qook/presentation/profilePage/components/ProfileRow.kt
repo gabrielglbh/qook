@@ -26,7 +26,7 @@ fun ProfileRow(
     modifier: Modifier = Modifier,
     @DrawableRes res: Int? = null,
     icon: ImageVector? = null,
-    textColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
+    textColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
     trailingText: String? = null,
     text: String,
     onClick: () -> Unit,

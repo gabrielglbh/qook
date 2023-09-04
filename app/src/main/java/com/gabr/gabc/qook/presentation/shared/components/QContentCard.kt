@@ -22,7 +22,7 @@ fun QContentCard(
     arrangement: Arrangement.Vertical = Arrangement.Center,
     alignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     onClick: (() -> Unit)? = null,
-    color: Color = MaterialTheme.colorScheme.secondaryContainer,
+    color: Color = MaterialTheme.colorScheme.primaryContainer,
     backgroundContent: (@Composable (Modifier) -> Unit)? = null,
     backgroundSize: Dp = 148.dp,
     content: @Composable () -> Unit

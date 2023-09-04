@@ -107,7 +107,7 @@ fun QRecipeDetail(recipe: Recipe, modifier: Modifier, onRecipeUrlClick: (() -> U
                     vertical = 8.dp,
                     horizontal = config.screenWidthDp.dp / 4
                 ),
-                color = MaterialTheme.colorScheme.onSecondaryContainer
+                color = MaterialTheme.colorScheme.onPrimaryContainer
             )
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -130,7 +130,7 @@ fun QRecipeDetail(recipe: Recipe, modifier: Modifier, onRecipeUrlClick: (() -> U
                     vertical = 8.dp,
                     horizontal = config.screenWidthDp.dp / 4
                 ),
-                color = MaterialTheme.colorScheme.onSecondaryContainer
+                color = MaterialTheme.colorScheme.onPrimaryContainer
             )
             if (recipe.recipeUrl != null) Surface(
                 onClick = {
@@ -164,7 +164,7 @@ fun QRecipeDetail(recipe: Recipe, modifier: Modifier, onRecipeUrlClick: (() -> U
                 stringResource(R.string.recipe_details_ingredients),
                 style = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSecondaryContainer
+                color = MaterialTheme.colorScheme.onPrimaryContainer
             )
             Spacer(modifier = Modifier.size(12.dp))
             Column(
@@ -173,7 +173,7 @@ fun QRecipeDetail(recipe: Recipe, modifier: Modifier, onRecipeUrlClick: (() -> U
                 recipe.ingredients.forEach {
                     QIngredient(
                         ingredient = it,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 }
             }
@@ -193,7 +193,7 @@ fun QRecipeDetail(recipe: Recipe, modifier: Modifier, onRecipeUrlClick: (() -> U
                 stringResource(R.string.recipe_details_steps),
                 style = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSecondaryContainer
+                color = MaterialTheme.colorScheme.onPrimaryContainer
             )
             Spacer(modifier = Modifier.size(8.dp))
             Column {
@@ -204,7 +204,7 @@ fun QRecipeDetail(recipe: Recipe, modifier: Modifier, onRecipeUrlClick: (() -> U
                         QDescriptionStep(
                             step = step,
                             stepIndex = index,
-                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                     }
                 }
@@ -219,13 +219,13 @@ private fun TextWithIcon(icon: ImageVector, text: String, modifier: Modifier = M
     Icon(
         icon,
         "",
-        tint = MaterialTheme.colorScheme.onSecondaryContainer
+        tint = MaterialTheme.colorScheme.onPrimaryContainer
     )
     Spacer(modifier = Modifier.size(4.dp))
     Text(
         text,
         style = MaterialTheme.typography.titleSmall.copy(
-            color = MaterialTheme.colorScheme.onSecondaryContainer
+            color = MaterialTheme.colorScheme.onPrimaryContainer
         ),
         modifier = modifier,
         maxLines = 1,

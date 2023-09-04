@@ -85,7 +85,7 @@ fun Account(
         Text(
             stringResource(R.string.profile_account_label),
             style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(start = 16.dp)
+            modifier = Modifier.padding(start = 16.dp, bottom = 12.dp)
         )
         ProfileRow(
             icon = Icons.Outlined.Face,
