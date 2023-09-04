@@ -141,4 +141,40 @@ class IngredientRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getIngredientsOfShoppingListFromGroup(id: String): Either<IngredientsFailure, Ingredients> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun removeIngredientFromGroup(
+        id: String,
+        ingredient: Pair<String, Boolean>
+    ): Either<IngredientsFailure, Unit> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun removeIngredientsFromGroup(
+        id: String,
+        ingredients: Ingredients
+    ): Either<IngredientsFailure, Unit> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun updateIngredientFromGroup(
+        id: String,
+        ingredient: Pair<String, Boolean>
+    ): Either<IngredientsFailure, Unit> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun updateIngredientsFromGroup(
+        id: String,
+        ingredients: Ingredients
+    ): Either<IngredientsFailure, Unit> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun resetIngredientsFromGroup(id: String): Either<IngredientsFailure, Unit> {
+        TODO("Not yet implemented")
+    }
+
 }
