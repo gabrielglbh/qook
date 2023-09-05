@@ -141,7 +141,7 @@ fun QRecipeDetail(recipe: Recipe, modifier: Modifier, onRecipeUrlClick: (() -> U
             ) {
                 Text(
                     recipe.recipeUrl,
-                    color = Color.Blue,
+                    color = MaterialTheme.colorScheme.tertiary,
                     textDecoration = TextDecoration.Underline,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -179,7 +179,7 @@ fun QRecipeDetail(recipe: Recipe, modifier: Modifier, onRecipeUrlClick: (() -> U
             }
         }
         Spacer(modifier = Modifier.size(12.dp))
-        QContentCard(
+        if (recipe.description.isNotEmpty()) QContentCard(
             modifier = Modifier.fillMaxWidth(),
             backgroundContent = {
                 Icon(

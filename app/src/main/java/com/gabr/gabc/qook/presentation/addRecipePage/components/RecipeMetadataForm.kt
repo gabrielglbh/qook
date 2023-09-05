@@ -41,6 +41,7 @@ import com.gabr.gabc.qook.presentation.addRecipePage.viewModel.AddRecipeViewMode
 import com.gabr.gabc.qook.presentation.shared.Validators
 import com.gabr.gabc.qook.presentation.shared.components.QImageContainer
 import com.gabr.gabc.qook.presentation.shared.components.QTextForm
+import com.gabr.gabc.qook.presentation.shared.components.QTextTitle
 
 @Composable
 fun RecipeMetadataForm(
@@ -60,6 +61,11 @@ fun RecipeMetadataForm(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier.fillMaxSize()
     ) {
+        QTextTitle(
+            title = R.string.add_recipe_provide_the_basics,
+            subtitle = R.string.add_recipe_basics_navigation
+        )
+        Spacer(modifier = Modifier.size(8.dp))
         Column(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())

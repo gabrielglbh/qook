@@ -62,23 +62,30 @@ fun QRecipeItem(
                 Text(
                     recipe.name,
                     style = MaterialTheme.typography.titleMedium,
-                    maxLines = 2,
+                    maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                if (!simplified) Spacer(modifier = Modifier.size(8.dp))
-                if (!simplified) TextWithIcon(
-                    icon = Icons.Outlined.Bolt,
-                    text = when (recipe.easiness) {
-                        Easiness.EASY -> stringResource(R.string.add_recipe_easiness_EASY)
-                        Easiness.MEDIUM -> stringResource(R.string.add_recipe_easiness_MEDIUM)
-                        Easiness.HARD -> stringResource(R.string.add_recipe_easiness_HARD)
-                    },
-                )
-                if (!simplified) Spacer(modifier = Modifier.size(8.dp))
-                if (!simplified) TextWithIcon(
-                    icon = Icons.Outlined.Timer,
-                    text = recipe.time,
-                )
+                Spacer(modifier = Modifier.size(8.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    TextWithIcon(
+                        icon = Icons.Outlined.Bolt,
+                        text = when (recipe.easiness) {
+                            Easiness.EASY -> stringResource(R.string.add_recipe_easiness_EASY)
+                            Easiness.MEDIUM -> stringResource(R.string.add_recipe_easiness_MEDIUM)
+                            Easiness.HARD -> stringResource(R.string.add_recipe_easiness_HARD)
+                        },
+                    )
+                    Spacer(modifier = Modifier.size(8.dp))
+                    Text("•")
+                    Spacer(modifier = Modifier.size(8.dp))
+                    TextWithIcon(
+                        icon = Icons.Outlined.Timer,
+                        text = recipe.time,
+                    )
+                }
                 LazyRow(
                     modifier = Modifier.fillMaxWidth(),
                     content = {
@@ -98,7 +105,7 @@ fun QRecipeItem(
                 size = if (simplified) {
                     72.dp
                 } else {
-                    128.dp
+                    100.dp
                 }
             )
         }
