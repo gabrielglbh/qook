@@ -71,6 +71,11 @@
             android:theme="@style/Theme.Qook"
             android:windowSoftInputMode="adjustResize" />
         <activity
+            android:name=".presentation.addSharedPlanning.AddSharedPlanningPage"
+            android:exported="true"
+            android:theme="@style/Theme.Qook"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
             android:name=".presentation.recipesPage.RecipesPage"
             android:exported="true"
             android:theme="@style/Theme.Qook"

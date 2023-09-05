@@ -1,4 +1,4 @@
-package com.gabr.gabc.qook.presentation.profilePage.components
+package com.gabr.gabc.qook.presentation.shared.components
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
@@ -19,10 +19,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.gabr.gabc.qook.presentation.shared.components.QAutoSizeText
 
 @Composable
-fun ProfileRow(
+fun QSelectableItem(
     modifier: Modifier = Modifier,
     @DrawableRes res: Int? = null,
     icon: ImageVector? = null,

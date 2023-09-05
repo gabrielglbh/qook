@@ -123,7 +123,7 @@ exports.onCreateSharedPlanning = functions.firestore
     .document("GROUPS/{id}")
     .onCreate(async (snap, context) => {
       try {
-        const groupId = context.params.uid;
+        const groupId = context.params.id;
 
         const planningRef = database.collection("GROUPS").doc(groupId)
             .collection("PLANNING");
@@ -179,7 +179,7 @@ exports.onRemoveSharedPlanning = functions.firestore
     .document("GROUPS/{id}")
     .onDelete(async (snap, context) => {
       try {
-        const groupId = context.params.uid;
+        const groupId = context.params.id;
 
         const planningRef = database.collection("GROUPS").doc(groupId)
             .collection("PLANNING");

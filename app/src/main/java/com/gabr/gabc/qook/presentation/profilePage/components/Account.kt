@@ -21,6 +21,7 @@ import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.user.User
 import com.gabr.gabc.qook.presentation.profilePage.viewModel.ProfileViewModel
 import com.gabr.gabc.qook.presentation.shared.components.QContentCard
+import com.gabr.gabc.qook.presentation.shared.components.QSelectableItem
 
 @Composable
 fun Account(
@@ -87,20 +88,20 @@ fun Account(
             style = MaterialTheme.typography.titleLarge,
             modifier = Modifier.padding(start = 16.dp, bottom = 12.dp)
         )
-        ProfileRow(
+        QSelectableItem(
             icon = Icons.Outlined.Face,
             text = stringResource(R.string.profile_change_name),
             trailingText = user.name
         ) {
             showNameDialog.value = true
         }
-        ProfileRow(
+        QSelectableItem(
             icon = Icons.Outlined.Lock,
             text = stringResource(R.string.profile_change_password)
         ) {
             showPasswordDialog.value = true
         }
-        ProfileRow(
+        QSelectableItem(
             icon = Icons.Outlined.Delete,
             text = stringResource(R.string.profile_delete_account),
             textColor = MaterialTheme.colorScheme.error,

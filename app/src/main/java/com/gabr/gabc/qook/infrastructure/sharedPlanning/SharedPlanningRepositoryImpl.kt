@@ -35,7 +35,7 @@ class SharedPlanningRepositoryImpl @Inject constructor(
                 val ref = db.collection(Globals.DB_GROUPS).document()
                 val planningId = ref.path.split("/").last()
 
-                ref.set(sharedPlanning.toDto()).await()
+                ref.set(sharedPlanning.toDto().copy(users = listOf(it.uid))).await()
 
                 return Right(sharedPlanning.copy(id = planningId))
             }

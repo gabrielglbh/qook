@@ -1,4 +1,4 @@
-package com.gabr.gabc.qook.presentation.profilePage.components
+package com.gabr.gabc.qook.presentation.shared.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,12 +20,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
-import com.gabr.gabc.qook.presentation.shared.components.QBottomSheet
-import com.gabr.gabc.qook.presentation.shared.components.QTextTitle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ChangeWeekBeginningBottomSheet(
+fun QChangeWeekBeginningBottomSheet(
     selected: Int,
     modalBottomSheetState: SheetState,
     setShowDialog: (Boolean) -> Unit,

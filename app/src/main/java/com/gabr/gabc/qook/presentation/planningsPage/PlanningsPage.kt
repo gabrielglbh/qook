@@ -1,5 +1,6 @@
 package com.gabr.gabc.qook.presentation.planningsPage
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -37,6 +38,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
+import com.gabr.gabc.qook.presentation.addSharedPlanning.AddSharedPlanningPage
 import com.gabr.gabc.qook.presentation.planningsPage.viewModel.PlanningsViewModel
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.shared.components.QEmptyBox
@@ -86,7 +88,12 @@ class PlanningsPage : ComponentActivity() {
                         actions = listOf {
                             IconButton(
                                 onClick = {
-                                    // TODO: Create shared planning page
+                                    startActivity(
+                                        Intent(
+                                            this@PlanningsPage,
+                                            AddSharedPlanningPage::class.java
+                                        )
+                                    )
                                 }
                             ) {
                                 Icon(Icons.Outlined.Add, "")

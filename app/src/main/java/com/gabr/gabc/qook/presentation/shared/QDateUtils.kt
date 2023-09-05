@@ -1,5 +1,6 @@
 package com.gabr.gabc.qook.presentation.shared
 
+import androidx.compose.ui.res.stringResource
 import com.gabr.gabc.qook.R
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -8,6 +9,16 @@ import java.util.Locale
 
 class QDateUtils {
     companion object {
+        val days = listOf(
+            R.string.monday,
+            R.string.tuesday,
+            R.string.wednesday,
+            R.string.thursday,
+            R.string.friday,
+            R.string.saturday,
+            R.string.sunday
+        )
+
         fun Date.formatDate(): String {
             val formatted = SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault())
             return formatted.format(this)

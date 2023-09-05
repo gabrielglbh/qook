@@ -12,13 +12,17 @@ data class SharedPlanning(
     val planning: List<DayPlanning>,
     val shoppingList: Ingredients,
     val users: List<User>,
-)
+) {
+    companion object {
+        val EMPTY_SHARED_PLANNING =
+            SharedPlanning("", "", 0, listOf(), Ingredients(mapOf()), listOf())
+    }
+}
 
 fun SharedPlanning.toDto(): SharedPlanningDto {
     return SharedPlanningDto(
         id,
         name,
         resetDay,
-        users = users.map { it.id }
     )
 }
