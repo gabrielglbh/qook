@@ -76,6 +76,7 @@ class RecipesPage : ComponentActivity() {
     companion object {
         const val HAS_UPDATED_PLANNING = "HAS_UPDATED_PLANNING"
         const val HAS_UPDATED_PLANNING_RECIPE = "HAS_UPDATED_PLANNING_RECIPE"
+        const val RECIPES_LIST = "RECIPES_LIST"
     }
 
     private val resultLauncher =
@@ -139,6 +140,13 @@ class RecipesPage : ComponentActivity() {
                 )
             )
         }
+
+        val recipes = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.getParcelableArrayExtra(RECIPES_LIST, Recipe::class.java)
+        } else {
+            intent.getParcelableArrayExtra(RECIPES_LIST)
+        }
+        viewModel.loadRecipesLocallyIfAny(recipes?.map { r -> r as Recipe })
 
         setContent {
             AppTheme {
@@ -224,16 +232,20 @@ class RecipesPage : ComponentActivity() {
                     QActionBar(
                         title = R.string.recipes_title,
                         onBack = { finish() },
-                        actions = listOf {
-                            IconButton(
-                                onClick = {
-                                    val intent =
-                                        Intent(this@RecipesPage, AddRecipePage::class.java)
-                                    resultLauncher.launch(intent)
+                        actions = if (planningState.dayPlanning == DayPlanning.EMPTY_DAY_PLANNING) {
+                            listOf {
+                                IconButton(
+                                    onClick = {
+                                        val intent =
+                                            Intent(this@RecipesPage, AddRecipePage::class.java)
+                                        resultLauncher.launch(intent)
+                                    }
+                                ) {
+                                    Icon(Icons.Outlined.PostAdd, "")
                                 }
-                            ) {
-                                Icon(Icons.Outlined.PostAdd, "")
                             }
+                        } else {
+                            null
                         }
                     )
                 },

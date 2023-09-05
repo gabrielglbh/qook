@@ -59,6 +59,18 @@ class RecipesViewModel @Inject constructor(
         }
     }
 
+    fun loadRecipesLocallyIfAny(recipes: List<Recipe>?) {
+        if (recipes == null) {
+            getRecipes { }
+        } else {
+            _recipesState.value = _recipesState.value.copy(
+                recipes = recipes,
+                searchedRecipes = recipes,
+            )
+        }
+        getTags { }
+    }
+
     fun getRecipes(onError: (String) -> Unit) {
         viewModelScope.launch {
             isLoadingRecipes.value = true
