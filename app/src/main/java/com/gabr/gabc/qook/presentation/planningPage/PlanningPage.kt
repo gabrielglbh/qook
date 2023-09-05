@@ -141,7 +141,6 @@ class PlanningPage : ComponentActivity() {
 
         val isPlanningEmpty = planning == null
 
-        // TODO: Load recipes to not load them everytime we want to add to planning?
         if (isPlanningEmpty) {
             LaunchedEffect(key1 = Unit, block = {
                 viewModel.loadPlanning { error ->
@@ -286,6 +285,8 @@ class PlanningPage : ComponentActivity() {
 
     @Composable
     fun PlanningDayRecipe(dayPlanning: DayPlanning, recipe: Recipe, isLunch: Boolean) {
+        val viewModel: PlanningViewModel by viewModels()
+
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start,
@@ -317,6 +318,10 @@ class PlanningPage : ComponentActivity() {
                     size = 72.dp,
                 ) {
                     val intent = Intent(this@PlanningPage, RecipesPage::class.java)
+                    intent.putExtra(
+                        RecipesPage.RECIPES_LIST,
+                        viewModel.recipes.value?.toTypedArray()
+                    )
                     intent.putExtra(FROM_PLANNING, dayPlanning)
                     intent.putExtra(IS_LUNCH, isLunch)
                     resultLauncher.launch(intent)

@@ -7,6 +7,8 @@ import com.gabr.gabc.qook.domain.ingredients.Ingredients
 import com.gabr.gabc.qook.domain.ingredients.IngredientsRepository
 import com.gabr.gabc.qook.domain.planning.DayPlanning
 import com.gabr.gabc.qook.domain.planning.PlanningRepository
+import com.gabr.gabc.qook.domain.recipe.Recipe
+import com.gabr.gabc.qook.domain.recipe.RecipeRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -15,13 +17,20 @@ import javax.inject.Inject
 class PlanningViewModel @Inject constructor(
     private val planningRepository: PlanningRepository,
     private val ingredientsRepository: IngredientsRepository,
+    private val recipeRepository: RecipeRepository,
 ) : ViewModel() {
     var planning = mutableStateOf<List<DayPlanning>?>(null)
+        private set
+    var recipes = mutableStateOf<List<Recipe>?>(null)
         private set
     var isLoading = mutableStateOf(false)
         private set
     var hasUpdated = mutableStateOf(false)
         private set
+
+    init {
+        loadRecipes()
+    }
 
     fun setDataForLocalLoading(planning: List<DayPlanning>) {
         this.planning.value = planning
@@ -38,6 +47,18 @@ class PlanningViewModel @Inject constructor(
                 }
             )
             isLoading.value = false
+        }
+    }
+
+    private fun loadRecipes() {
+        viewModelScope.launch {
+            val res = recipeRepository.getRecipes()
+            res.fold(
+                ifLeft = {},
+                ifRight = { r ->
+                    recipes.value = r
+                }
+            )
         }
     }
 
