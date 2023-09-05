@@ -1,4 +1,4 @@
-package com.gabr.gabc.qook.presentation.addSharedPlanning.viewModel
+package com.gabr.gabc.qook.presentation.addSharedPlanningPage.viewModel
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -29,13 +29,13 @@ class AddSharedPlanningViewModel @Inject constructor(
         )
     }
 
-    fun createSharedPlanning(onError: (String) -> Unit, onSuccess: () -> Unit) {
+    fun createSharedPlanning(onError: (String) -> Unit, onSuccess: (String) -> Unit) {
         viewModelScope.launch {
             isLoading.value = true
             val res = sharedPlanningRepository.createSharedPlanning(sharedPlanning.value)
             res.fold(
                 ifLeft = { e -> onError(e.error) },
-                ifRight = { onSuccess() },
+                ifRight = { sp -> onSuccess(sp.id) },
             )
             isLoading.value = false
         }

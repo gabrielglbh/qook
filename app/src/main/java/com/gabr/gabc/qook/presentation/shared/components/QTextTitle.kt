@@ -16,15 +16,20 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun QTextTitle(
-    @StringRes title: Int,
+    @StringRes title: Int? = null,
+    rawTitle: String? = null,
     @StringRes subtitle: Int
 ) {
+    if ((title == null && rawTitle == null) || (title != null && rawTitle != null)) {
+        throw Exception("Must provide only one of title or rawTitle")
+    }
+
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            stringResource(title),
+            rawTitle ?: stringResource(title!!),
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center
         )

@@ -38,7 +38,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
-import com.gabr.gabc.qook.presentation.addSharedPlanning.AddSharedPlanningPage
+import com.gabr.gabc.qook.presentation.addSharedPlanningPage.AddSharedPlanningPage
 import com.gabr.gabc.qook.presentation.planningsPage.viewModel.PlanningsViewModel
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.shared.components.QEmptyBox

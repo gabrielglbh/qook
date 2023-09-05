@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">Qook</string>
+    <string name="deepLinkJoinGroup" translatable="false">https://qook-app.web.app/shared-planning/</string>
 
     <string name="login_email">Email</string>
     <string name="login_password">Password</string>
@@ -149,4 +150,7 @@
     <string name="shared_planning_create_title">Create shared planning</string>
     <string name="shared_planning_create_info">Provide the name of the shared planning and share the generated code to your friends</string>
     <string name="shared_planning_create_shared_planning">Generate code and create shared planning</string>
+    <string name="shared_planning_info_display">Manage the shared planning and the shopping list from here by adding recipes to it</string>
+    <string name="shared_planning_group_code">Share the group</string>
+    <string name="shared_planning_message_on_code_sharing">Join my share planning in Qook!</string>
 </resources>

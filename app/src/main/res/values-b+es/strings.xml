@@ -144,10 +144,13 @@
 
     <string name="err_home_empty_recipes">No tienes recetas. Crea una para utilizar esta función</string>
 
-    <string name="shared_plannings_info">Select or create shared plannings with your friends</string>
-    <string name="shared_plannings_title">Shared plannings</string>
-    <string name="shared_plannings_empty">You have no shared plannings. Create one tapping \'+\' or join one via link</string>
-    <string name="shared_planning_create_title">Create shared planning</string>
-    <string name="shared_planning_create_info">Provide the name of the shared planning and share the generated code to your friends</string>
-    <string name="shared_planning_create_shared_planning">Generate code and create shared planning</string>
+    <string name="shared_plannings_info">Selecciona o crea plannings compartidos con tus amigos</string>
+    <string name="shared_plannings_title">Plannings compartidos</string>
+    <string name="shared_plannings_empty">No tienes plannings compartidos. Crea una pulsando \'+\' o únete a una a través de un enlace</string>
+    <string name="shared_planning_create_title">Crea un planning compartido</string>
+    <string name="shared_planning_create_info">Proporciona el nombre del planning compartido y comparte el código generado con tus amigos</string>
+    <string name="shared_planning_create_shared_planning">Genera el código y crea el planning compartido</string>
+    <string name="shared_planning_info_display">Gestiona el planning compartido y la lista de la compra desde aquí añadiéndole recetas</string>
+    <string name="shared_planning_group_code">Comparte el grupo</string>
+    <string name="shared_planning_message_on_code_sharing">¡Únete a mi planning compartido en Qook!</string>
 </resources>

@@ -1,5 +1,6 @@
-package com.gabr.gabc.qook.presentation.addSharedPlanning
+package com.gabr.gabc.qook.presentation.addSharedPlanningPage
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -36,7 +37,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
-import com.gabr.gabc.qook.presentation.addSharedPlanning.viewModel.AddSharedPlanningViewModel
+import com.gabr.gabc.qook.presentation.addSharedPlanningPage.viewModel.AddSharedPlanningViewModel
 import com.gabr.gabc.qook.presentation.shared.QDateUtils
 import com.gabr.gabc.qook.presentation.shared.Validators
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
@@ -46,6 +47,7 @@ import com.gabr.gabc.qook.presentation.shared.components.QLoadingScreen
 import com.gabr.gabc.qook.presentation.shared.components.QSelectableItem
 import com.gabr.gabc.qook.presentation.shared.components.QTextForm
 import com.gabr.gabc.qook.presentation.shared.components.QTextTitle
+import com.gabr.gabc.qook.presentation.sharedPlanningPage.SharedPlanningPage
 import com.gabr.gabc.qook.presentation.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -151,8 +153,16 @@ class AddSharedPlanningPage : ComponentActivity() {
                                                 snackbarHostState.showSnackbar(e)
                                             }
                                         },
-                                        onSuccess = {
-                                            // TODO: Navigate to Group Page
+                                        onSuccess = { sharedPlanningId ->
+                                            val intent = Intent(
+                                                this@AddSharedPlanningPage,
+                                                SharedPlanningPage::class.java
+                                            )
+                                            intent.putExtra(
+                                                SharedPlanningPage.GROUP_ID,
+                                                sharedPlanningId
+                                            )
+                                            startActivity(intent)
                                             finish()
                                         }
                                     )

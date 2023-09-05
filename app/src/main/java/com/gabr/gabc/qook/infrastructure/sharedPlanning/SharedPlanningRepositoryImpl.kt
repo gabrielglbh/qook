@@ -62,6 +62,24 @@ class SharedPlanningRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun addUserToSharedPlanning(id: String): Either<SharedPlanningFailure, Unit> {
+        try {
+            auth.currentUser?.let {
+                db.collection(Globals.DB_GROUPS).document(id)
+                    .update(
+                        mapOf(
+                            Pair(Globals.OBJ_SHARED_PLANNING_USERS, it.uid)
+                        )
+                    ).await()
+
+                return Right(Unit)
+            }
+            return Left(SharedPlanningFailure.NotAuthenticated(res.getString(R.string.error_user_not_auth)))
+        } catch (err: FirebaseFirestoreException) {
+            return Left(SharedPlanningFailure.SharedPlanningCreationFailed(res.getString(R.string.err_planning_update)))
+        }
+    }
+
     override suspend fun deleteSharedPlanning(id: String): Either<SharedPlanningFailure, Unit> {
         try {
             auth.currentUser?.let {
