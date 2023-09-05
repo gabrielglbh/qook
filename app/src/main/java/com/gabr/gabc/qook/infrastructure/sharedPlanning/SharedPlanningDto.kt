@@ -2,13 +2,14 @@ package com.gabr.gabc.qook.infrastructure.sharedPlanning
 
 import com.gabr.gabc.qook.domain.ingredients.Ingredients
 import com.gabr.gabc.qook.domain.sharedPlanning.SharedPlanning
+import com.gabr.gabc.qook.presentation.shared.Globals
 import com.google.firebase.firestore.PropertyName
 
 data class SharedPlanningDto constructor(
     @PropertyName("id") val id: String = "",
     @PropertyName("name") val name: String = "",
     @PropertyName("resetDay") val resetDay: Int = 0,
-    @PropertyName("users") val users: List<String> = listOf(),
+    @PropertyName(Globals.OBJ_SHARED_PLANNING_USERS) val users: List<String> = listOf(),
 )
 
 fun SharedPlanningDto.toDomain(): SharedPlanning {
@@ -27,6 +28,6 @@ fun SharedPlanningDto.toMap(): Map<String, Any?> {
         Pair("id", id),
         Pair("name", name),
         Pair("resetDay", resetDay),
-        Pair("users", users),
+        Pair(Globals.OBJ_SHARED_PLANNING_USERS, users),
     )
 }

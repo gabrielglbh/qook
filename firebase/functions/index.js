@@ -119,6 +119,89 @@ exports.onRemoveUser = functions.firestore
       }
     });
 
+exports.onCreateSharedPlanning = functions.firestore
+    .document("GROUPS/{id}")
+    .onCreate(async (snap, context) => {
+      try {
+        const groupId = context.params.uid;
+
+        const planningRef = database.collection("GROUPS").doc(groupId)
+            .collection("PLANNING");
+        const shoppingListRef = database.collection("GROUPS").doc(groupId)
+            .collection("SHOPPING_LIST").doc("INGREDIENTS");
+
+        const batch = database.batch();
+
+        batch.set(
+            planningRef.doc("firstDay"),
+            {"id": "firstDay", "dayIndex": 0, "lunch": "", "dinner": ""},
+        );
+        batch.set(
+            planningRef.doc("secondDay"),
+            {"id": "secondDay", "dayIndex": 1, "lunch": "", "dinner": ""},
+        );
+        batch.set(
+            planningRef.doc("thirdDay"),
+            {"id": "thirdDay", "dayIndex": 2, "lunch": "", "dinner": ""},
+        );
+        batch.set(
+            planningRef.doc("fourthDay"),
+            {"id": "fourthDay", "dayIndex": 3, "lunch": "", "dinner": ""},
+        );
+        batch.set(
+            planningRef.doc("fifthDay"),
+            {"id": "fifthDay", "dayIndex": 4, "lunch": "", "dinner": ""},
+        );
+        batch.set(
+            planningRef.doc("sixthDay"),
+            {"id": "sixthDay", "dayIndex": 5, "lunch": "", "dinner": ""},
+        );
+        batch.set(
+            planningRef.doc("seventhDay"),
+            {"id": "seventhDay", "dayIndex": 6, "lunch": "", "dinner": ""},
+        );
+        batch.set(
+            shoppingListRef,
+            {"list": {}},
+        );
+
+        await batch.commit().then(() => {
+          console.log("✅ Successfully initiated user");
+        }).catch((reason) => {
+          console.log("❌ Error while initializing user %s", reason.toString());
+        });
+      } catch (error) {
+        console.log("❌ Error while initializing user %s", error);
+      }
+    });
+
+exports.onRemoveSharedPlanning = functions.firestore
+    .document("GROUPS/{id}")
+    .onDelete(async (snap, context) => {
+      try {
+        const groupId = context.params.uid;
+
+        const planningRef = database.collection("GROUPS").doc(groupId)
+            .collection("PLANNING");
+        const shoppingListRef = database.collection("GROUPS").doc(groupId)
+            .collection("SHOPPING_LIST");
+
+        const batch = database.batch();
+
+        batch.delete(planningRef);
+        batch.delete(shoppingListRef);
+
+        await batch.commit().then(() => {
+          console.log("✅ Successfully removed shared planning");
+        }).catch((reason) => {
+          console.log("❌ Error while removing shared planning %s",
+              reason.toString());
+        });
+      } catch (error) {
+        console.log("❌ Error while removing user %s", error);
+      }
+    });
+
 exports.scheduleRestartPlanningCron = functions.pubsub
     .schedule("0 9 * * *")
     .timeZone("Europe/Madrid")

@@ -4,6 +4,7 @@ class Globals {
     companion object {
         const val FIREBASE_HOST = "firebasestorage.googleapis.com"
 
+        const val DB_GROUPS = "GROUPS"
         const val DB_USER = "USERS"
         const val DB_RECIPES = "RECIPES"
         const val DB_TAGS = "TAGS"
@@ -38,5 +39,7 @@ class Globals {
         const val OBJ_PLANNING_DAY_INDEX = "dayIndex"
 
         const val OBJ_SHOPPING_LIST = "list"
+
+        const val OBJ_SHARED_PLANNING_USERS = "users"
     }
 }

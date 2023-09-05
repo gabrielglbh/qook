@@ -48,15 +48,23 @@ class PlanningRepositoryImpl @Inject constructor(
         return DayPlanning(dayPlanningDto.id, dayPlanningDto.dayIndex, lunch, dinner)
     }
 
-    override suspend fun getPlanning(): Either<PlanningFailure, List<DayPlanning>> {
+    override suspend fun getPlanning(groupId: String?): Either<PlanningFailure, List<DayPlanning>> {
         try {
             auth.currentUser?.let {
                 val planning = mutableListOf<DayPlanning>()
-                val res = db.collection(Globals.DB_USER).document(it.uid)
-                    .collection(Globals.DB_PLANNING)
-                    .orderBy(Globals.OBJ_PLANNING_DAY_INDEX)
-                    .get()
-                    .await()
+                val res = if (groupId == null) {
+                    db.collection(Globals.DB_USER).document(it.uid)
+                        .collection(Globals.DB_PLANNING)
+                        .orderBy(Globals.OBJ_PLANNING_DAY_INDEX)
+                        .get()
+                        .await()
+                } else {
+                    db.collection(Globals.DB_GROUPS).document(groupId)
+                        .collection(Globals.DB_PLANNING)
+                        .orderBy(Globals.OBJ_PLANNING_DAY_INDEX)
+                        .get()
+                        .await()
+                }
 
                 res.forEach { doc ->
                     planning.add(getRecipesFrom(doc.toObject()))
@@ -70,12 +78,21 @@ class PlanningRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun updateRecipeFromPlanning(dayPlanning: DayPlanning): Either<PlanningFailure, Unit> {
+    override suspend fun updateRecipeFromPlanning(
+        dayPlanning: DayPlanning,
+        groupId: String?
+    ): Either<PlanningFailure, Unit> {
         try {
             auth.currentUser?.let {
-                db.collection(Globals.DB_USER).document(it.uid)
-                    .collection(Globals.DB_PLANNING).document(dayPlanning.id)
-                    .update(dayPlanning.toDto().toMap()).await()
+                if (groupId == null) {
+                    db.collection(Globals.DB_USER).document(it.uid)
+                        .collection(Globals.DB_PLANNING).document(dayPlanning.id)
+                        .update(dayPlanning.toDto().toMap()).await()
+                } else {
+                    db.collection(Globals.DB_GROUPS).document(groupId)
+                        .collection(Globals.DB_PLANNING).document(dayPlanning.id)
+                        .update(dayPlanning.toDto().toMap()).await()
+                }
 
                 return Right(Unit)
             }
@@ -85,11 +102,16 @@ class PlanningRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun resetPlanning(): Either<PlanningFailure, Unit> {
+    override suspend fun resetPlanning(groupId: String?): Either<PlanningFailure, Unit> {
         try {
             auth.currentUser?.let {
-                val planningCollection = db.collection(Globals.DB_USER).document(it.uid)
-                    .collection(Globals.DB_PLANNING)
+                val planningCollection = if (groupId == null) {
+                    db.collection(Globals.DB_USER).document(it.uid).collection(Globals.DB_PLANNING)
+                } else {
+                    db.collection(Globals.DB_GROUPS).document(groupId)
+                        .collection(Globals.DB_PLANNING)
+                }
+
                 val batch = db.batch()
 
                 batch.set(
@@ -150,20 +172,4 @@ class PlanningRepositoryImpl @Inject constructor(
             return Left(PlanningFailure.PlanningCreationFailed(res.getString(R.string.err_planning_reset)))
         }
     }
-
-    override suspend fun getPlanningFromGroup(id: String): Either<PlanningFailure, List<DayPlanning>> {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun updateRecipeFromPlanningFromGroup(
-        id: String,
-        dayPlanning: DayPlanning
-    ): Either<PlanningFailure, Unit> {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun resetPlanningFromGroup(id: String): Either<PlanningFailure, Unit> {
-        TODO("Not yet implemented")
-    }
-
 }

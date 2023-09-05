@@ -23,13 +23,20 @@ class IngredientRepositoryImpl @Inject constructor(
     private val db: FirebaseFirestore,
     private val res: StringResourcesProvider,
 ) : IngredientsRepository {
-    override suspend fun getIngredientsOfShoppingList(): Either<IngredientsFailure, Ingredients> {
+    override suspend fun getIngredientsOfShoppingList(groupId: String?): Either<IngredientsFailure, Ingredients> {
         try {
             auth.currentUser?.let {
-                val result = db.collection(Globals.DB_USER).document(it.uid)
-                    .collection(Globals.DB_SHOPPING_LIST).document(Globals.DB_INGREDIENTS)
-                    .get()
-                    .await()
+                val result = if (groupId == null) {
+                    db.collection(Globals.DB_USER).document(it.uid)
+                        .collection(Globals.DB_SHOPPING_LIST).document(Globals.DB_INGREDIENTS)
+                        .get()
+                        .await()
+                } else {
+                    db.collection(Globals.DB_GROUPS).document(groupId)
+                        .collection(Globals.DB_SHOPPING_LIST).document(Globals.DB_INGREDIENTS)
+                        .get()
+                        .await()
+                }
                 result.toObject<IngredientsDto>()?.let { ingredientsDto ->
                     return Right(ingredientsDto.toDomain())
                 }
@@ -41,16 +48,25 @@ class IngredientRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun removeIngredient(ingredient: Pair<String, Boolean>): Either<IngredientsFailure, Unit> {
+    override suspend fun removeIngredient(
+        ingredient: Pair<String, Boolean>,
+        groupId: String?
+    ): Either<IngredientsFailure, Unit> {
         try {
             auth.currentUser?.let {
-                db.collection(Globals.DB_USER).document(it.uid)
-                    .collection(Globals.DB_SHOPPING_LIST).document(Globals.DB_INGREDIENTS)
-                    .update(
-                        mapOf(
-                            "${Globals.OBJ_SHOPPING_LIST}.${ingredient.first}" to FieldValue.delete()
-                        )
-                    ).await()
+                val map = mapOf(
+                    "${Globals.OBJ_SHOPPING_LIST}.${ingredient.first}" to FieldValue.delete()
+                )
+
+                if (groupId == null) {
+                    db.collection(Globals.DB_USER).document(it.uid)
+                        .collection(Globals.DB_SHOPPING_LIST).document(Globals.DB_INGREDIENTS)
+                        .update(map).await()
+                } else {
+                    db.collection(Globals.DB_GROUPS).document(groupId)
+                        .collection(Globals.DB_SHOPPING_LIST).document(Globals.DB_INGREDIENTS)
+                        .update(map).await()
+                }
 
                 return Right(Unit)
             }
@@ -62,7 +78,10 @@ class IngredientRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun removeIngredients(ingredients: Ingredients): Either<IngredientsFailure, Unit> {
+    override suspend fun removeIngredients(
+        ingredients: Ingredients,
+        groupId: String?
+    ): Either<IngredientsFailure, Unit> {
         try {
             auth.currentUser?.let {
                 val listMapped = mutableListOf<Pair<String, FieldValue>>()
@@ -70,9 +89,15 @@ class IngredientRepositoryImpl @Inject constructor(
                     listMapped.add("${Globals.OBJ_SHOPPING_LIST}.$key" to FieldValue.delete())
                 }
 
-                db.collection(Globals.DB_USER).document(it.uid)
-                    .collection(Globals.DB_SHOPPING_LIST).document(Globals.DB_INGREDIENTS)
-                    .update(listMapped.toMap()).await()
+                if (groupId == null) {
+                    db.collection(Globals.DB_USER).document(it.uid)
+                        .collection(Globals.DB_SHOPPING_LIST).document(Globals.DB_INGREDIENTS)
+                        .update(listMapped.toMap()).await()
+                } else {
+                    db.collection(Globals.DB_GROUPS).document(groupId)
+                        .collection(Globals.DB_SHOPPING_LIST).document(Globals.DB_INGREDIENTS)
+                        .update(listMapped.toMap()).await()
+                }
 
                 return Right(Unit)
             }
@@ -84,19 +109,27 @@ class IngredientRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun updateIngredient(ingredient: Pair<String, Boolean>): Either<IngredientsFailure, Unit> {
+    override suspend fun updateIngredient(
+        ingredient: Pair<String, Boolean>,
+        groupId: String?
+    ): Either<IngredientsFailure, Unit> {
         try {
             auth.currentUser?.let {
-                db.collection(Globals.DB_USER).document(it.uid)
-                    .collection(Globals.DB_SHOPPING_LIST).document(Globals.DB_INGREDIENTS)
-                    .update(
-                        mapOf(
-                            Pair(
-                                "${Globals.OBJ_SHOPPING_LIST}.${ingredient.first}",
-                                ingredient.second
-                            )
-                        )
-                    ).await()
+                val map = mapOf(
+                    Pair(
+                        "${Globals.OBJ_SHOPPING_LIST}.${ingredient.first}",
+                        ingredient.second
+                    )
+                )
+                if (groupId == null) {
+                    db.collection(Globals.DB_USER).document(it.uid)
+                        .collection(Globals.DB_SHOPPING_LIST).document(Globals.DB_INGREDIENTS)
+                        .update(map).await()
+                } else {
+                    db.collection(Globals.DB_USER).document(it.uid)
+                        .collection(Globals.DB_SHOPPING_LIST).document(Globals.DB_INGREDIENTS)
+                        .update(map).await()
+                }
 
                 return Right(Unit)
             }
@@ -106,7 +139,10 @@ class IngredientRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun updateIngredients(ingredients: Ingredients): Either<IngredientsFailure, Unit> {
+    override suspend fun updateIngredients(
+        ingredients: Ingredients,
+        groupId: String?
+    ): Either<IngredientsFailure, Unit> {
         try {
             auth.currentUser?.let {
                 val ingredientsMapped = mutableMapOf<String, Boolean>()
@@ -114,9 +150,15 @@ class IngredientRepositoryImpl @Inject constructor(
                     ingredientsMapped["${Globals.OBJ_SHOPPING_LIST}.$key"] = value
                 }
 
-                db.collection(Globals.DB_USER).document(it.uid)
-                    .collection(Globals.DB_SHOPPING_LIST).document(Globals.DB_INGREDIENTS)
-                    .update(ingredientsMapped.toMap()).await()
+                if (groupId == null) {
+                    db.collection(Globals.DB_USER).document(it.uid)
+                        .collection(Globals.DB_SHOPPING_LIST).document(Globals.DB_INGREDIENTS)
+                        .update(ingredientsMapped.toMap()).await()
+                } else {
+                    db.collection(Globals.DB_GROUPS).document(groupId)
+                        .collection(Globals.DB_SHOPPING_LIST).document(Globals.DB_INGREDIENTS)
+                        .update(ingredientsMapped.toMap()).await()
+                }
 
                 return Right(Unit)
             }
@@ -126,12 +168,18 @@ class IngredientRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun resetIngredients(): Either<IngredientsFailure, Unit> {
+    override suspend fun resetIngredients(groupId: String?): Either<IngredientsFailure, Unit> {
         try {
             auth.currentUser?.let {
-                db.collection(Globals.DB_USER).document(it.uid)
-                    .collection(Globals.DB_SHOPPING_LIST).document(Globals.DB_INGREDIENTS)
-                    .set(Ingredients(mapOf()).toDto()).await()
+                if (groupId == null) {
+                    db.collection(Globals.DB_USER).document(it.uid)
+                        .collection(Globals.DB_SHOPPING_LIST).document(Globals.DB_INGREDIENTS)
+                        .set(Ingredients(mapOf()).toDto()).await()
+                } else {
+                    db.collection(Globals.DB_GROUPS).document(groupId)
+                        .collection(Globals.DB_SHOPPING_LIST).document(Globals.DB_INGREDIENTS)
+                        .set(Ingredients(mapOf()).toDto()).await()
+                }
 
                 return Right(Unit)
             }
@@ -140,41 +188,4 @@ class IngredientRepositoryImpl @Inject constructor(
             return Left(IngredientsFailure.IngredientsUpdateFailed(res.getString(R.string.err_ingredients_update)))
         }
     }
-
-    override suspend fun getIngredientsOfShoppingListFromGroup(id: String): Either<IngredientsFailure, Ingredients> {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun removeIngredientFromGroup(
-        id: String,
-        ingredient: Pair<String, Boolean>
-    ): Either<IngredientsFailure, Unit> {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun removeIngredientsFromGroup(
-        id: String,
-        ingredients: Ingredients
-    ): Either<IngredientsFailure, Unit> {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun updateIngredientFromGroup(
-        id: String,
-        ingredient: Pair<String, Boolean>
-    ): Either<IngredientsFailure, Unit> {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun updateIngredientsFromGroup(
-        id: String,
-        ingredients: Ingredients
-    ): Either<IngredientsFailure, Unit> {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun resetIngredientsFromGroup(id: String): Either<IngredientsFailure, Unit> {
-        TODO("Not yet implemented")
-    }
-
 }
