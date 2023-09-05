@@ -175,6 +175,8 @@ class HomePage : ComponentActivity() {
             },
             floatingActionButton = {
                 FloatingActionButton(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
                     onClick = {
                         startActivity(Intent(this@HomePage, AddRecipePage::class.java))
                     }

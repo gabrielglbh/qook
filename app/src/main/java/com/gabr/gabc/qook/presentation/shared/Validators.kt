@@ -26,7 +26,9 @@ class Validators {
 
         fun isRecipeInvalid(recipe: Recipe) =
             recipe == Recipe.EMPTY_RECIPE || recipe.tags.isEmpty() || recipe.ingredients.isEmpty() ||
-                    recipe.description.isEmpty() || isRecipeNameInvalid(recipe.name) ||
+                    (recipe.description.isEmpty() && recipe.recipeUrl == null) || isRecipeNameInvalid(
+                recipe.name
+            ) ||
                     isNameInvalid(recipe.time)
     }
 }

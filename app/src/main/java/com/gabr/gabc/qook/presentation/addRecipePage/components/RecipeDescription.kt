@@ -134,7 +134,6 @@ fun RecipeDescription(
         QTextForm(
             labelId = R.string.add_recipe_recipe_link,
             value = recipeUrl,
-            imeAction = ImeAction.Done,
             trailingIcon = if (recipeUrl.isEmpty()) {
                 null
             } else {
@@ -153,13 +152,12 @@ fun RecipeDescription(
             },
             onSubmitWithImeAction = {
                 viewModel.updateMetadata(recipeUrl = recipeUrl)
-                recipeUrl = ""
             },
         )
         Button(
             onClick = {
                 viewModel.updateMetadata(recipeUrl = recipeUrl)
-                if (state.recipe.description.isEmpty()) {
+                if (state.recipe.description.isEmpty() && state.recipe.recipeUrl == null) {
                     return@Button
                 }
                 onNavigate()
