@@ -153,4 +153,5 @@
     <string name="shared_planning_info_display">Gestiona el planning compartido y la lista de la compra desde aquí añadiéndole recetas</string>
     <string name="shared_planning_group_code">Comparte el grupo</string>
     <string name="shared_planning_message_on_code_sharing">¡Únete a mi planning compartido en Qook!</string>
+    <string name="shared_planning_title">Planning compartido</string>
 </resources>

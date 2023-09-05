@@ -15,6 +15,7 @@ import com.gabr.gabc.qook.domain.user.UserRepository
 import com.gabr.gabc.qook.presentation.shared.Globals
 import com.gabr.gabc.qook.presentation.shared.providers.StringResourcesProvider
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.ktx.toObject
@@ -64,13 +65,28 @@ class SharedPlanningRepositoryImpl @Inject constructor(
 
     override suspend fun addUserToSharedPlanning(id: String): Either<SharedPlanningFailure, Unit> {
         try {
+            // TODO: Permission DENIED?
             auth.currentUser?.let {
                 db.collection(Globals.DB_GROUPS).document(id)
-                    .update(
-                        mapOf(
-                            Pair(Globals.OBJ_SHARED_PLANNING_USERS, it.uid)
-                        )
-                    ).await()
+                    .update(Globals.OBJ_SHARED_PLANNING_USERS, FieldValue.arrayUnion(it.uid))
+                    .await()
+
+                return Right(Unit)
+            }
+            return Left(SharedPlanningFailure.NotAuthenticated(res.getString(R.string.error_user_not_auth)))
+        } catch (err: FirebaseFirestoreException) {
+            return Left(SharedPlanningFailure.SharedPlanningCreationFailed(res.getString(R.string.err_planning_update)))
+        }
+    }
+
+    override suspend fun removeUserToSharedPlanning(
+        id: String,
+        uid: String
+    ): Either<SharedPlanningFailure, Unit> {
+        try {
+            auth.currentUser?.let {
+                db.collection(Globals.DB_GROUPS).document(id)
+                    .update(Globals.OBJ_SHARED_PLANNING_USERS, FieldValue.arrayRemove(uid)).await()
 
                 return Right(Unit)
             }

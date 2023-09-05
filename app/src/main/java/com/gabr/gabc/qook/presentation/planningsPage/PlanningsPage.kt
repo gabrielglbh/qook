@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -44,6 +46,7 @@ import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.shared.components.QEmptyBox
 import com.gabr.gabc.qook.presentation.shared.components.QLoadingScreen
 import com.gabr.gabc.qook.presentation.shared.components.QShimmer
+import com.gabr.gabc.qook.presentation.sharedPlanningPage.SharedPlanningPage
 import com.gabr.gabc.qook.presentation.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -133,12 +136,24 @@ class PlanningsPage : ComponentActivity() {
                                             shape = MaterialTheme.shapes.small,
                                             color = Color.Transparent,
                                             onClick = {
-                                                // TODO: Go to shared planning
-                                            }
+                                                val intent = Intent(
+                                                    this@PlanningsPage,
+                                                    SharedPlanningPage::class.java
+                                                )
+                                                intent.putExtra(
+                                                    SharedPlanningPage.GROUP_ID,
+                                                    group.id
+                                                )
+                                                startActivity(intent)
+                                            },
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .height(64.dp)
+                                                .padding(16.dp)
                                         ) {
                                             Text(
                                                 group.name,
-                                                style = MaterialTheme.typography.titleMedium,
+                                                style = MaterialTheme.typography.titleLarge,
                                             )
                                         }
                                     }
