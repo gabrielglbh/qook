@@ -31,6 +31,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.DoubleArrow
+import androidx.compose.material.icons.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.NightlightRound
 import androidx.compose.material.icons.outlined.PostAdd
 import androidx.compose.material.icons.outlined.Today
@@ -66,7 +67,8 @@ import com.gabr.gabc.qook.domain.user.User
 import com.gabr.gabc.qook.presentation.addRecipePage.AddRecipePage
 import com.gabr.gabc.qook.presentation.homePage.viewModel.HomeViewModel
 import com.gabr.gabc.qook.presentation.homePage.viewModel.UserState
-import com.gabr.gabc.qook.presentation.planningPage.PlanningPage
+import com.gabr.gabc.qook.presentation.ownPlanningPage.OwnPlanningPage
+import com.gabr.gabc.qook.presentation.planningsPage.PlanningsPage
 import com.gabr.gabc.qook.presentation.profilePage.ProfilePage
 import com.gabr.gabc.qook.presentation.recipeDetailsPage.RecipeDetailsPage
 import com.gabr.gabc.qook.presentation.recipesPage.RecipesPage
@@ -109,11 +111,11 @@ class HomePage : ComponentActivity() {
 
                 val updatedPlanning = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     extras?.getParcelableArray(
-                        PlanningPage.HAS_UPDATED_PLANNING,
+                        OwnPlanningPage.HAS_UPDATED_PLANNING,
                         DayPlanning::class.java
                     )
                 } else {
-                    extras?.getParcelableArray(PlanningPage.HAS_UPDATED_PLANNING)
+                    extras?.getParcelableArray(OwnPlanningPage.HAS_UPDATED_PLANNING)
                 }
 
                 updatedPlanning?.let { p -> viewModel.updatePlanningLocally(p.map { it as DayPlanning }) }
@@ -273,7 +275,7 @@ class HomePage : ComponentActivity() {
             }
             Spacer(modifier = Modifier.size(24.dp))
             QContentCard(
-                modifier = Modifier.padding(16.dp),
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                 arrangement = Arrangement.Top,
                 alignment = Alignment.CenterHorizontally,
                 backgroundContent = { mod -> Icon(Icons.Outlined.Today, "", modifier = mod) }
@@ -315,6 +317,25 @@ class HomePage : ComponentActivity() {
                             )
                         }
                     }
+                }
+            }
+            QContentCard(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .fillMaxWidth(),
+                arrangement = Arrangement.Top,
+                alignment = Alignment.CenterHorizontally,
+                onClick = {
+                    startActivity(Intent(this@HomePage, PlanningsPage::class.java))
+                }
+            ) {
+                Row {
+                    Text(
+                        "Shared Plannings",
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Icon(Icons.Outlined.KeyboardArrowRight, "")
                 }
             }
             LazyVerticalGrid(
@@ -364,7 +385,7 @@ class HomePage : ComponentActivity() {
                                         UserAction.PLANNING -> {
                                             val intent = Intent(
                                                 this@HomePage,
-                                                PlanningPage::class.java
+                                                OwnPlanningPage::class.java
                                             )
                                             intent.putExtra(HOME_PLANNING, planning.toTypedArray())
                                             resultLauncher.launch(intent)

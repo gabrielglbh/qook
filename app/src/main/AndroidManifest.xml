@@ -61,7 +61,12 @@
             android:theme="@style/Theme.Qook"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".presentation.planningPage.PlanningPage"
+            android:name=".presentation.ownPlanningPage.OwnPlanningPage"
+            android:exported="true"
+            android:theme="@style/Theme.Qook"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".presentation.planningsPage.PlanningsPage"
             android:exported="true"
             android:theme="@style/Theme.Qook"
             android:windowSoftInputMode="adjustResize" />

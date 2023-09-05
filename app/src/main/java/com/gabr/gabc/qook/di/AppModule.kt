@@ -3,11 +3,13 @@ package com.gabr.gabc.qook.di
 import com.gabr.gabc.qook.domain.ingredients.IngredientsRepository
 import com.gabr.gabc.qook.domain.planning.PlanningRepository
 import com.gabr.gabc.qook.domain.recipe.RecipeRepository
+import com.gabr.gabc.qook.domain.sharedPlanning.SharedPlanningRepository
 import com.gabr.gabc.qook.domain.tag.TagRepository
 import com.gabr.gabc.qook.domain.user.UserRepository
 import com.gabr.gabc.qook.infrastructure.ingredient.IngredientRepositoryImpl
 import com.gabr.gabc.qook.infrastructure.planning.PlanningRepositoryImpl
 import com.gabr.gabc.qook.infrastructure.recipe.RecipeRepositoryImpl
+import com.gabr.gabc.qook.infrastructure.sharedPlanning.SharedPlanningRepositoryImpl
 import com.gabr.gabc.qook.infrastructure.tag.TagRepositoryImpl
 import com.gabr.gabc.qook.infrastructure.user.UserRepositoryImpl
 import dagger.Binds
@@ -38,4 +40,8 @@ abstract class AppModule {
     @Binds
     @ViewModelScoped
     abstract fun bindIngredientsRepository(repository: IngredientRepositoryImpl): IngredientsRepository
+
+    @Binds
+    @ViewModelScoped
+    abstract fun bindSharedPlanningRepository(repository: SharedPlanningRepositoryImpl): SharedPlanningRepository
 }

@@ -80,10 +80,12 @@ class LoginViewModel @Inject constructor(
                         val userCreationInDB =
                             repository.createUserInDB(
                                 User(
+                                    id = "",
                                     name = state.name,
                                     email = state.email,
                                     language = Locale.getDefault().language.uppercase(),
-                                    messagingToken = ""
+                                    messagingToken = "",
+                                    adminOf = listOf(),
                                 )
                             )
                         userCreationInDB.fold(

@@ -5,6 +5,7 @@ import arrow.core.Either.Left
 import arrow.core.Either.Right
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.storage.StorageRepository
+import com.gabr.gabc.qook.domain.user.User
 import com.gabr.gabc.qook.domain.user.UserFailure
 import com.gabr.gabc.qook.domain.user.UserRepository
 import com.gabr.gabc.qook.domain.user.toDto
@@ -100,7 +101,7 @@ class UserRepositoryImpl @Inject constructor(
             auth.currentUser?.let {
                 db.collection(Globals.DB_USER)
                     .document(it.uid)
-                    .set(user.toDto())
+                    .set(user.toDto().copy(id = it.uid))
                     .await()
                 return Right(Unit)
             }
@@ -147,7 +148,7 @@ class UserRepositoryImpl @Inject constructor(
         try {
             auth.currentUser?.let {
                 val ref = db.collection(Globals.DB_USER).document(it.uid).get().await()
-                if (!ref.exists()) Left(
+                if (!ref.exists()) return Left(
                     UserFailure.UserDoesNotExist(res.getString(R.string.error_user_does_not_exist))
                 )
                 else {
@@ -182,5 +183,32 @@ class UserRepositoryImpl @Inject constructor(
             updateUser(user.copy(messagingToken = token))
         }
         return Right(Unit)
+    }
+
+    override suspend fun getUserFromId(uid: String): Either<UserFailure, User> {
+        try {
+            auth.currentUser?.let {
+                val ref = db.collection(Globals.DB_USER).document(uid).get().await()
+                if (!ref.exists()) return Left(
+                    UserFailure.UserDoesNotExist(res.getString(R.string.error_user_does_not_exist))
+                )
+                else {
+                    ref.toObject<UserDto>()?.let { dto ->
+                        return Right(dto.toDomain())
+                    }
+                    return Left(
+                        UserFailure.UserTranslationFailed(res.getString(R.string.error_user_corrupted))
+                    )
+                }
+            }
+            return Left(UserFailure.NotAuthenticated(res.getString(R.string.error_user_not_auth)))
+        } catch (err: FirebaseFirestoreException) {
+            return Left(
+                UserFailure.UserDoesNotExist(
+                    "${err.code}: " +
+                            res.getString(R.string.error_user_retrieval)
+                )
+            )
+        }
     }
 }

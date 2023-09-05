@@ -1,4 +1,4 @@
-package com.gabr.gabc.qook.presentation.planningPage
+package com.gabr.gabc.qook.presentation.ownPlanningPage
 
 import android.app.Activity
 import android.content.Intent
@@ -52,7 +52,7 @@ import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.planning.DayPlanning
 import com.gabr.gabc.qook.domain.recipe.Recipe
 import com.gabr.gabc.qook.presentation.homePage.HomePage
-import com.gabr.gabc.qook.presentation.planningPage.viewModel.PlanningViewModel
+import com.gabr.gabc.qook.presentation.ownPlanningPage.viewModel.OwnPlanningViewModel
 import com.gabr.gabc.qook.presentation.recipeDetailsPage.RecipeDetailsPage
 import com.gabr.gabc.qook.presentation.recipesPage.RecipesPage
 import com.gabr.gabc.qook.presentation.shared.QDateUtils
@@ -68,7 +68,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class PlanningPage : ComponentActivity() {
+class OwnPlanningPage : ComponentActivity() {
     companion object {
         const val FROM_PLANNING = "FROM_PLANNING"
         const val IS_LUNCH = "IS_LUNCH"
@@ -80,7 +80,7 @@ class PlanningPage : ComponentActivity() {
             if (result.resultCode == Activity.RESULT_OK) {
                 val extras = result.data?.extras
 
-                val viewModel: PlanningViewModel by viewModels()
+                val viewModel: OwnPlanningViewModel by viewModels()
                 val updatedPlanning = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     extras?.getParcelable(RecipesPage.HAS_UPDATED_PLANNING, DayPlanning::class.java)
                 } else {
@@ -113,7 +113,7 @@ class PlanningPage : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val viewModel: PlanningViewModel by viewModels()
+        val viewModel: OwnPlanningViewModel by viewModels()
         val planning = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             intent.getParcelableArrayExtra(HomePage.HOME_PLANNING, DayPlanning::class.java)
         } else {
@@ -132,7 +132,7 @@ class PlanningPage : ComponentActivity() {
     @OptIn(ExperimentalLayoutApi::class)
     @Composable
     fun PlanningView() {
-        val viewModel: PlanningViewModel by viewModels()
+        val viewModel: OwnPlanningViewModel by viewModels()
         val planning = viewModel.planning.value
 
         val scope = rememberCoroutineScope()
@@ -244,7 +244,7 @@ class PlanningPage : ComponentActivity() {
 
     @Composable
     fun PlanningDay(dayPlanning: DayPlanning) {
-        val viewModel: PlanningViewModel by viewModels()
+        val viewModel: OwnPlanningViewModel by viewModels()
 
         Column(
             verticalArrangement = Arrangement.Center,
@@ -285,7 +285,7 @@ class PlanningPage : ComponentActivity() {
 
     @Composable
     fun PlanningDayRecipe(dayPlanning: DayPlanning, recipe: Recipe, isLunch: Boolean) {
-        val viewModel: PlanningViewModel by viewModels()
+        val viewModel: OwnPlanningViewModel by viewModels()
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -317,7 +317,7 @@ class PlanningPage : ComponentActivity() {
                     modifier = Modifier.padding(8.dp),
                     size = 72.dp,
                 ) {
-                    val intent = Intent(this@PlanningPage, RecipesPage::class.java)
+                    val intent = Intent(this@OwnPlanningPage, RecipesPage::class.java)
                     intent.putExtra(
                         RecipesPage.RECIPES_LIST,
                         viewModel.recipes.value?.toTypedArray()
@@ -334,7 +334,7 @@ class PlanningPage : ComponentActivity() {
                         .weight(1f)
                         .padding(4.dp)
                 ) {
-                    val intent = Intent(this@PlanningPage, RecipeDetailsPage::class.java)
+                    val intent = Intent(this@OwnPlanningPage, RecipeDetailsPage::class.java)
                     intent.putExtra(RecipeDetailsPage.RECIPE, recipe)
                     intent.putExtra(RecipeDetailsPage.ALLOW_TO_UPDATE, false)
                     startActivity(intent)

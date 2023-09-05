@@ -1,4 +1,4 @@
-package com.gabr.gabc.qook.presentation.planningPage.viewModel
+package com.gabr.gabc.qook.presentation.ownPlanningPage.viewModel
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class PlanningViewModel @Inject constructor(
+class OwnPlanningViewModel @Inject constructor(
     private val planningRepository: PlanningRepository,
     private val ingredientsRepository: IngredientsRepository,
     private val recipeRepository: RecipeRepository,

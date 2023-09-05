@@ -2,11 +2,10 @@ package com.gabr.gabc.qook.infrastructure.user
 
 import android.net.Uri
 import com.gabr.gabc.qook.domain.user.User
-import com.google.firebase.firestore.DocumentId
 import com.google.firebase.firestore.PropertyName
 
 data class UserDto(
-    @DocumentId val id: String = "",
+    @PropertyName("id") val id: String = "",
     @PropertyName("name") val name: String = "",
     @PropertyName("email") val email: String = "",
     @PropertyName("resetDay") val resetDay: Int = 1,
