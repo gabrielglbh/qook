@@ -35,8 +35,6 @@ class RecipesViewModel @Inject constructor(
 
     var isLoadingRecipes = mutableStateOf(false)
         private set
-    var isLoadingTags = mutableStateOf(false)
-        private set
 
     private fun alterListForUpdate(recipe: Recipe, list: List<Recipe>): List<Recipe> {
         val aux = mutableListOf<Recipe>().apply { addAll(list) }
@@ -59,16 +57,20 @@ class RecipesViewModel @Inject constructor(
         }
     }
 
-    fun loadRecipesLocallyIfAny(recipes: List<Recipe>?) {
+    fun loadRecipesLocallyIfAny(
+        recipes: List<Recipe>?,
+        errorTags: (String) -> Unit,
+        errorRecipes: (String) -> Unit
+    ) {
         if (recipes == null) {
-            getRecipes { }
+            getRecipes { e -> errorRecipes(e) }
         } else {
             _recipesState.value = _recipesState.value.copy(
                 recipes = recipes,
                 searchedRecipes = recipes,
             )
         }
-        getTags { }
+        getTags { e -> errorTags(e) }
     }
 
     fun getRecipes(onError: (String) -> Unit) {
@@ -126,7 +128,6 @@ class RecipesViewModel @Inject constructor(
 
     fun getTags(onError: (String) -> Unit) {
         viewModelScope.launch {
-            isLoadingTags.value = true
             val result = tagRepository.getTags()
             result.fold(
                 ifLeft = { e -> onError(e.error) },
@@ -136,7 +137,6 @@ class RecipesViewModel @Inject constructor(
                     )
                 }
             )
-            isLoadingTags.value = false
         }
     }
 
