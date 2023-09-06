@@ -136,6 +136,7 @@ class SharedPlanningPage : ComponentActivity() {
                         .padding(it)
                         .consumeWindowInsets(it)
                 ) {
+                    // TODO: Admin to only modify shared group
                     Column(
                         verticalArrangement = Arrangement.SpaceAround,
                         horizontalAlignment = Alignment.CenterHorizontally,

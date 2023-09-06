@@ -17,10 +17,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Group
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -132,42 +133,45 @@ class PlanningsPage : ComponentActivity() {
                             LazyColumn(
                                 modifier = modifier,
                                 content = {
-                                    items(groups) { group ->
-                                        Surface(
-                                            shape = MaterialTheme.shapes.small,
-                                            color = Color.Transparent,
-                                            onClick = {
-                                                val intent = Intent(
-                                                    this@PlanningsPage,
-                                                    SharedPlanningPage::class.java
-                                                )
-                                                intent.putExtra(
-                                                    SharedPlanningPage.GROUP_ID,
-                                                    group.id
-                                                )
-                                                startActivity(intent)
-                                            },
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(12.dp)
-                                        ) {
-                                            Row(
-                                                verticalAlignment = Alignment.CenterVertically,
-                                                horizontalArrangement = Arrangement.Start,
-                                                modifier = Modifier.padding(8.dp)
+                                    itemsIndexed(groups) { x, group ->
+                                        Column {
+                                            Surface(
+                                                shape = MaterialTheme.shapes.small,
+                                                color = Color.Transparent,
+                                                onClick = {
+                                                    val intent = Intent(
+                                                        this@PlanningsPage,
+                                                        SharedPlanningPage::class.java
+                                                    )
+                                                    intent.putExtra(
+                                                        SharedPlanningPage.GROUP_ID,
+                                                        group.id
+                                                    )
+                                                    startActivity(intent)
+                                                },
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(12.dp)
                                             ) {
-                                                QImageContainer(
-                                                    uri = group.photo,
-                                                    placeholder = Icons.Outlined.Group,
-                                                    size = 72.dp
-                                                )
-                                                Spacer(modifier = Modifier.size(12.dp))
-                                                Text(
-                                                    group.name,
-                                                    style = MaterialTheme.typography.titleLarge,
-                                                    modifier = Modifier.weight(1f)
-                                                )
+                                                Row(
+                                                    verticalAlignment = Alignment.CenterVertically,
+                                                    horizontalArrangement = Arrangement.Start,
+                                                    modifier = Modifier.padding(8.dp)
+                                                ) {
+                                                    QImageContainer(
+                                                        uri = group.photo,
+                                                        placeholder = Icons.Outlined.Group,
+                                                        size = 72.dp
+                                                    )
+                                                    Spacer(modifier = Modifier.size(12.dp))
+                                                    Text(
+                                                        group.name,
+                                                        style = MaterialTheme.typography.titleLarge,
+                                                        modifier = Modifier.weight(1f)
+                                                    )
+                                                }
                                             }
+                                            if (x < groups.size - 1) Divider(color = MaterialTheme.colorScheme.outlineVariant)
                                         }
                                     }
                                 }

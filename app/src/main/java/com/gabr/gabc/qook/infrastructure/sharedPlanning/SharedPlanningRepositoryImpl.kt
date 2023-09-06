@@ -82,7 +82,6 @@ class SharedPlanningRepositoryImpl @Inject constructor(
 
     override suspend fun addUserToSharedPlanning(id: String): Either<SharedPlanningFailure, Unit> {
         try {
-            // TODO: Permission DENIED?
             auth.currentUser?.let {
                 db.collection(Globals.DB_GROUPS).document(id)
                     .update(Globals.OBJ_SHARED_PLANNING_USERS, FieldValue.arrayUnion(it.uid))
