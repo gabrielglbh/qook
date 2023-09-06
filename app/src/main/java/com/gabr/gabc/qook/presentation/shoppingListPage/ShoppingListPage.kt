@@ -30,6 +30,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,6 +52,7 @@ import com.gabr.gabc.qook.presentation.shared.components.QIngredient
 import com.gabr.gabc.qook.presentation.shared.components.QLoadingScreen
 import com.gabr.gabc.qook.presentation.shared.components.QShimmer
 import com.gabr.gabc.qook.presentation.shared.components.QTextForm
+import com.gabr.gabc.qook.presentation.sharedPlanningPage.SharedPlanningPage
 import com.gabr.gabc.qook.presentation.shoppingListPage.viewModel.ShoppingListViewModel
 import com.gabr.gabc.qook.presentation.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -59,15 +61,6 @@ import dagger.hilt.android.AndroidEntryPoint
 class ShoppingListPage : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        val viewModel: ShoppingListViewModel by viewModels()
-        val planning = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent.getParcelableArrayExtra(HomePage.HOME_PLANNING, DayPlanning::class.java)
-        } else {
-            intent.getParcelableArrayExtra(HomePage.HOME_PLANNING)
-        }
-
-        planning?.let { p -> viewModel.setPlanningMaybeForReload(p.map { it as DayPlanning }) }
 
         setContent {
             AppTheme {
@@ -81,6 +74,17 @@ class ShoppingListPage : ComponentActivity() {
     fun ShoppingListView() {
         val viewModel: ShoppingListViewModel by viewModels()
         var showReloadDialog by remember { mutableStateOf(false) }
+
+        LaunchedEffect(key1 = Unit, block = {
+            val planning = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                intent.getParcelableArrayExtra(HomePage.HOME_PLANNING, DayPlanning::class.java)
+            } else {
+                intent.getParcelableArrayExtra(HomePage.HOME_PLANNING)
+            }
+            val groupId = intent.getStringExtra(SharedPlanningPage.GROUP_ID)
+
+            planning?.let { p -> viewModel.loadShoppingList(p.map { it as DayPlanning }, groupId) }
+        })
 
         if (showReloadDialog)
             QDialog(

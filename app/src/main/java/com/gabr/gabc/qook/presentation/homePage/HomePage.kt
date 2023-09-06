@@ -331,7 +331,7 @@ class HomePage : ComponentActivity() {
             ) {
                 Row {
                     Text(
-                        "Shared Plannings",
+                        stringResource(R.string.shared_plannings_title),
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier.weight(1f)
                     )
