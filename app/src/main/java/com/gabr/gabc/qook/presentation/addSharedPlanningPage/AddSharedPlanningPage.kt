@@ -45,6 +45,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.presentation.addSharedPlanningPage.viewModel.AddSharedPlanningViewModel
+import com.gabr.gabc.qook.presentation.planningPage.PlanningPage
 import com.gabr.gabc.qook.presentation.shared.QDateUtils
 import com.gabr.gabc.qook.presentation.shared.Validators
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
@@ -54,7 +55,6 @@ import com.gabr.gabc.qook.presentation.shared.components.QLoadingScreen
 import com.gabr.gabc.qook.presentation.shared.components.QSelectableItem
 import com.gabr.gabc.qook.presentation.shared.components.QTextForm
 import com.gabr.gabc.qook.presentation.shared.components.QTextTitle
-import com.gabr.gabc.qook.presentation.sharedPlanningPage.SharedPlanningPage
 import com.gabr.gabc.qook.presentation.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -225,10 +225,10 @@ class AddSharedPlanningPage : ComponentActivity() {
                                         onSuccess = { sharedPlanningId ->
                                             val intent = Intent(
                                                 this@AddSharedPlanningPage,
-                                                SharedPlanningPage::class.java
+                                                PlanningPage::class.java
                                             )
                                             intent.putExtra(
-                                                SharedPlanningPage.GROUP_ID,
+                                                PlanningPage.SHARED_PLANNING_ID,
                                                 sharedPlanningId
                                             )
                                             startActivity(intent)

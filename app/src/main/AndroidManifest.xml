@@ -61,22 +61,7 @@
             android:theme="@style/Theme.Qook"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".presentation.ownPlanningPage.OwnPlanningPage"
-            android:exported="true"
-            android:theme="@style/Theme.Qook"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name=".presentation.planningsPage.PlanningsPage"
-            android:exported="true"
-            android:theme="@style/Theme.Qook"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name=".presentation.addSharedPlanningPage.AddSharedPlanningPage"
-            android:exported="true"
-            android:theme="@style/Theme.Qook"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name=".presentation.sharedPlanningPage.SharedPlanningPage"
+            android:name=".presentation.planningPage.PlanningPage"
             android:exported="true"
             android:theme="@style/Theme.Qook"
             android:windowSoftInputMode="adjustResize">
@@ -91,6 +76,16 @@
                 <data android:pathPrefix="/shared-planning" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".presentation.planningsPage.PlanningsPage"
+            android:exported="true"
+            android:theme="@style/Theme.Qook"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".presentation.addSharedPlanningPage.AddSharedPlanningPage"
+            android:exported="true"
+            android:theme="@style/Theme.Qook"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".presentation.recipesPage.RecipesPage"
             android:exported="true"

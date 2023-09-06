@@ -55,7 +55,7 @@ import com.gabr.gabc.qook.domain.planning.DayPlanning
 import com.gabr.gabc.qook.domain.recipe.Recipe
 import com.gabr.gabc.qook.domain.tag.Tag
 import com.gabr.gabc.qook.presentation.addRecipePage.AddRecipePage
-import com.gabr.gabc.qook.presentation.ownPlanningPage.OwnPlanningPage
+import com.gabr.gabc.qook.presentation.planningPage.PlanningPage
 import com.gabr.gabc.qook.presentation.recipeDetailsPage.RecipeDetailsPage
 import com.gabr.gabc.qook.presentation.recipesPage.viewModel.RecipesViewModel
 import com.gabr.gabc.qook.presentation.shared.QDateUtils
@@ -127,11 +127,11 @@ class RecipesPage : ComponentActivity() {
         val viewModel: RecipesViewModel by viewModels()
 
         val dayPlanning = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent.getParcelableExtra(OwnPlanningPage.FROM_PLANNING, DayPlanning::class.java)
+            intent.getParcelableExtra(PlanningPage.FROM_PLANNING, DayPlanning::class.java)
         } else {
-            intent.getParcelableExtra(OwnPlanningPage.FROM_PLANNING)
+            intent.getParcelableExtra(PlanningPage.FROM_PLANNING)
         }
-        val isLunchFromPlanning = intent.getBooleanExtra(OwnPlanningPage.IS_LUNCH, false)
+        val isLunchFromPlanning = intent.getBooleanExtra(PlanningPage.IS_LUNCH, false)
         dayPlanning?.let {
             viewModel.updatePlanning(
                 viewModel.planningState.value.copy(
@@ -217,7 +217,7 @@ class RecipesPage : ComponentActivity() {
                         onSuccess = { recipe, dayPlanning ->
                             val intent = Intent()
                             intent.putExtra(HAS_UPDATED_PLANNING, dayPlanning)
-                            intent.putExtra(OwnPlanningPage.IS_LUNCH, planningState.isLunch!!)
+                            intent.putExtra(PlanningPage.IS_LUNCH, planningState.isLunch!!)
                             intent.putExtra(HAS_UPDATED_PLANNING_RECIPE, recipe)
                             setResult(RESULT_OK, intent)
                             finish()

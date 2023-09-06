@@ -41,13 +41,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.presentation.addSharedPlanningPage.AddSharedPlanningPage
+import com.gabr.gabc.qook.presentation.planningPage.PlanningPage
 import com.gabr.gabc.qook.presentation.planningsPage.viewModel.PlanningsViewModel
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.shared.components.QEmptyBox
 import com.gabr.gabc.qook.presentation.shared.components.QImageContainer
 import com.gabr.gabc.qook.presentation.shared.components.QLoadingScreen
 import com.gabr.gabc.qook.presentation.shared.components.QShimmer
-import com.gabr.gabc.qook.presentation.sharedPlanningPage.SharedPlanningPage
 import com.gabr.gabc.qook.presentation.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -141,10 +141,10 @@ class PlanningsPage : ComponentActivity() {
                                                 onClick = {
                                                     val intent = Intent(
                                                         this@PlanningsPage,
-                                                        SharedPlanningPage::class.java
+                                                        PlanningPage::class.java
                                                     )
                                                     intent.putExtra(
-                                                        SharedPlanningPage.GROUP_ID,
+                                                        PlanningPage.SHARED_PLANNING_ID,
                                                         group.id
                                                     )
                                                     startActivity(intent)

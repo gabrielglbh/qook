@@ -67,7 +67,7 @@ import com.gabr.gabc.qook.domain.user.User
 import com.gabr.gabc.qook.presentation.addRecipePage.AddRecipePage
 import com.gabr.gabc.qook.presentation.homePage.viewModel.HomeViewModel
 import com.gabr.gabc.qook.presentation.homePage.viewModel.UserState
-import com.gabr.gabc.qook.presentation.ownPlanningPage.OwnPlanningPage
+import com.gabr.gabc.qook.presentation.planningPage.PlanningPage
 import com.gabr.gabc.qook.presentation.planningsPage.PlanningsPage
 import com.gabr.gabc.qook.presentation.profilePage.ProfilePage
 import com.gabr.gabc.qook.presentation.recipeDetailsPage.RecipeDetailsPage
@@ -111,11 +111,11 @@ class HomePage : ComponentActivity() {
 
                 val updatedPlanning = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     extras?.getParcelableArray(
-                        OwnPlanningPage.HAS_UPDATED_PLANNING,
+                        PlanningPage.HAS_UPDATED_PLANNING,
                         DayPlanning::class.java
                     )
                 } else {
-                    extras?.getParcelableArray(OwnPlanningPage.HAS_UPDATED_PLANNING)
+                    extras?.getParcelableArray(PlanningPage.HAS_UPDATED_PLANNING)
                 }
 
                 updatedPlanning?.let { p -> viewModel.updatePlanningLocally(p.map { it as DayPlanning }) }
@@ -341,7 +341,7 @@ class HomePage : ComponentActivity() {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
                 modifier = Modifier
-                    .padding(8.dp)
+                    .padding(horizontal = 8.dp)
                     .weight(1f),
                 verticalArrangement = Arrangement.Top,
                 horizontalArrangement = Arrangement.Center,
@@ -385,7 +385,7 @@ class HomePage : ComponentActivity() {
                                         UserAction.PLANNING -> {
                                             val intent = Intent(
                                                 this@HomePage,
-                                                OwnPlanningPage::class.java
+                                                PlanningPage::class.java
                                             )
                                             intent.putExtra(HOME_PLANNING, planning.toTypedArray())
                                             resultLauncher.launch(intent)

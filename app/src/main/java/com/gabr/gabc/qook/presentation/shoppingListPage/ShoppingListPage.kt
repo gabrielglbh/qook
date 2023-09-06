@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.planning.DayPlanning
 import com.gabr.gabc.qook.presentation.homePage.HomePage
+import com.gabr.gabc.qook.presentation.planningPage.PlanningPage
 import com.gabr.gabc.qook.presentation.shared.Validators
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.shared.components.QDialog
@@ -52,7 +53,6 @@ import com.gabr.gabc.qook.presentation.shared.components.QIngredient
 import com.gabr.gabc.qook.presentation.shared.components.QLoadingScreen
 import com.gabr.gabc.qook.presentation.shared.components.QShimmer
 import com.gabr.gabc.qook.presentation.shared.components.QTextForm
-import com.gabr.gabc.qook.presentation.sharedPlanningPage.SharedPlanningPage
 import com.gabr.gabc.qook.presentation.shoppingListPage.viewModel.ShoppingListViewModel
 import com.gabr.gabc.qook.presentation.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -81,7 +81,7 @@ class ShoppingListPage : ComponentActivity() {
             } else {
                 intent.getParcelableArrayExtra(HomePage.HOME_PLANNING)
             }
-            val groupId = intent.getStringExtra(SharedPlanningPage.GROUP_ID)
+            val groupId = intent.getStringExtra(PlanningPage.SHARED_PLANNING_ID)
 
             planning?.let { p -> viewModel.loadShoppingList(p.map { it as DayPlanning }, groupId) }
         })
