@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.gabr.gabc.qook.domain.storage.StorageRepository
 import com.gabr.gabc.qook.domain.user.User
 import com.gabr.gabc.qook.domain.user.UserRepository
+import com.gabr.gabc.qook.presentation.shared.Globals
 import com.gabr.gabc.qook.presentation.shared.ResizeImageUtil.Companion.resizeImageToFile
 import com.gabr.gabc.qook.presentation.shared.providers.ContentResolverProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -70,7 +71,7 @@ class ProfileViewModel @Inject constructor(
             val result =
                 storageRepository.uploadImage(
                     Uri.fromFile(resizeImageToFile(uri, provider.contentResolver())),
-                    "avatar/photo.jpg"
+                    "${Globals.STORAGE_USERS}${_userState.value.user.id}/${Globals.STORAGE_AVATAR}"
                 )
             result.fold(
                 ifLeft = {

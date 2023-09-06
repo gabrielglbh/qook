@@ -9,11 +9,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -44,6 +44,7 @@ import com.gabr.gabc.qook.presentation.addSharedPlanningPage.AddSharedPlanningPa
 import com.gabr.gabc.qook.presentation.planningsPage.viewModel.PlanningsViewModel
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.shared.components.QEmptyBox
+import com.gabr.gabc.qook.presentation.shared.components.QImageContainer
 import com.gabr.gabc.qook.presentation.shared.components.QLoadingScreen
 import com.gabr.gabc.qook.presentation.shared.components.QShimmer
 import com.gabr.gabc.qook.presentation.sharedPlanningPage.SharedPlanningPage
@@ -148,13 +149,25 @@ class PlanningsPage : ComponentActivity() {
                                             },
                                             modifier = Modifier
                                                 .fillMaxWidth()
-                                                .height(64.dp)
-                                                .padding(16.dp)
+                                                .padding(12.dp)
                                         ) {
-                                            Text(
-                                                group.name,
-                                                style = MaterialTheme.typography.titleLarge,
-                                            )
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.Start,
+                                                modifier = Modifier.padding(8.dp)
+                                            ) {
+                                                QImageContainer(
+                                                    uri = group.photo,
+                                                    placeholder = Icons.Outlined.Group,
+                                                    size = 72.dp
+                                                )
+                                                Spacer(modifier = Modifier.size(12.dp))
+                                                Text(
+                                                    group.name,
+                                                    style = MaterialTheme.typography.titleLarge,
+                                                    modifier = Modifier.weight(1f)
+                                                )
+                                            }
                                         }
                                     }
                                 }

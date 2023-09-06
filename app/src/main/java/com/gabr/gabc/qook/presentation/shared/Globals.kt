@@ -13,6 +13,8 @@ class Globals {
         const val DB_INGREDIENTS = "INGREDIENTS"
 
         const val STORAGE_RECIPES = "recipes/"
+        const val STORAGE_GROUPS = "groups/"
+        const val STORAGE_USERS = "users/"
         const val STORAGE_AVATAR = "avatar/photo.jpg"
 
         const val OBJ_RECIPE_TAG_IDS = "tagIds"

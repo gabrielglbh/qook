@@ -149,7 +149,7 @@
     <string name="shared_plannings_empty">No tienes plannings compartidos. Crea una pulsando \'+\' o únete a una a través de un enlace</string>
     <string name="shared_planning_create_title">Crea un planning compartido</string>
     <string name="shared_planning_create_info">Proporciona el nombre del planning compartido y comparte el código generado con tus amigos</string>
-    <string name="shared_planning_create_shared_planning">Genera el código y crea el planning compartido</string>
+    <string name="shared_planning_create_shared_planning">Crea el planning compartido</string>
     <string name="shared_planning_info_display">Gestiona el planning compartido y la lista de la compra desde aquí añadiéndole recetas</string>
     <string name="shared_planning_group_code">Comparte el grupo</string>
     <string name="shared_planning_message_on_code_sharing">¡Únete a mi planning compartido en Qook!</string>

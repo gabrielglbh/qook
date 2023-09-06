@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Group
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -30,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
+import com.gabr.gabc.qook.presentation.shared.components.QImageContainer
 import com.gabr.gabc.qook.presentation.shared.components.QLoadingScreen
 import com.gabr.gabc.qook.presentation.shared.components.QTextTitle
 import com.gabr.gabc.qook.presentation.sharedPlanningPage.viewModel.SharedPlanningViewModel
@@ -139,6 +141,12 @@ class SharedPlanningPage : ComponentActivity() {
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier.padding(12.dp)
                     ) {
+                        QImageContainer(
+                            uri = group.photo,
+                            placeholder = Icons.Outlined.Group,
+                            size = 100.dp
+                        )
+                        Spacer(modifier = Modifier.size(12.dp))
                         QTextTitle(
                             rawTitle = group.name,
                             subtitle = R.string.shared_planning_info_display

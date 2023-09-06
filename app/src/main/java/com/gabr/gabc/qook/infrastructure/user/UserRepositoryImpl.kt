@@ -154,7 +154,8 @@ class UserRepositoryImpl @Inject constructor(
                 else {
                     ref.toObject<UserDto>()?.let { dto ->
                         var user = dto.toDomain()
-                        val result = storage.getDownloadUrl(Globals.STORAGE_AVATAR)
+                        val result =
+                            storage.getDownloadUrl("${Globals.STORAGE_USERS}${it.uid}/${Globals.STORAGE_AVATAR}")
                         result.fold(
                             ifLeft = {},
                             ifRight = { uri -> user = user.copy(photo = uri) }

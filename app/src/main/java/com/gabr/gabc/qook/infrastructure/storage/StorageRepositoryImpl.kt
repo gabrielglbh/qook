@@ -22,7 +22,7 @@ class StorageRepositoryImpl @Inject constructor(
     override suspend fun uploadImage(file: Uri, path: String): Either<StorageFailure, Uri> {
         try {
             auth.currentUser?.let {
-                val ref = storage.reference.child("${it.uid}/$path")
+                val ref = storage.reference.child(path)
                 ref.putFile(file).await()
                 return Right(ref.downloadUrl.await())
             }
@@ -35,7 +35,7 @@ class StorageRepositoryImpl @Inject constructor(
     override suspend fun getDownloadUrl(path: String): Either<StorageFailure, Uri> {
         try {
             auth.currentUser?.let {
-                return Right(storage.reference.child("${it.uid}/$path").downloadUrl.await())
+                return Right(storage.reference.child(path).downloadUrl.await())
             }
             return Left(StorageFailure.NotAuthenticated(res.getString(R.string.err_storage_retrieval)))
         } catch (err: StorageException) {
@@ -45,7 +45,7 @@ class StorageRepositoryImpl @Inject constructor(
 
     override suspend fun deleteImage(path: String): Either<StorageFailure, Unit> {
         auth.currentUser?.let {
-            storage.reference.child("${it.uid}/$path").delete().await()
+            storage.reference.child(path).delete().await()
             return Right(Unit)
         }
         return Left(StorageFailure.NotAuthenticated(res.getString(R.string.err_storage_delete)))

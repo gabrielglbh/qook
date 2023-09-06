@@ -15,7 +15,7 @@ interface SharedPlanningRepository {
         uid: String
     ): Either<SharedPlanningFailure, Unit>
 
-    suspend fun deleteSharedPlanning(id: String): Either<SharedPlanningFailure, Unit>
+    suspend fun deleteSharedPlanning(sharedPlanning: SharedPlanning): Either<SharedPlanningFailure, Unit>
     suspend fun getSharedPlannings(): Either<SharedPlanningFailure, List<SharedPlanning>>
     suspend fun getSharedPlanning(id: String): Either<SharedPlanningFailure, SharedPlanning>
 }

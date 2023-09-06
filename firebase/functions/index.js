@@ -107,7 +107,7 @@ exports.onRemoveUser = functions.firestore
 
         const bucket = storage.bucket();
         await bucket.deleteFiles({
-          prefix: userId,
+          prefix: "users/" + userId,
         }).then(() => {
           console.log("✅ Successfully removed user images");
         }).catch((reason) => {
@@ -166,12 +166,13 @@ exports.onCreateSharedPlanning = functions.firestore
         );
 
         await batch.commit().then(() => {
-          console.log("✅ Successfully initiated user");
+          console.log("✅ Successfully initiated shared planning");
         }).catch((reason) => {
-          console.log("❌ Error while initializing user %s", reason.toString());
+          console.log("❌ Error while initializing shared planning %s",
+              reason.toString());
         });
       } catch (error) {
-        console.log("❌ Error while initializing user %s", error);
+        console.log("❌ Error while initializing shared planning %s", error);
       }
     });
 
@@ -197,8 +198,18 @@ exports.onRemoveSharedPlanning = functions.firestore
           console.log("❌ Error while removing shared planning %s",
               reason.toString());
         });
+
+        const bucket = storage.bucket();
+        await bucket.deleteFiles({
+          prefix: "groups/" + groupId,
+        }).then(() => {
+          console.log("✅ Successfully removed shared planning images");
+        }).catch((reason) => {
+          console.log("❌ Error while removing shared planning images %s",
+              reason.toString());
+        });
       } catch (error) {
-        console.log("❌ Error while removing user %s", error);
+        console.log("❌ Error while removing shared planning %s", error);
       }
     });
 

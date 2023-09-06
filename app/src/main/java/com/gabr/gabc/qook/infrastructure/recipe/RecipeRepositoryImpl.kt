@@ -94,7 +94,10 @@ class RecipeRepositoryImpl @Inject constructor(
                 docRef.set(recipe.toDto()).await()
 
                 if (recipe.photo.host != Globals.FIREBASE_HOST && recipe.photo != Uri.EMPTY) {
-                    storage.uploadImage(recipe.photo, "${Globals.STORAGE_RECIPES}$recipeId.jpg")
+                    storage.uploadImage(
+                        recipe.photo,
+                        "${Globals.STORAGE_USERS}${it.uid}/${Globals.STORAGE_RECIPES}$recipeId.jpg"
+                    )
                 }
 
                 return Right(recipe)
@@ -122,7 +125,7 @@ class RecipeRepositoryImpl @Inject constructor(
                     .delete().await()
 
                 if (recipe.photo != Uri.EMPTY) {
-                    storage.deleteImage("${Globals.STORAGE_RECIPES}${recipe.id}.jpg")
+                    storage.deleteImage("${Globals.STORAGE_USERS}${it.uid}/${Globals.STORAGE_RECIPES}${recipe.id}.jpg")
                 }
 
                 return Right(Unit)
@@ -147,7 +150,8 @@ class RecipeRepositoryImpl @Inject constructor(
                     var recipe = recipeDto.toDomain()
 
                     if (recipeDto.hasPhoto) {
-                        val res = storage.getDownloadUrl("${Globals.STORAGE_RECIPES}${id}.jpg")
+                        val res =
+                            storage.getDownloadUrl("${Globals.STORAGE_USERS}${it.uid}/${Globals.STORAGE_RECIPES}${id}.jpg")
                         res.fold(
                             ifLeft = {},
                             ifRight = { uri -> recipe = recipe.copy(photo = uri) }

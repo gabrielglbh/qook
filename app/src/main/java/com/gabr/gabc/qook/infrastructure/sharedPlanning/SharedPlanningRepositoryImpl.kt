@@ -1,5 +1,6 @@
 package com.gabr.gabc.qook.infrastructure.sharedPlanning
 
+import android.net.Uri
 import arrow.core.Either
 import arrow.core.Either.Left
 import arrow.core.Either.Right
@@ -10,6 +11,7 @@ import com.gabr.gabc.qook.domain.sharedPlanning.SharedPlanning
 import com.gabr.gabc.qook.domain.sharedPlanning.SharedPlanningFailure
 import com.gabr.gabc.qook.domain.sharedPlanning.SharedPlanningRepository
 import com.gabr.gabc.qook.domain.sharedPlanning.toDto
+import com.gabr.gabc.qook.domain.storage.StorageRepository
 import com.gabr.gabc.qook.domain.user.User
 import com.gabr.gabc.qook.domain.user.UserRepository
 import com.gabr.gabc.qook.presentation.shared.Globals
@@ -28,7 +30,8 @@ class SharedPlanningRepositoryImpl @Inject constructor(
     private val planningRepository: PlanningRepository,
     private val ingredientsRepository: IngredientsRepository,
     private val userRepository: UserRepository,
-    private val res: StringResourcesProvider
+    private val res: StringResourcesProvider,
+    private val storage: StorageRepository
 ) : SharedPlanningRepository {
     override suspend fun createSharedPlanning(sharedPlanning: SharedPlanning): Either<SharedPlanningFailure, SharedPlanning> {
         try {
@@ -37,6 +40,13 @@ class SharedPlanningRepositoryImpl @Inject constructor(
                 val planningId = ref.path.split("/").last()
 
                 ref.set(sharedPlanning.toDto().copy(users = listOf(it.uid))).await()
+
+                if (sharedPlanning.photo.host != Globals.FIREBASE_HOST && sharedPlanning.photo != Uri.EMPTY) {
+                    storage.uploadImage(
+                        sharedPlanning.photo,
+                        "${Globals.STORAGE_GROUPS}$planningId/${Globals.STORAGE_AVATAR}"
+                    )
+                }
 
                 return Right(sharedPlanning.copy(id = planningId))
             }
@@ -54,6 +64,13 @@ class SharedPlanningRepositoryImpl @Inject constructor(
             auth.currentUser?.let {
                 db.collection(Globals.DB_GROUPS).document(id)
                     .update(sharedPlanning.toDto().toMap()).await()
+
+                if (sharedPlanning.photo.host != Globals.FIREBASE_HOST && sharedPlanning.photo != Uri.EMPTY) {
+                    storage.uploadImage(
+                        sharedPlanning.photo,
+                        "${Globals.STORAGE_GROUPS}$id/${Globals.STORAGE_AVATAR}"
+                    )
+                }
 
                 return Right(Unit)
             }
@@ -96,10 +113,15 @@ class SharedPlanningRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun deleteSharedPlanning(id: String): Either<SharedPlanningFailure, Unit> {
+    override suspend fun deleteSharedPlanning(sharedPlanning: SharedPlanning): Either<SharedPlanningFailure, Unit> {
         try {
             auth.currentUser?.let {
-                db.collection(Globals.DB_GROUPS).document(id).delete().await()
+                db.collection(Globals.DB_GROUPS).document(sharedPlanning.id).delete().await()
+
+                if (sharedPlanning.photo != Uri.EMPTY) {
+                    storage.deleteImage("${Globals.STORAGE_GROUPS}${sharedPlanning.id}/${Globals.STORAGE_AVATAR}")
+                }
+
                 return Right(Unit)
             }
             return Left(SharedPlanningFailure.NotAuthenticated(res.getString(R.string.error_user_not_auth)))
@@ -111,16 +133,27 @@ class SharedPlanningRepositoryImpl @Inject constructor(
     override suspend fun getSharedPlannings(): Either<SharedPlanningFailure, List<SharedPlanning>> {
         try {
             auth.currentUser?.let {
-                val plannings = mutableListOf<SharedPlanning>()
+                val groups = mutableListOf<SharedPlanning>()
                 val res = db.collection(Globals.DB_GROUPS)
                     .whereArrayContains(Globals.OBJ_SHARED_PLANNING_USERS, it.uid)
                     .get().await()
 
                 res.forEach { doc ->
-                    plannings.add(doc.toObject<SharedPlanningDto>().toDomain())
+                    val dto = doc.toObject<SharedPlanningDto>()
+                    var group = dto.toDomain()
+
+                    if (dto.hasPhoto) {
+                        val resStorage =
+                            storage.getDownloadUrl("${Globals.STORAGE_GROUPS}${dto.id}/${Globals.STORAGE_AVATAR}")
+                        resStorage.fold(
+                            ifLeft = {},
+                            ifRight = { uri -> group = group.copy(photo = uri) }
+                        )
+                    }
+                    groups.add(group)
                 }
 
-                return Right(plannings)
+                return Right(groups)
             }
             return Left(SharedPlanningFailure.NotAuthenticated(res.getString(R.string.error_user_not_auth)))
         } catch (err: FirebaseFirestoreException) {
@@ -135,22 +168,30 @@ class SharedPlanningRepositoryImpl @Inject constructor(
 
                 val dto = res.toObject<SharedPlanningDto>()
                 dto?.let { d ->
-                    var planning = d.toDomain()
+                    var group = d.toDomain()
+                    val users = mutableListOf<User>()
+                    if (d.hasPhoto) {
+                        val resStorage =
+                            storage.getDownloadUrl("${Globals.STORAGE_GROUPS}$id/${Globals.STORAGE_AVATAR}")
+                        resStorage.fold(
+                            ifLeft = {},
+                            ifRight = { uri -> group = group.copy(photo = uri) }
+                        )
+                    }
                     val ingredientRes = ingredientsRepository.getIngredientsOfShoppingList(id)
                     ingredientRes.fold(
                         ifLeft = {},
                         ifRight = { ingredients ->
-                            planning = planning.copy(shoppingList = ingredients)
+                            group = group.copy(shoppingList = ingredients)
                         }
                     )
                     val planningRes = planningRepository.getPlanning(id)
                     planningRes.fold(
                         ifLeft = {},
                         ifRight = { p ->
-                            planning = planning.copy(planning = p)
+                            group = group.copy(planning = p)
                         }
                     )
-                    val users = mutableListOf<User>()
                     d.users.forEach { uid ->
                         val userRes = userRepository.getUserFromId(uid)
                         userRes.fold(
@@ -160,8 +201,8 @@ class SharedPlanningRepositoryImpl @Inject constructor(
                             }
                         )
                     }
-                    planning = planning.copy(users = users)
-                    return Right(planning)
+                    group = group.copy(users = users)
+                    return Right(group)
                 }
             }
             return Left(SharedPlanningFailure.NotAuthenticated(res.getString(R.string.error_user_not_auth)))
