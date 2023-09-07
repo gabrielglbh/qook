@@ -48,6 +48,7 @@ fun QRecipeItem(
     Surface(
         shape = MaterialTheme.shapes.small,
         color = Color.Transparent,
+        modifier = Modifier.padding(4.dp)
     ) {
         Surface(
             color = Color.Transparent,

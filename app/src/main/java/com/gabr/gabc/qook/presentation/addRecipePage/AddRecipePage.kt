@@ -1,6 +1,5 @@
 package com.gabr.gabc.qook.presentation.addRecipePage
 
-import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.os.Build
@@ -59,6 +58,7 @@ import com.gabr.gabc.qook.presentation.addRecipePage.viewModel.AddRecipeViewMode
 import com.gabr.gabc.qook.presentation.addTagPage.AddTagPage
 import com.gabr.gabc.qook.presentation.addTagPage.AlteredMode
 import com.gabr.gabc.qook.presentation.recipeDetailsPage.RecipeDetailsPage
+import com.gabr.gabc.qook.presentation.shared.PermissionsRequester
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.shared.components.QLoadingScreen
 import com.gabr.gabc.qook.presentation.theme.AppTheme
@@ -73,36 +73,8 @@ class AddRecipePage : ComponentActivity() {
     }
 
     private lateinit var pickMedia: ActivityResultLauncher<PickVisualMediaRequest>
-    private val requestMultiplePermissions =
-        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-            permissions.forEach { actionMap ->
-                when (actionMap.key) {
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE -> {
-                        if (!actionMap.value) {
-                            shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                        }
-                    }
+    private lateinit var requestMultiplePermissions: ActivityResultLauncher<Array<String>>
 
-                    Manifest.permission.READ_EXTERNAL_STORAGE -> {
-                        if (actionMap.value) {
-                            pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                        } else {
-                            shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)
-                        }
-                    }
-
-                    Manifest.permission.READ_MEDIA_IMAGES -> {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                            if (actionMap.value) {
-                                pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                            } else {
-                                shouldShowRequestPermissionRationale(Manifest.permission.READ_MEDIA_IMAGES)
-                            }
-                        }
-                    }
-                }
-            }
-        }
     private val resultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
@@ -162,6 +134,9 @@ class AddRecipePage : ComponentActivity() {
                     viewModel.updateMetadata(photo = uri)
                 }
             }
+
+        requestMultiplePermissions =
+            PermissionsRequester.requestMultiplePermissionsCaller(this, pickMedia)
 
         setContent {
             AppTheme {

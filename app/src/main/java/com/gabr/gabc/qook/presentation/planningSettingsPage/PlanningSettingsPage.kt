@@ -45,6 +45,7 @@ import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.sharedPlanning.SharedPlanning
 import com.gabr.gabc.qook.presentation.planningPage.PlanningPage
 import com.gabr.gabc.qook.presentation.planningSettingsPage.viewModel.PlanningSettingsViewModel
+import com.gabr.gabc.qook.presentation.shared.PermissionsRequester
 import com.gabr.gabc.qook.presentation.shared.QDateUtils
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.shared.components.QChangeNameDialog
@@ -60,38 +61,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class PlanningSettingsPage : ComponentActivity() {
     private lateinit var pickMedia: ActivityResultLauncher<PickVisualMediaRequest>
-
-    // TODO: Maybe it can be called as a function...
-    private val requestMultiplePermissions =
-        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-            permissions.forEach { actionMap ->
-                when (actionMap.key) {
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE -> {
-                        if (!actionMap.value) {
-                            shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                        }
-                    }
-
-                    Manifest.permission.READ_EXTERNAL_STORAGE -> {
-                        if (actionMap.value) {
-                            pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                        } else {
-                            shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)
-                        }
-                    }
-
-                    Manifest.permission.READ_MEDIA_IMAGES -> {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                            if (actionMap.value) {
-                                pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                            } else {
-                                shouldShowRequestPermissionRationale(Manifest.permission.READ_MEDIA_IMAGES)
-                            }
-                        }
-                    }
-                }
-            }
-        }
+    private lateinit var requestMultiplePermissions: ActivityResultLauncher<Array<String>>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -103,6 +73,9 @@ class PlanningSettingsPage : ComponentActivity() {
                     viewModel.updateGroupPhoto(uri)
                 }
             }
+
+        requestMultiplePermissions =
+            PermissionsRequester.requestMultiplePermissionsCaller(this, pickMedia)
 
         setContent {
             AppTheme {
@@ -225,6 +198,7 @@ class PlanningSettingsPage : ComponentActivity() {
                 onDismissRequest = { showRemoveSharedPlanningDialog = false },
                 leadingIcon = Icons.Outlined.Delete,
                 title = R.string.plannings_delete_group_title,
+                buttonTitle = R.string.plannings_remove,
                 content = {
                     Text(
                         stringResource(R.string.plannings_delete_group_description),

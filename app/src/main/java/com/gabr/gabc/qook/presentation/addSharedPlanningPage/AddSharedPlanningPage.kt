@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.presentation.addSharedPlanningPage.viewModel.AddSharedPlanningViewModel
 import com.gabr.gabc.qook.presentation.planningPage.PlanningPage
+import com.gabr.gabc.qook.presentation.shared.PermissionsRequester
 import com.gabr.gabc.qook.presentation.shared.QDateUtils
 import com.gabr.gabc.qook.presentation.shared.Validators
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
@@ -62,36 +63,7 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class AddSharedPlanningPage : ComponentActivity() {
     private lateinit var pickMedia: ActivityResultLauncher<PickVisualMediaRequest>
-    private val requestMultiplePermissions =
-        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-            permissions.forEach { actionMap ->
-                when (actionMap.key) {
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE -> {
-                        if (!actionMap.value) {
-                            shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                        }
-                    }
-
-                    Manifest.permission.READ_EXTERNAL_STORAGE -> {
-                        if (actionMap.value) {
-                            pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                        } else {
-                            shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)
-                        }
-                    }
-
-                    Manifest.permission.READ_MEDIA_IMAGES -> {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                            if (actionMap.value) {
-                                pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                            } else {
-                                shouldShowRequestPermissionRationale(Manifest.permission.READ_MEDIA_IMAGES)
-                            }
-                        }
-                    }
-                }
-            }
-        }
+    private lateinit var requestMultiplePermissions: ActivityResultLauncher<Array<String>>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -103,6 +75,9 @@ class AddSharedPlanningPage : ComponentActivity() {
                     viewModel.updateSharedPlanning(photo = uri)
                 }
             }
+
+        requestMultiplePermissions =
+            PermissionsRequester.requestMultiplePermissionsCaller(this, pickMedia)
 
         setContent {
             AppTheme {

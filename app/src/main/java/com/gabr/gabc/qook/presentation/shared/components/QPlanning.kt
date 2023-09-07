@@ -15,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.ClearAll
 import androidx.compose.material.icons.outlined.KeyboardOptionKey
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -49,11 +50,13 @@ fun QPlanning(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier.verticalScroll(rememberScrollState())
     ) {
-        planning.forEach {
+        planning.forEach { dp ->
             Column(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.Start,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(4.dp),
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -61,12 +64,12 @@ fun QPlanning(
                     modifier = Modifier.padding(horizontal = 12.dp),
                 ) {
                     Text(
-                        stringResource(QDateUtils.getWeekDayStringRes(it.dayIndex)),
+                        stringResource(QDateUtils.getWeekDayStringRes(dp.dayIndex)),
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier.weight(1f)
                     )
                     IconButton(onClick = {
-                        onClearFullDayPlanning(it)
+                        onClearFullDayPlanning(dp)
                     }) {
                         Icon(Icons.Outlined.ClearAll, "")
                     }
@@ -78,25 +81,30 @@ fun QPlanning(
                     modifier = Modifier.padding(end = 12.dp)
                 ) {
                     PlanningDayRecipe(
-                        it,
-                        it.lunch.meal,
+                        dp,
+                        dp.lunch.meal,
                         true,
                         onAddRecipeToDayPlanning,
                         onRecipeTapped,
                         onClearDayPlanning,
                     )
                     PlanningDayRecipe(
-                        it,
-                        it.dinner.meal,
+                        dp,
+                        dp.dinner.meal,
                         false,
                         onAddRecipeToDayPlanning,
                         onRecipeTapped,
                         onClearDayPlanning,
                     )
                 }
+                Divider(
+                    color = MaterialTheme.colorScheme.outlineVariant,
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+                )
             }
         }
     }
+
 }
 
 @Composable
