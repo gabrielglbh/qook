@@ -125,7 +125,7 @@
     <string name="planning_dinner">Cena</string>
     <string name="add_recipe_to_planning">Añadir receta al planning semanal</string>
     <string name="planning_confirmation_msg">¿Seguro que quieres añadir %1$s al planning para el %2$s?</string>
-    <string name="planning_description">Planifica tu semana con comidas y cenas con tus recetas</string>
+    <string name="planning_description">Planifica tu semana con comidas y cenas con tus recetas. Para eliminar o actualizar una receta planeada, sosten el dedo en ella y elige una de las opciones que se te presenten.</string>
     <string name="planning_no_recipe_added">No se ha añadido receta todavía</string>
     <string name="reset_planning">Reestablecer planning</string>
     <string name="reset_planning_description">Todo el planning será vaciado para hacer uno nuevo desde el principio</string>
@@ -150,8 +150,13 @@
     <string name="shared_planning_create_title">Crea un planning compartido</string>
     <string name="shared_planning_create_info">Proporciona el nombre del planning compartido y comparte el código generado con tus amigos</string>
     <string name="shared_planning_create_shared_planning">Crea el planning compartido</string>
-    <string name="shared_planning_info_display">Gestiona el planning compartido y la lista de la compra desde aquí añadiéndole recetas</string>
+    <string name="shared_planning_info_display">Gestiona el planning compartido y la lista de la compra desde aquí añadiéndole recetas. Para eliminar o actualizar una receta planeada, sosten el dedo en ella y elige una de las opciones que se te presenten.</string>
     <string name="shared_planning_group_code">Comparte el grupo</string>
     <string name="shared_planning_message_on_code_sharing">¡Únete a mi planning compartido en Qook!</string>
     <string name="shared_planning_title">Planning compartido</string>
+
+    <string name="plannings_options_title">¿Qué quieres hacer con esta receta?</string>
+    <string name="plannings_options_description">¿Quieres eliminar %1$s del planning o reemplazarla?</string>
+    <string name="plannings_replace">Reemplazar</string>
+    <string name="plannings_remove">Eliminar</string>
 </resources>

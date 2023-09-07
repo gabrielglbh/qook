@@ -8,20 +8,25 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.ClearAll
-import androidx.compose.material.icons.outlined.NightlightRound
-import androidx.compose.material.icons.outlined.WbSunny
+import androidx.compose.material.icons.outlined.KeyboardOptionKey
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -34,9 +39,10 @@ import com.gabr.gabc.qook.presentation.shared.QDateUtils
 fun QPlanning(
     planning: List<DayPlanning>,
     modifier: Modifier = Modifier,
-    onClearDayPlanning: (DayPlanning) -> Unit,
+    onClearFullDayPlanning: (DayPlanning) -> Unit,
     onAddRecipeToDayPlanning: (DayPlanning, Boolean) -> Unit,
     onRecipeTapped: (Recipe) -> Unit,
+    onClearDayPlanning: (DayPlanning, Boolean) -> Unit,
 ) {
     Column(
         verticalArrangement = Arrangement.Center,
@@ -60,7 +66,7 @@ fun QPlanning(
                         modifier = Modifier.weight(1f)
                     )
                     IconButton(onClick = {
-                        onClearDayPlanning(it)
+                        onClearFullDayPlanning(it)
                     }) {
                         Icon(Icons.Outlined.ClearAll, "")
                     }
@@ -69,14 +75,15 @@ fun QPlanning(
                 Column(
                     verticalArrangement = Arrangement.spacedBy(4.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.padding(horizontal = 12.dp)
+                    modifier = Modifier.padding(end = 12.dp)
                 ) {
                     PlanningDayRecipe(
                         it,
                         it.lunch.meal,
                         true,
                         onAddRecipeToDayPlanning,
-                        onRecipeTapped
+                        onRecipeTapped,
+                        onClearDayPlanning,
                     )
                     PlanningDayRecipe(
                         it,
@@ -84,6 +91,7 @@ fun QPlanning(
                         false,
                         onAddRecipeToDayPlanning,
                         onRecipeTapped,
+                        onClearDayPlanning,
                     )
                 }
             }
@@ -97,20 +105,48 @@ fun PlanningDayRecipe(
     recipe: Recipe,
     isLunch: Boolean,
     onAddRecipeToDayPlanning: (DayPlanning, Boolean) -> Unit,
-    onRecipeTapped: (Recipe) -> Unit
+    onRecipeTapped: (Recipe) -> Unit,
+    onClearDayPlanning: (DayPlanning, Boolean) -> Unit,
 ) {
+    var recipeForOptions by remember { mutableStateOf(Recipe.EMPTY_RECIPE) }
+
+    if (recipeForOptions != Recipe.EMPTY_RECIPE) {
+        QDialog(
+            onDismissRequest = { recipeForOptions = Recipe.EMPTY_RECIPE },
+            leadingIcon = Icons.Outlined.KeyboardOptionKey,
+            title = R.string.plannings_options_title,
+            content = {
+                Text(stringResource(R.string.plannings_options_description, recipeForOptions.name))
+            },
+            buttonTitle = R.string.plannings_replace,
+            onSubmit = {
+                onAddRecipeToDayPlanning(dayPlanning, isLunch)
+                recipeForOptions = Recipe.EMPTY_RECIPE
+            },
+            buttonSecondaryTitle = R.string.plannings_remove,
+            onSubmitSecondary = {
+                onClearDayPlanning(dayPlanning, isLunch)
+                recipeForOptions = Recipe.EMPTY_RECIPE
+            },
+        )
+    }
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start,
     ) {
-        Icon(
-            imageVector = if (isLunch) {
-                Icons.Outlined.WbSunny
+        QAutoSizeText(
+            if (isLunch) {
+                stringResource(R.string.planning_lunch)
             } else {
-                Icons.Outlined.NightlightRound
-            }, contentDescription = ""
+                stringResource(R.string.planning_dinner)
+            },
+            color = MaterialTheme.colorScheme.onBackground,
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier
+                .rotate(-90f)
+                .width(56.dp),
         )
-        Spacer(modifier = Modifier.size(12.dp))
         if (recipe == Recipe.EMPTY_RECIPE) QAutoSizeText(
             stringResource(R.string.planning_no_recipe_added),
             style = MaterialTheme.typography.titleMedium.copy(
@@ -137,11 +173,18 @@ fun PlanningDayRecipe(
                 simplified = true,
                 modifier = Modifier
                     .weight(1f)
-                    .padding(4.dp)
-            ) {
-                onRecipeTapped(recipe)
-
-            }
+                    .padding(4.dp),
+                onClick = {
+                    onRecipeTapped(recipe)
+                },
+                onLongClick = {
+                    recipeForOptions = if (isLunch) {
+                        dayPlanning.lunch.meal
+                    } else {
+                        dayPlanning.dinner.meal
+                    }
+                }
+            )
         }
     }
 }

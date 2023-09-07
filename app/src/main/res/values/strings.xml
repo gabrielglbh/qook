@@ -125,7 +125,7 @@
     <string name="planning_dinner">Dinner</string>
     <string name="add_recipe_to_planning">Add recipe to weekly planning</string>
     <string name="planning_confirmation_msg">Are you sure you want to add %1$s to the planning for %2$s?</string>
-    <string name="planning_description">Plan your week with lunch and dinners with your recipes</string>
+    <string name="planning_description">Plan your week with lunch and dinners with your recipes. To remove or update a recipe already planned, long press on it and choose from the options to modify it.</string>
     <string name="planning_no_recipe_added">No recipe added yet</string>
     <string name="reset_planning">Reset planning</string>
     <string name="reset_planning_description">All planning will be emptied to make a new planning from scratch</string>
@@ -150,8 +150,13 @@
     <string name="shared_planning_create_title">Create shared planning</string>
     <string name="shared_planning_create_info">Provide the name of the shared planning and share the generated code to your friends</string>
     <string name="shared_planning_create_shared_planning">Create shared planning</string>
-    <string name="shared_planning_info_display">Manage the shared planning and the shopping list from here by adding recipes to it</string>
+    <string name="shared_planning_info_display">Manage the shared planning and the shopping list from here by adding recipes to it. To remove or update a recipe already planned, long press on it and choose from the options to modify it.</string>
     <string name="shared_planning_group_code">Share the group</string>
     <string name="shared_planning_message_on_code_sharing">Join my share planning in Qook!</string>
     <string name="shared_planning_title">Shared Planning</string>
+
+    <string name="plannings_options_title">What do you want to do with the recipe?</string>
+    <string name="plannings_options_description">Do you want to remove %1$s from the planning or replace it?</string>
+    <string name="plannings_replace">Replace</string>
+    <string name="plannings_remove">Remove</string>
 </resources>

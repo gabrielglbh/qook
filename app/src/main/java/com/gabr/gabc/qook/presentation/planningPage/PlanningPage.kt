@@ -131,7 +131,9 @@ class PlanningPage : ComponentActivity() {
         val appLinkData = intent.data
         if (Intent.ACTION_VIEW == appLinkAction) {
             appLinkData?.lastPathSegment?.also { groupId ->
-                viewModel.addUserToGroup(groupId) {}
+                viewModel.addUserToGroup(groupId) {
+                    finish()
+                }
             }
         }
     }
@@ -269,7 +271,8 @@ class PlanningPage : ComponentActivity() {
                                 style = MaterialTheme.typography.titleSmall.copy(
                                     color = MaterialTheme.colorScheme.outline
                                 ),
-                                textAlign = TextAlign.Center
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.padding(horizontal = 8.dp)
                             )
                         } else {
                             SharedPlanningHeaders()
@@ -277,13 +280,21 @@ class PlanningPage : ComponentActivity() {
                         Spacer(modifier = Modifier.size(8.dp))
                         QPlanning(
                             planning,
-                            onClearDayPlanning = { dp ->
+                            onClearFullDayPlanning = { dp ->
                                 viewModel.updatePlanning(
                                     dp.copy(
                                         lunch = MealData.EMPTY_MEAL_DATA,
                                         dinner = MealData.EMPTY_MEAL_DATA,
                                     )
                                 ) { }
+                            },
+                            onClearDayPlanning = { dp, isLunch ->
+                                val emptyDp = if (isLunch) {
+                                    dp.copy(lunch = MealData.EMPTY_MEAL_DATA)
+                                } else {
+                                    dp.copy(dinner = MealData.EMPTY_MEAL_DATA)
+                                }
+                                viewModel.updatePlanning(emptyDp) { }
                             },
                             onAddRecipeToDayPlanning = { dp, isLunch ->
                                 val intent =

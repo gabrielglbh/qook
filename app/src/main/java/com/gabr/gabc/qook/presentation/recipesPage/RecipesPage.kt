@@ -344,23 +344,24 @@ class RecipesPage : ComponentActivity() {
                                         Column {
                                             QRecipeItem(
                                                 recipe = recipe,
-                                                modifier = Modifier.padding(8.dp)
-                                            ) {
-                                                if (planningState.dayPlanning != DayPlanning.EMPTY_DAY_PLANNING || planningState.isLunch != null) {
-                                                    selectedRecipeForPlanning = recipe
-                                                } else {
-                                                    val intent =
-                                                        Intent(
-                                                            this@RecipesPage,
-                                                            RecipeDetailsPage::class.java
+                                                modifier = Modifier.padding(8.dp),
+                                                onClick = {
+                                                    if (planningState.dayPlanning != DayPlanning.EMPTY_DAY_PLANNING || planningState.isLunch != null) {
+                                                        selectedRecipeForPlanning = recipe
+                                                    } else {
+                                                        val intent =
+                                                            Intent(
+                                                                this@RecipesPage,
+                                                                RecipeDetailsPage::class.java
+                                                            )
+                                                        intent.putExtra(
+                                                            RecipeDetailsPage.RECIPE,
+                                                            recipe
                                                         )
-                                                    intent.putExtra(
-                                                        RecipeDetailsPage.RECIPE,
-                                                        recipe
-                                                    )
-                                                    resultLauncher.launch(intent)
+                                                        resultLauncher.launch(intent)
+                                                    }
                                                 }
-                                            }
+                                            )
                                             if (x < state.searchedRecipes.size - 1) Divider(color = MaterialTheme.colorScheme.outlineVariant)
                                         }
                                     }

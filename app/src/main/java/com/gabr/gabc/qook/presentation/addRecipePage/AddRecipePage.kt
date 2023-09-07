@@ -196,23 +196,23 @@ class AddRecipePage : ComponentActivity() {
             currentPage = RecipeStep.valueOf(dest.route!!)
             bar2Color =
                 if (currentPage in steps.slice(RecipeStep.INGREDIENTS.ordinal until steps.size)) {
-                    colorScheme.primaryContainer
+                    colorScheme.tertiary
                 } else {
                     colorScheme.outlineVariant
                 }
             bar3Color =
                 if (currentPage in steps.slice(RecipeStep.DESCRIPTION.ordinal until steps.size)) {
-                    colorScheme.primaryContainer
+                    colorScheme.tertiary
                 } else {
                     colorScheme.outlineVariant
                 }
             bar4Color = if (currentPage in steps.slice(RecipeStep.TAGS.ordinal until steps.size)) {
-                colorScheme.primaryContainer
+                colorScheme.tertiary
             } else {
                 colorScheme.outlineVariant
             }
             bar5Color = if (currentPage == RecipeStep.PREVIEW) {
-                colorScheme.primaryContainer
+                colorScheme.tertiary
             } else {
                 colorScheme.outlineVariant
             }
@@ -380,7 +380,7 @@ class AddRecipePage : ComponentActivity() {
         ) {
             Bar(
                 modifier = Modifier.weight(1f),
-                color = MaterialTheme.colorScheme.primaryContainer
+                color = MaterialTheme.colorScheme.tertiary
             ) {
                 navController.navigate(RecipeStep.DATA.name)
             }

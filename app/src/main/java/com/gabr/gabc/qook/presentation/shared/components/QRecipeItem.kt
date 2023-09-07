@@ -1,6 +1,8 @@
 package com.gabr.gabc.qook.presentation.shared.components
 
 import android.net.Uri
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -34,80 +36,89 @@ import com.gabr.gabc.qook.domain.tag.Tag
 import com.gabr.gabc.qook.presentation.theme.AppTheme
 import java.util.Calendar
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun QRecipeItem(
     recipe: Recipe,
     modifier: Modifier = Modifier,
     simplified: Boolean = false,
-    onClick: (() -> Unit)? = null
+    onClick: (() -> Unit)? = null,
+    onLongClick: (() -> Unit)? = null
 ) {
     Surface(
-        enabled = onClick != null,
-        onClick = { onClick?.let { it() } },
         shape = MaterialTheme.shapes.small,
         color = Color.Transparent,
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Start,
-            modifier = modifier.fillMaxWidth()
+        Surface(
+            color = Color.Transparent,
+            modifier = Modifier.combinedClickable(
+                enabled = onClick != null,
+                onClick = { onClick?.let { it() } },
+                onLongClick = { onLongClick?.let { it() } }
+            )
         ) {
-            Column(
-                verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.Start,
-                modifier = Modifier
-                    .padding(end = 12.dp)
-                    .weight(1f)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start,
+                modifier = modifier.fillMaxWidth()
             ) {
-                Text(
-                    recipe.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Spacer(modifier = Modifier.size(8.dp))
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Start
+                Column(
+                    verticalArrangement = Arrangement.Top,
+                    horizontalAlignment = Alignment.Start,
+                    modifier = Modifier
+                        .padding(end = 12.dp)
+                        .weight(1f)
                 ) {
-                    TextWithIcon(
-                        icon = Icons.Outlined.Bolt,
-                        text = when (recipe.easiness) {
-                            Easiness.EASY -> stringResource(R.string.add_recipe_easiness_EASY)
-                            Easiness.MEDIUM -> stringResource(R.string.add_recipe_easiness_MEDIUM)
-                            Easiness.HARD -> stringResource(R.string.add_recipe_easiness_HARD)
-                        },
+                    Text(
+                        recipe.name,
+                        style = MaterialTheme.typography.titleMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                     Spacer(modifier = Modifier.size(8.dp))
-                    Text("•")
-                    Spacer(modifier = Modifier.size(8.dp))
-                    TextWithIcon(
-                        icon = Icons.Outlined.Timer,
-                        text = recipe.time,
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Start
+                    ) {
+                        TextWithIcon(
+                            icon = Icons.Outlined.Bolt,
+                            text = when (recipe.easiness) {
+                                Easiness.EASY -> stringResource(R.string.add_recipe_easiness_EASY)
+                                Easiness.MEDIUM -> stringResource(R.string.add_recipe_easiness_MEDIUM)
+                                Easiness.HARD -> stringResource(R.string.add_recipe_easiness_HARD)
+                            },
+                        )
+                        Spacer(modifier = Modifier.size(8.dp))
+                        Text("•")
+                        Spacer(modifier = Modifier.size(8.dp))
+                        TextWithIcon(
+                            icon = Icons.Outlined.Timer,
+                            text = recipe.time,
+                        )
+                    }
+                    LazyRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        content = {
+                            items(recipe.tags) { tag ->
+                                QTag(
+                                    tag = tag,
+                                    modifier = Modifier.padding(horizontal = 4.dp)
+                                )
+                            }
+                        }
                     )
                 }
-                LazyRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    content = {
-                        items(recipe.tags) { tag ->
-                            QTag(
-                                tag = tag,
-                                modifier = Modifier.padding(horizontal = 4.dp)
-                            )
-                        }
+                if (recipe.photo != Uri.EMPTY) QImageContainer(
+                    uri = recipe.photo,
+                    placeholder = Icons.Outlined.Photo,
+                    shape = MaterialTheme.shapes.large,
+                    size = if (simplified) {
+                        72.dp
+                    } else {
+                        100.dp
                     }
                 )
             }
-            if (recipe.photo != Uri.EMPTY) QImageContainer(
-                uri = recipe.photo,
-                placeholder = Icons.Outlined.Photo,
-                shape = MaterialTheme.shapes.large,
-                size = if (simplified) {
-                    72.dp
-                } else {
-                    100.dp
-                }
-            )
         }
     }
 }
