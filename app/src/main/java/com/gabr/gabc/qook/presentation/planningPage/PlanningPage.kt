@@ -293,6 +293,7 @@ class PlanningPage : ComponentActivity() {
                                 )
                                 intent.putExtra(FROM_PLANNING, dp)
                                 intent.putExtra(IS_LUNCH, isLunch)
+                                intent.putExtra(SHARED_PLANNING_ID, groupId)
                                 resultLauncher.launch(intent)
                             },
                             onRecipeTapped = { recipe ->

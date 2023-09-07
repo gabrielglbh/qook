@@ -132,11 +132,13 @@ class RecipesPage : ComponentActivity() {
             intent.getParcelableExtra(PlanningPage.FROM_PLANNING)
         }
         val isLunchFromPlanning = intent.getBooleanExtra(PlanningPage.IS_LUNCH, false)
+        val id = intent.getStringExtra(PlanningPage.SHARED_PLANNING_ID)
         dayPlanning?.let {
             viewModel.updatePlanning(
                 viewModel.planningState.value.copy(
                     dayPlanning = it,
-                    isLunch = isLunchFromPlanning
+                    isLunch = isLunchFromPlanning,
+                    groupId = id,
                 )
             )
         }

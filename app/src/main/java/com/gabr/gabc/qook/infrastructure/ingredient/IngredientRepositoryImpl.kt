@@ -126,7 +126,7 @@ class IngredientRepositoryImpl @Inject constructor(
                         .collection(Globals.DB_SHOPPING_LIST).document(Globals.DB_INGREDIENTS)
                         .update(map).await()
                 } else {
-                    db.collection(Globals.DB_USER).document(it.uid)
+                    db.collection(Globals.DB_GROUPS).document(groupId)
                         .collection(Globals.DB_SHOPPING_LIST).document(Globals.DB_INGREDIENTS)
                         .update(map).await()
                 }

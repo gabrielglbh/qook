@@ -34,9 +34,12 @@ class ShoppingListViewModel @Inject constructor(
         }
     }
 
-    fun loadShoppingList(list: List<DayPlanning>, groupId: String? = null) {
-        planning.addAll(list)
+    fun loadShoppingList(list: List<DayPlanning>?, groupId: String? = null) {
         this.groupId.value = groupId
+
+        list?.let { planning ->
+            this@ShoppingListViewModel.planning.addAll(planning)
+        }
         viewModelScope.launch {
             val result = ingredientsRepository.getIngredientsOfShoppingList(groupId)
             result.fold(

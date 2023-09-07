@@ -83,7 +83,7 @@ class ShoppingListPage : ComponentActivity() {
             }
             val groupId = intent.getStringExtra(PlanningPage.SHARED_PLANNING_ID)
 
-            planning?.let { p -> viewModel.loadShoppingList(p.map { it as DayPlanning }, groupId) }
+            viewModel.loadShoppingList(planning?.map { it as DayPlanning }, groupId)
         })
 
         if (showReloadDialog)
