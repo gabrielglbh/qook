@@ -30,5 +30,6 @@ fun SharedPlanning.toDto(): SharedPlanningDto {
         name,
         resetDay,
         photo != Uri.EMPTY,
+        users.map { it.id }
     )
 }

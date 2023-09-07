@@ -60,6 +60,10 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class PlanningSettingsPage : ComponentActivity() {
+    companion object {
+        const val SHARED_PLANNING_REMOVED = "SHARED_PLANNING_REMOVED"
+    }
+
     private lateinit var pickMedia: ActivityResultLauncher<PickVisualMediaRequest>
     private lateinit var requestMultiplePermissions: ActivityResultLauncher<Array<String>>
 
@@ -207,6 +211,9 @@ class PlanningSettingsPage : ComponentActivity() {
                 },
                 onSubmit = {
                     viewModel.deleteSharedPlanning {
+                        val resultIntent = Intent()
+                        resultIntent.putExtra(SHARED_PLANNING_REMOVED, true)
+                        setResult(RESULT_OK, resultIntent)
                         finish()
                     }
                     showRemoveSharedPlanningDialog = false

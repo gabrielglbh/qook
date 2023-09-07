@@ -67,6 +67,8 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class PlanningPage : ComponentActivity() {
+
+    // TODO: Refactor all Intent Keys to own class
     companion object {
         const val FROM_PLANNING = "FROM_PLANNING"
         const val IS_LUNCH = "IS_LUNCH"
@@ -80,6 +82,12 @@ class PlanningPage : ComponentActivity() {
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 val extras = result.data?.extras
+
+                val isGroupDeleted =
+                    extras?.getBoolean(PlanningSettingsPage.SHARED_PLANNING_REMOVED) ?: false
+                if (isGroupDeleted) {
+                    finish()
+                }
 
                 val viewModel: PlanningViewModel by viewModels()
 
