@@ -21,9 +21,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Group
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.RestartAlt
-import androidx.compose.material.icons.outlined.Share
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -47,8 +48,10 @@ import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.planning.DayPlanning
 import com.gabr.gabc.qook.domain.planning.MealData
 import com.gabr.gabc.qook.domain.recipe.Recipe
+import com.gabr.gabc.qook.domain.sharedPlanning.SharedPlanning
 import com.gabr.gabc.qook.presentation.homePage.HomePage
 import com.gabr.gabc.qook.presentation.planningPage.viewModel.PlanningViewModel
+import com.gabr.gabc.qook.presentation.planningSettingsPage.PlanningSettingsPage
 import com.gabr.gabc.qook.presentation.recipeDetailsPage.RecipeDetailsPage
 import com.gabr.gabc.qook.presentation.recipesPage.RecipesPage
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
@@ -57,7 +60,6 @@ import com.gabr.gabc.qook.presentation.shared.components.QDialog
 import com.gabr.gabc.qook.presentation.shared.components.QImageContainer
 import com.gabr.gabc.qook.presentation.shared.components.QLoadingScreen
 import com.gabr.gabc.qook.presentation.shared.components.QPlanning
-import com.gabr.gabc.qook.presentation.shared.components.QTextTitle
 import com.gabr.gabc.qook.presentation.shoppingListPage.ShoppingListPage
 import com.gabr.gabc.qook.presentation.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -69,7 +71,9 @@ class PlanningPage : ComponentActivity() {
         const val FROM_PLANNING = "FROM_PLANNING"
         const val IS_LUNCH = "IS_LUNCH"
         const val HAS_UPDATED_PLANNING = "HAS_UPDATED_PLANNING"
+        const val HAS_UPDATED_SHARED_PLANNING = "HAS_UPDATED_SHARED_PLANNING"
         const val SHARED_PLANNING_ID = "SHARED_PLANNING_ID"
+        const val SHARED_PLANNING = "SHARED_PLANNING"
     }
 
     private val resultLauncher =
@@ -78,6 +82,20 @@ class PlanningPage : ComponentActivity() {
                 val extras = result.data?.extras
 
                 val viewModel: PlanningViewModel by viewModels()
+
+                val updatedSharedPlanning =
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        extras?.getParcelable(
+                            HAS_UPDATED_SHARED_PLANNING,
+                            SharedPlanning::class.java
+                        )
+                    } else {
+                        extras?.getParcelable(HAS_UPDATED_SHARED_PLANNING)
+                    }
+                updatedSharedPlanning?.let {
+                    viewModel.updateSharedPlanningMetadataLocally(it)
+                }
+
                 val updatedPlanning = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     extras?.getParcelable(RecipesPage.HAS_UPDATED_PLANNING, DayPlanning::class.java)
                 } else {
@@ -178,7 +196,7 @@ class PlanningPage : ComponentActivity() {
                 },
                 buttonTitle = R.string.planning_reset_button,
                 onSubmit = {
-                    viewModel.resetPlanning() { e ->
+                    viewModel.resetPlanning { e ->
                         scope.launch {
                             snackbarHostState.showSnackbar(e)
                         }
@@ -209,36 +227,26 @@ class PlanningPage : ComponentActivity() {
                             finish()
                         },
                         actions = if (isSharedPlanning) {
-                            listOf(
-                                {
+                            if (viewModel.sharedPlanning.value == SharedPlanning.EMPTY_SHARED_PLANNING) {
+                                null
+                            } else {
+                                listOf {
                                     IconButton(onClick = {
-                                        showResetDialog = true
+                                        val intent =
+                                            Intent(
+                                                this@PlanningPage,
+                                                PlanningSettingsPage::class.java
+                                            )
+                                        intent.putExtra(
+                                            SHARED_PLANNING,
+                                            viewModel.sharedPlanning.value
+                                        )
+                                        resultLauncher.launch(intent)
                                     }) {
-                                        Icon(Icons.Outlined.RestartAlt, "")
-                                    }
-                                },
-                                {
-                                    IconButton(
-                                        onClick = {
-                                            val intent = Intent().setAction(Intent.ACTION_SEND)
-                                            intent.type = "text/plain"
-                                            intent.putExtra(
-                                                Intent.EXTRA_TEXT,
-                                                "${getString(R.string.shared_planning_message_on_code_sharing)}\n" +
-                                                        "${getString(R.string.deepLinkJoinGroup)}${groupId}"
-                                            )
-                                            startActivity(
-                                                Intent.createChooser(
-                                                    intent,
-                                                    getString(R.string.shared_planning_group_code)
-                                                )
-                                            )
-                                        }
-                                    ) {
-                                        Icon(Icons.Outlined.Share, "")
+                                        Icon(Icons.Outlined.Settings, "")
                                     }
                                 }
-                            )
+                            }
                         } else {
                             listOf {
                                 IconButton(onClick = {
@@ -329,6 +337,23 @@ class PlanningPage : ComponentActivity() {
         val planning = viewModel.planning.toList()
         val group = viewModel.sharedPlanning.value
 
+        var showInfoDialog by remember { mutableStateOf(false) }
+
+        if (showInfoDialog) {
+            QDialog(
+                onDismissRequest = { showInfoDialog = false },
+                leadingIcon = Icons.Outlined.Info,
+                title = R.string.planning_group_info,
+                content = {
+                    Text(stringResource(R.string.shared_planning_info_display))
+                },
+                buttonTitle = R.string.ok,
+                onSubmit = {
+                    showInfoDialog = false
+                },
+            )
+        }
+
         Column(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -339,14 +364,29 @@ class PlanningPage : ComponentActivity() {
                 size = 100.dp
             )
             Spacer(modifier = Modifier.size(12.dp))
-            QTextTitle(
-                rawTitle = group.name,
-                subtitle = R.string.shared_planning_info_display
-            )
-            Spacer(modifier = Modifier.size(12.dp))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    group.name,
+                    style = MaterialTheme.typography.titleLarge,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 60.dp)
+                )
+                Spacer(modifier = Modifier.size(12.dp))
+                IconButton(onClick = {
+                    showInfoDialog = true
+                }) {
+                    Icon(Icons.Outlined.Info, "")
+                }
+            }
+            Spacer(modifier = Modifier.size(8.dp))
             QContentCard(
                 modifier = Modifier
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .padding(start = 16.dp, end = 16.dp, top = 8.dp)
                     .fillMaxWidth(),
                 arrangement = Arrangement.Top,
                 alignment = Alignment.CenterHorizontally,

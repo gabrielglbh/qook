@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.user.User
 import com.gabr.gabc.qook.presentation.profilePage.viewModel.ProfileViewModel
+import com.gabr.gabc.qook.presentation.shared.components.QChangeNameDialog
 import com.gabr.gabc.qook.presentation.shared.components.QContentCard
 import com.gabr.gabc.qook.presentation.shared.components.QSelectableItem
 
@@ -39,7 +40,7 @@ fun Account(
     val showDeleteAccountDialog = remember { mutableStateOf(false) }
 
     if (showNameDialog.value)
-        ChangeNameDialog(
+        QChangeNameDialog(
             setShowDialog = {
                 showNameDialog.value = it
             },

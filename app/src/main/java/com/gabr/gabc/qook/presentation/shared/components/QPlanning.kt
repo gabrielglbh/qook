@@ -58,7 +58,7 @@ fun QPlanning(
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceAround,
-                    modifier = Modifier.padding(start = 12.dp, end = 12.dp, top = 24.dp),
+                    modifier = Modifier.padding(horizontal = 12.dp),
                 ) {
                     Text(
                         stringResource(QDateUtils.getWeekDayStringRes(it.dayIndex)),

@@ -163,4 +163,12 @@ class PlanningViewModel @Inject constructor(
         sharedPlanning.value = sharedPlanning.value.copy(planning = auxPlanning)
         hasUpdated.value = true
     }
+
+    fun updateSharedPlanningMetadataLocally(sharedPlanning: SharedPlanning) {
+        this.sharedPlanning.value = this.sharedPlanning.value.copy(
+            name = sharedPlanning.name,
+            photo = sharedPlanning.photo,
+            resetDay = sharedPlanning.resetDay,
+        )
+    }
 }

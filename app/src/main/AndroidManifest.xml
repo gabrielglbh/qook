@@ -34,10 +34,12 @@
         <activity
             android:name=".presentation.addTagPage.AddTagPage"
             android:exported="true"
+            android:noHistory="true"
             android:theme="@style/Theme.Qook" />
         <activity
             android:name=".presentation.addRecipePage.AddRecipePage"
             android:exported="true"
+            android:noHistory="true"
             android:theme="@style/Theme.Qook"
             android:windowSoftInputMode="adjustResize" />
         <activity
@@ -48,6 +50,7 @@
         <activity
             android:name=".presentation.splashPage.SplashPage"
             android:exported="true"
+            android:noHistory="true"
             android:theme="@style/Theme.Qook"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
@@ -79,11 +82,13 @@
         <activity
             android:name=".presentation.planningsPage.PlanningsPage"
             android:exported="true"
+            android:noHistory="true"
             android:theme="@style/Theme.Qook"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".presentation.addSharedPlanningPage.AddSharedPlanningPage"
             android:exported="true"
+            android:noHistory="true"
             android:theme="@style/Theme.Qook"
             android:windowSoftInputMode="adjustResize" />
         <activity
@@ -99,6 +104,12 @@
         <activity
             android:name=".presentation.shoppingListPage.ShoppingListPage"
             android:exported="true"
+            android:theme="@style/Theme.Qook"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".presentation.planningSettingsPage.PlanningSettingsPage"
+            android:exported="true"
+            android:noHistory="true"
             android:theme="@style/Theme.Qook"
             android:windowSoftInputMode="adjustResize" />
 
