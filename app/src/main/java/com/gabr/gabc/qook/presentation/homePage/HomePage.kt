@@ -286,8 +286,8 @@ class HomePage : ComponentActivity() {
                 )
                 Spacer(modifier = Modifier.size(6.dp))
                 QShimmer(controller = planning.isNotEmpty()) {
-                    if (planning.isNotEmpty() && planning[day].lunch == Recipe.EMPTY_RECIPE &&
-                        planning[day].dinner == Recipe.EMPTY_RECIPE
+                    if (planning.isNotEmpty() && planning[day].lunch.meal == Recipe.EMPTY_RECIPE &&
+                        planning[day].dinner.meal == Recipe.EMPTY_RECIPE
                     ) {
                         Text(
                             stringResource(R.string.home_planning_empty_today),
@@ -305,14 +305,14 @@ class HomePage : ComponentActivity() {
                                 if (planning.isEmpty()) {
                                     Recipe.EMPTY_RECIPE
                                 } else {
-                                    planning[day].lunch
+                                    planning[day].lunch.meal
                                 }, true
                             )
                             PlanningTodayItem(
                                 if (planning.isEmpty()) {
                                     Recipe.EMPTY_RECIPE
                                 } else {
-                                    planning[day].dinner
+                                    planning[day].dinner.meal
                                 }, false
                             )
                         }

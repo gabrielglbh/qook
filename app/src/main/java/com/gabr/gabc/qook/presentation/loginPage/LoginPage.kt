@@ -139,6 +139,7 @@ class LoginPage : ComponentActivity() {
                 ) {
                     viewModel.updateLoginState(form.copy(error = errorForm))
                 } else {
+                    // TODO: When navigating, the planning is not yet created
                     viewModel.createUser {
                         startActivity(Intent(this@LoginPage, HomePage::class.java))
                     }

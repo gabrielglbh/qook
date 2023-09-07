@@ -69,10 +69,10 @@ class ShoppingListViewModel @Inject constructor(
             }
 
             auxPlanning.forEach { day ->
-                day.lunch.ingredients.forEach { i ->
+                day.lunch.meal.ingredients.forEach { i ->
                     ingredientsMapped[i] = false
                 }
-                day.dinner.ingredients.forEach { i ->
+                day.dinner.meal.ingredients.forEach { i ->
                     ingredientsMapped[i] = false
                 }
             }

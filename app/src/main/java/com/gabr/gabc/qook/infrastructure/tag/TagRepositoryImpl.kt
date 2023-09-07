@@ -108,19 +108,17 @@ class TagRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getTags(recipeId: String): Either<TagFailure, List<Tag>> {
+    override suspend fun getTags(
+        recipeDto: RecipeDto,
+        userId: String
+    ): Either<TagFailure, List<Tag>> {
         try {
             auth.currentUser?.let {
                 val tags = mutableListOf<Tag>()
-
-                val ref = db
-                    .collection(Globals.DB_USER).document(it.uid)
-                    .collection(Globals.DB_RECIPES).document(recipeId)
-                    .get().await()
-                val tagIds = ref.toObject<RecipeDto>()?.tagIds ?: listOf()
+                val tagIds = recipeDto.tagIds
 
                 tagIds.forEach { id ->
-                    val tag = db.collection(Globals.DB_USER).document(it.uid)
+                    val tag = db.collection(Globals.DB_USER).document(userId)
                         .collection(Globals.DB_TAGS).document(id)
                         .get().await()
                     tag.toObject<TagDto>()?.let { t -> tags.add(t.toDomain()) }

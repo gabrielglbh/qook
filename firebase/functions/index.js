@@ -18,6 +18,10 @@ const intlMessages = {
     "body": "Empieza a planificar tu semana hoy y ¡asegúrate de comer sano!",
   },
 };
+const mealData = {
+  "meal": "",
+  "op": "",
+};
 
 exports.onCreateUser = functions.firestore
     .document("USERS/{uid}")
@@ -34,31 +38,38 @@ exports.onCreateUser = functions.firestore
 
         batch.set(
             planningRef.doc("firstDay"),
-            {"id": "firstDay", "dayIndex": 0, "lunch": "", "dinner": ""},
+            {"id": "firstDay", "dayIndex": 0, "lunch": mealData,
+              "dinner": mealData},
         );
         batch.set(
             planningRef.doc("secondDay"),
-            {"id": "secondDay", "dayIndex": 1, "lunch": "", "dinner": ""},
+            {"id": "secondDay", "dayIndex": 1, "lunch": mealData,
+              "dinner": mealData},
         );
         batch.set(
             planningRef.doc("thirdDay"),
-            {"id": "thirdDay", "dayIndex": 2, "lunch": "", "dinner": ""},
+            {"id": "thirdDay", "dayIndex": 2, "lunch": mealData,
+              "dinner": mealData},
         );
         batch.set(
             planningRef.doc("fourthDay"),
-            {"id": "fourthDay", "dayIndex": 3, "lunch": "", "dinner": ""},
+            {"id": "fourthDay", "dayIndex": 3, "lunch": mealData,
+              "dinner": mealData},
         );
         batch.set(
             planningRef.doc("fifthDay"),
-            {"id": "fifthDay", "dayIndex": 4, "lunch": "", "dinner": ""},
+            {"id": "fifthDay", "dayIndex": 4, "lunch": mealData,
+              "dinner": mealData},
         );
         batch.set(
             planningRef.doc("sixthDay"),
-            {"id": "sixthDay", "dayIndex": 5, "lunch": "", "dinner": ""},
+            {"id": "sixthDay", "dayIndex": 5, "lunch": mealData,
+              "dinner": mealData},
         );
         batch.set(
             planningRef.doc("seventhDay"),
-            {"id": "seventhDay", "dayIndex": 6, "lunch": "", "dinner": ""},
+            {"id": "seventhDay", "dayIndex": 6, "lunch": mealData,
+              "dinner": mealData},
         );
         batch.set(
             shoppingListRef,
@@ -134,31 +145,38 @@ exports.onCreateSharedPlanning = functions.firestore
 
         batch.set(
             planningRef.doc("firstDay"),
-            {"id": "firstDay", "dayIndex": 0, "lunch": "", "dinner": ""},
+            {"id": "firstDay", "dayIndex": 0, "lunch": mealData,
+              "dinner": mealData},
         );
         batch.set(
             planningRef.doc("secondDay"),
-            {"id": "secondDay", "dayIndex": 1, "lunch": "", "dinner": ""},
+            {"id": "secondDay", "dayIndex": 1, "lunch": mealData,
+              "dinner": mealData},
         );
         batch.set(
             planningRef.doc("thirdDay"),
-            {"id": "thirdDay", "dayIndex": 2, "lunch": "", "dinner": ""},
+            {"id": "thirdDay", "dayIndex": 2, "lunch": mealData,
+              "dinner": mealData},
         );
         batch.set(
             planningRef.doc("fourthDay"),
-            {"id": "fourthDay", "dayIndex": 3, "lunch": "", "dinner": ""},
+            {"id": "fourthDay", "dayIndex": 3, "lunch": mealData,
+              "dinner": mealData},
         );
         batch.set(
             planningRef.doc("fifthDay"),
-            {"id": "fifthDay", "dayIndex": 4, "lunch": "", "dinner": ""},
+            {"id": "fifthDay", "dayIndex": 4, "lunch": mealData,
+              "dinner": mealData},
         );
         batch.set(
             planningRef.doc("sixthDay"),
-            {"id": "sixthDay", "dayIndex": 5, "lunch": "", "dinner": ""},
+            {"id": "sixthDay", "dayIndex": 5, "lunch": mealData,
+              "dinner": mealData},
         );
         batch.set(
             planningRef.doc("seventhDay"),
-            {"id": "seventhDay", "dayIndex": 6, "lunch": "", "dinner": ""},
+            {"id": "seventhDay", "dayIndex": 6, "lunch": mealData,
+              "dinner": mealData},
         );
         batch.set(
             shoppingListRef,
@@ -247,8 +265,8 @@ exports.scheduleRestartPlanningCron = functions.pubsub
                 for (const planning of planningRef.docs) {
                   batch.update(database.collection("USERS").doc(snapshot.ref.id)
                       .collection("PLANNING").doc(planning.id), {
-                    "lunch": "",
-                    "dinner": "",
+                    "lunch": mealData,
+                    "dinner": mealData,
                   });
                 }
 

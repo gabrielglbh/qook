@@ -117,8 +117,8 @@ class PlanningViewModel @Inject constructor(
 
             val ingredients = mutableMapOf<String, Boolean>()
             val pastDayPlanning = planning.find { dp -> dp.id == dayPlanning.id }
-            pastDayPlanning?.lunch?.ingredients?.forEach { i -> ingredients[i] = false }
-            pastDayPlanning?.dinner?.ingredients?.forEach { i -> ingredients[i] = false }
+            pastDayPlanning?.lunch?.meal?.ingredients?.forEach { i -> ingredients[i] = false }
+            pastDayPlanning?.dinner?.meal?.ingredients?.forEach { i -> ingredients[i] = false }
 
             val res = planningRepository.updateRecipeFromPlanning(dayPlanning, groupId.value)
             res.fold(

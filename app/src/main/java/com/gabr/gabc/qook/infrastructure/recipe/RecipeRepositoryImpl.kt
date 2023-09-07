@@ -59,7 +59,7 @@ class RecipeRepositoryImpl @Inject constructor(
 
                 val recipes = mutableListOf<Recipe>()
                 querySnapshot.documents.forEach { doc ->
-                    val result = getRecipe(doc.id)
+                    val result = getRecipe(doc.id, it.uid)
                     result.fold(
                         ifLeft = {},
                         ifRight = { recipe -> recipes.add(recipe) }
@@ -141,24 +141,27 @@ class RecipeRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getRecipe(id: String): Either<RecipeFailure, Recipe> {
+    override suspend fun getRecipe(
+        recipeId: String,
+        userId: String
+    ): Either<RecipeFailure, Recipe> {
         try {
             auth.currentUser?.let {
-                val query = db.collection(Globals.DB_USER).document(it.uid)
-                    .collection(Globals.DB_RECIPES).document(id).get().await()
+                val query = db.collection(Globals.DB_USER).document(userId)
+                    .collection(Globals.DB_RECIPES).document(recipeId).get().await()
                 query.toObject<RecipeDto>()?.let { recipeDto ->
                     var recipe = recipeDto.toDomain()
 
                     if (recipeDto.hasPhoto) {
                         val res =
-                            storage.getDownloadUrl("${Globals.STORAGE_USERS}${it.uid}/${Globals.STORAGE_RECIPES}${id}.jpg")
+                            storage.getDownloadUrl("${Globals.STORAGE_USERS}${userId}/${Globals.STORAGE_RECIPES}$recipeId.jpg")
                         res.fold(
                             ifLeft = {},
                             ifRight = { uri -> recipe = recipe.copy(photo = uri) }
                         )
                     }
 
-                    val tagsRes = tagRepository.getTags(id)
+                    val tagsRes = tagRepository.getTags(recipeDto, userId)
                     tagsRes.fold(
                         ifLeft = {},
                         ifRight = { tags -> recipe = recipe.copy(tags = tags) }

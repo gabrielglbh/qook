@@ -1,7 +1,6 @@
 package com.gabr.gabc.qook.domain.planning
 
 import android.os.Parcelable
-import com.gabr.gabc.qook.domain.recipe.Recipe
 import com.gabr.gabc.qook.infrastructure.planning.DayPlanningDto
 import com.gabr.gabc.qook.presentation.shared.Globals
 import kotlinx.parcelize.Parcelize
@@ -10,11 +9,17 @@ import kotlinx.parcelize.Parcelize
 data class DayPlanning constructor(
     val id: String,
     val dayIndex: Int,
-    val lunch: Recipe,
-    val dinner: Recipe
+    val lunch: MealData,
+    val dinner: MealData,
 ) : Parcelable {
     companion object {
-        val EMPTY_DAY_PLANNING = DayPlanning("", 0, Recipe.EMPTY_RECIPE, Recipe.EMPTY_RECIPE)
+        val EMPTY_DAY_PLANNING =
+            DayPlanning(
+                "",
+                0,
+                MealData.EMPTY_MEAL_DATA,
+                MealData.EMPTY_MEAL_DATA
+            )
         val EMPTY_PLANNING = listOf(
             EMPTY_DAY_PLANNING.copy(id = Globals.OBJ_PLANNING_FIRST_DAY, dayIndex = 0),
             EMPTY_DAY_PLANNING.copy(id = Globals.OBJ_PLANNING_SECOND_DAY, dayIndex = 1),
@@ -31,7 +36,7 @@ fun DayPlanning.toDto(): DayPlanningDto {
     return DayPlanningDto(
         id,
         dayIndex,
-        lunch.id,
-        dinner.id
+        lunch.toMap(),
+        dinner.toMap()
     )
 }

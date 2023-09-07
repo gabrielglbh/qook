@@ -71,10 +71,16 @@ fun QPlanning(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.padding(horizontal = 12.dp)
                 ) {
-                    PlanningDayRecipe(it, it.lunch, true, onAddRecipeToDayPlanning, onRecipeTapped)
                     PlanningDayRecipe(
                         it,
-                        it.dinner,
+                        it.lunch.meal,
+                        true,
+                        onAddRecipeToDayPlanning,
+                        onRecipeTapped
+                    )
+                    PlanningDayRecipe(
+                        it,
+                        it.dinner.meal,
                         false,
                         onAddRecipeToDayPlanning,
                         onRecipeTapped,

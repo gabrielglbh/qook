@@ -96,9 +96,9 @@ class PlanningPage : ComponentActivity() {
                     updatedRecipeForPlanning?.let { recipe ->
                         viewModel.updatePlanningLocally(
                             if (isLunch) {
-                                dayPlanning.copy(lunch = recipe)
+                                dayPlanning.copy(lunch = dayPlanning.lunch.copy(meal = recipe))
                             } else {
-                                dayPlanning.copy(dinner = recipe)
+                                dayPlanning.copy(dinner = dayPlanning.dinner.copy(meal = recipe))
                             }
                         )
                     }
@@ -279,8 +279,8 @@ class PlanningPage : ComponentActivity() {
                             onClearDayPlanning = { dp ->
                                 viewModel.updatePlanning(
                                     dp.copy(
-                                        lunch = Recipe.EMPTY_RECIPE,
-                                        dinner = Recipe.EMPTY_RECIPE
+                                        lunch = dp.lunch.copy(meal = Recipe.EMPTY_RECIPE),
+                                        dinner = dp.dinner.copy(meal = Recipe.EMPTY_RECIPE),
                                     )
                                 ) { }
                             },

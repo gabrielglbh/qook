@@ -5,10 +5,11 @@ import arrow.core.Either.Left
 import arrow.core.Either.Right
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.planning.DayPlanning
+import com.gabr.gabc.qook.domain.planning.MealData
 import com.gabr.gabc.qook.domain.planning.PlanningFailure
 import com.gabr.gabc.qook.domain.planning.PlanningRepository
 import com.gabr.gabc.qook.domain.planning.toDto
-import com.gabr.gabc.qook.domain.recipe.Recipe
+import com.gabr.gabc.qook.domain.planning.toMap
 import com.gabr.gabc.qook.domain.recipe.RecipeRepository
 import com.gabr.gabc.qook.presentation.shared.Globals
 import com.gabr.gabc.qook.presentation.shared.providers.StringResourcesProvider
@@ -25,27 +26,33 @@ class PlanningRepositoryImpl @Inject constructor(
     private val recipeRepository: RecipeRepository,
     private val res: StringResourcesProvider
 ) : PlanningRepository {
-    private suspend fun getRecipesFrom(dayPlanningDto: DayPlanningDto): DayPlanning {
-        var lunch = Recipe.EMPTY_RECIPE
-        var dinner = Recipe.EMPTY_RECIPE
+    private suspend fun getRecipesFrom(dto: DayPlanningDto): DayPlanning {
+        var lunch = MealData.EMPTY_MEAL_DATA
+        var dinner = MealData.EMPTY_MEAL_DATA
 
-        if (dayPlanningDto.lunch.isNotEmpty()) {
-            val lunchRes = recipeRepository.getRecipe(dayPlanningDto.lunch)
+        if (dto.lunch["meal"]!!.isNotEmpty()) {
+            val lunchRes = recipeRepository.getRecipe(dto.lunch["meal"]!!, dto.lunch["op"]!!)
             lunchRes.fold(
                 ifLeft = {},
-                ifRight = { recipe -> lunch = recipe }
+                ifRight = { recipe -> lunch = lunch.copy(meal = recipe) }
             )
         }
 
-        if (dayPlanningDto.dinner.isNotEmpty()) {
-            val dinnerRes = recipeRepository.getRecipe(dayPlanningDto.dinner)
+        if (dto.dinner["meal"]!!.isNotEmpty()) {
+            val dinnerRes =
+                recipeRepository.getRecipe(dto.dinner["meal"]!!, dto.dinner["op"]!!)
             dinnerRes.fold(
                 ifLeft = {},
-                ifRight = { recipe -> dinner = recipe }
+                ifRight = { recipe -> dinner = dinner.copy(meal = recipe) }
             )
         }
 
-        return DayPlanning(dayPlanningDto.id, dayPlanningDto.dayIndex, lunch, dinner)
+        return DayPlanning(
+            dto.id,
+            dto.dayIndex,
+            lunch,
+            dinner,
+        )
     }
 
     override suspend fun getPlanning(groupId: String?): Either<PlanningFailure, List<DayPlanning>> {
@@ -84,14 +91,21 @@ class PlanningRepositoryImpl @Inject constructor(
     ): Either<PlanningFailure, Unit> {
         try {
             auth.currentUser?.let {
+                var dp = dayPlanning.toDto()
+                dp = if (dayPlanning.lunch.op == Globals.MODIFIED_PLANNING_RECIPE) {
+                    dp.copy(lunch = dayPlanning.lunch.copy(op = it.uid).toMap())
+                } else {
+                    dp.copy(dinner = dayPlanning.dinner.copy(op = it.uid).toMap())
+                }
+
                 if (groupId == null) {
                     db.collection(Globals.DB_USER).document(it.uid)
                         .collection(Globals.DB_PLANNING).document(dayPlanning.id)
-                        .update(dayPlanning.toDto().toMap()).await()
+                        .update(dp.toMap()).await()
                 } else {
                     db.collection(Globals.DB_GROUPS).document(groupId)
                         .collection(Globals.DB_PLANNING).document(dayPlanning.id)
-                        .update(dayPlanning.toDto().toMap()).await()
+                        .update(dp.toMap()).await()
                 }
 
                 return Right(Unit)

@@ -6,10 +6,12 @@ import androidx.lifecycle.viewModelScope
 import com.gabr.gabc.qook.domain.ingredients.Ingredients
 import com.gabr.gabc.qook.domain.ingredients.IngredientsRepository
 import com.gabr.gabc.qook.domain.planning.DayPlanning
+import com.gabr.gabc.qook.domain.planning.MealData
 import com.gabr.gabc.qook.domain.planning.PlanningRepository
 import com.gabr.gabc.qook.domain.recipe.Recipe
 import com.gabr.gabc.qook.domain.recipe.RecipeRepository
 import com.gabr.gabc.qook.domain.tag.TagRepository
+import com.gabr.gabc.qook.presentation.shared.Globals
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -144,9 +146,19 @@ class RecipesViewModel @Inject constructor(
 
             _planningState.value.isLunch?.let { isLunch ->
                 val dayPlanning = if (isLunch) {
-                    _planningState.value.dayPlanning.copy(lunch = recipe)
+                    _planningState.value.dayPlanning.copy(
+                        lunch = MealData(
+                            recipe,
+                            Globals.MODIFIED_PLANNING_RECIPE,
+                        )
+                    )
                 } else {
-                    _planningState.value.dayPlanning.copy(dinner = recipe)
+                    _planningState.value.dayPlanning.copy(
+                        dinner = MealData(
+                            recipe,
+                            Globals.MODIFIED_PLANNING_RECIPE,
+                        )
+                    )
                 }
 
                 val result = planningRepository.updateRecipeFromPlanning(dayPlanning, groupId)
