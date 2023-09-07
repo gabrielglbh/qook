@@ -6,8 +6,9 @@ interface PlanningRepository {
     suspend fun getPlanning(groupId: String? = null): Either<PlanningFailure, List<DayPlanning>>
     suspend fun updateRecipeFromPlanning(
         dayPlanning: DayPlanning,
+        isLunch: Boolean? = null,
         groupId: String? = null
-    ): Either<PlanningFailure, Unit>
+    ): Either<PlanningFailure, DayPlanning>
 
     suspend fun resetPlanning(groupId: String? = null): Either<PlanningFailure, Unit>
 }

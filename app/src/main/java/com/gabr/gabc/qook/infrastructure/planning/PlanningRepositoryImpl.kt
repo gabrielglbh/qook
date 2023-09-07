@@ -9,7 +9,6 @@ import com.gabr.gabc.qook.domain.planning.MealData
 import com.gabr.gabc.qook.domain.planning.PlanningFailure
 import com.gabr.gabc.qook.domain.planning.PlanningRepository
 import com.gabr.gabc.qook.domain.planning.toDto
-import com.gabr.gabc.qook.domain.planning.toMap
 import com.gabr.gabc.qook.domain.recipe.RecipeRepository
 import com.gabr.gabc.qook.presentation.shared.Globals
 import com.gabr.gabc.qook.presentation.shared.providers.StringResourcesProvider
@@ -27,20 +26,21 @@ class PlanningRepositoryImpl @Inject constructor(
     private val res: StringResourcesProvider
 ) : PlanningRepository {
     private suspend fun getRecipesFrom(dto: DayPlanningDto): DayPlanning {
-        var lunch = MealData.EMPTY_MEAL_DATA
-        var dinner = MealData.EMPTY_MEAL_DATA
+        var lunch = MealData.fromMap(dto.lunch)
+        var dinner = MealData.fromMap(dto.dinner)
 
-        if (dto.lunch["meal"]!!.isNotEmpty()) {
-            val lunchRes = recipeRepository.getRecipe(dto.lunch["meal"]!!, dto.lunch["op"]!!)
+        val lunchMeal = dto.lunch[Globals.OBJ_MEAL_DATA_MEAL]!!
+        if (lunchMeal.isNotEmpty()) {
+            val lunchRes = recipeRepository.getRecipe(lunchMeal, lunch.op)
             lunchRes.fold(
                 ifLeft = {},
                 ifRight = { recipe -> lunch = lunch.copy(meal = recipe) }
             )
         }
 
-        if (dto.dinner["meal"]!!.isNotEmpty()) {
-            val dinnerRes =
-                recipeRepository.getRecipe(dto.dinner["meal"]!!, dto.dinner["op"]!!)
+        val dinnerMeal = dto.dinner[Globals.OBJ_MEAL_DATA_MEAL]!!
+        if (dinnerMeal.isNotEmpty()) {
+            val dinnerRes = recipeRepository.getRecipe(dinnerMeal, dinner.op)
             dinnerRes.fold(
                 ifLeft = {},
                 ifRight = { recipe -> dinner = dinner.copy(meal = recipe) }
@@ -87,28 +87,32 @@ class PlanningRepositoryImpl @Inject constructor(
 
     override suspend fun updateRecipeFromPlanning(
         dayPlanning: DayPlanning,
-        groupId: String?
-    ): Either<PlanningFailure, Unit> {
+        isLunch: Boolean?,
+        groupId: String?,
+    ): Either<PlanningFailure, DayPlanning> {
         try {
-            auth.currentUser?.let {
-                var dp = dayPlanning.toDto()
-                dp = if (dayPlanning.lunch.op == Globals.MODIFIED_PLANNING_RECIPE) {
-                    dp.copy(lunch = dayPlanning.lunch.copy(op = it.uid).toMap())
-                } else {
-                    dp.copy(dinner = dayPlanning.dinner.copy(op = it.uid).toMap())
+            auth.currentUser?.let { user ->
+                var dp = dayPlanning
+
+                isLunch?.let {
+                    dp = if (isLunch) {
+                        dayPlanning.copy(lunch = dayPlanning.lunch.copy(op = user.uid))
+                    } else {
+                        dayPlanning.copy(dinner = dayPlanning.dinner.copy(op = user.uid))
+                    }
                 }
 
                 if (groupId == null) {
-                    db.collection(Globals.DB_USER).document(it.uid)
+                    db.collection(Globals.DB_USER).document(user.uid)
                         .collection(Globals.DB_PLANNING).document(dayPlanning.id)
-                        .update(dp.toMap()).await()
+                        .update(dp.toDto().toMap()).await()
                 } else {
                     db.collection(Globals.DB_GROUPS).document(groupId)
                         .collection(Globals.DB_PLANNING).document(dayPlanning.id)
-                        .update(dp.toMap()).await()
+                        .update(dp.toDto().toMap()).await()
                 }
 
-                return Right(Unit)
+                return Right(dp)
             }
             return Left(PlanningFailure.NotAuthenticated(res.getString(R.string.error_user_not_auth)))
         } catch (err: FirebaseFirestoreException) {

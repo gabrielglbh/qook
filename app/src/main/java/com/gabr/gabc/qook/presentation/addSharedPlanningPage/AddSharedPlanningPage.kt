@@ -227,7 +227,6 @@ class AddSharedPlanningPage : ComponentActivity() {
                                                 this@AddSharedPlanningPage,
                                                 PlanningPage::class.java
                                             )
-                                            // TODO: When navigating, the planning is not yet created
                                             intent.putExtra(
                                                 PlanningPage.SHARED_PLANNING_ID,
                                                 sharedPlanningId

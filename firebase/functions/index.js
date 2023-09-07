@@ -96,25 +96,39 @@ exports.onRemoveUser = functions.firestore
             .collection("PLANNING");
         const shoppingListRef = database.collection("USERS").doc(userId)
             .collection("SHOPPING_LIST");
-
-        const batch = database.batch();
-
-        batch.delete(planningRef);
-        batch.delete(shoppingListRef);
-
         const recipesRef = database.collection("USERS").doc(userId)
             .collection("RECIPES");
-        batch.delete(recipesRef);
-
         const tagsRef = database.collection("USERS").doc(userId)
             .collection("TAGS");
-        batch.delete(tagsRef);
 
-        await batch.commit().then(() => {
-          console.log("✅ Successfully removed user");
-        }).catch((reason) => {
-          console.log("❌ Error while removing user %s", reason.toString());
+        const planningPromises = [];
+        const planning = await planningRef.get();
+        planning.forEach((doc) => {
+          planningPromises.push(doc.ref.delete());
         });
+
+        const shoppingPromises = [];
+        const shopping = await shoppingListRef.get();
+        shopping.forEach((doc) => {
+          shoppingPromises.push(doc.ref.delete());
+        });
+
+        const recipesPromises = [];
+        const recipes = await recipesRef.get();
+        recipes.forEach((doc) => {
+          recipesPromises.push(doc.ref.delete());
+        });
+
+        const tagsPromises = [];
+        const tags = await tagsRef.get();
+        tags.forEach((doc) => {
+          tagsPromises.push(doc.ref.delete());
+        });
+
+        await Promise.all(planningPromises);
+        await Promise.all(shoppingPromises);
+        await Promise.all(recipesPromises);
+        await Promise.all(tagsPromises);
 
         const bucket = storage.bucket();
         await bucket.deleteFiles({
@@ -205,17 +219,20 @@ exports.onRemoveSharedPlanning = functions.firestore
         const shoppingListRef = database.collection("GROUPS").doc(groupId)
             .collection("SHOPPING_LIST");
 
-        const batch = database.batch();
-
-        batch.delete(planningRef);
-        batch.delete(shoppingListRef);
-
-        await batch.commit().then(() => {
-          console.log("✅ Successfully removed shared planning");
-        }).catch((reason) => {
-          console.log("❌ Error while removing shared planning %s",
-              reason.toString());
+        const planningPromises = [];
+        const planning = await planningRef.get();
+        planning.forEach((doc) => {
+          planningPromises.push(doc.ref.delete());
         });
+
+        const shoppingPromises = [];
+        const shopping = await shoppingListRef.get();
+        shopping.forEach((doc) => {
+          shoppingPromises.push(doc.ref.delete());
+        });
+
+        await Promise.all(planningPromises);
+        await Promise.all(shoppingPromises);
 
         const bucket = storage.bucket();
         await bucket.deleteFiles({

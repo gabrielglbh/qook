@@ -169,6 +169,21 @@ class SharedPlanningRepositoryImpl @Inject constructor(
                 dto?.let { d ->
                     var group = d.toDomain()
                     val users = mutableListOf<User>()
+
+                    suspend fun recurrentPlanning() {
+                        val planningRes = planningRepository.getPlanning(id)
+                        planningRes.fold(
+                            ifLeft = {},
+                            ifRight = { p ->
+                                if (p.isEmpty()) {
+                                    recurrentPlanning()
+                                } else {
+                                    group = group.copy(planning = p)
+                                }
+                            }
+                        )
+                    }
+                    
                     if (d.hasPhoto) {
                         val resStorage =
                             storage.getDownloadUrl("${Globals.STORAGE_GROUPS}$id/${Globals.STORAGE_AVATAR}")
@@ -184,13 +199,7 @@ class SharedPlanningRepositoryImpl @Inject constructor(
                             group = group.copy(shoppingList = ingredients)
                         }
                     )
-                    val planningRes = planningRepository.getPlanning(id)
-                    planningRes.fold(
-                        ifLeft = {},
-                        ifRight = { p ->
-                            group = group.copy(planning = p)
-                        }
-                    )
+                    recurrentPlanning()
                     d.users.forEach { uid ->
                         val userRes = userRepository.getUserFromId(uid)
                         userRes.fold(

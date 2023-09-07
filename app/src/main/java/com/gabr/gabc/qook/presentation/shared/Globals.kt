@@ -40,10 +40,11 @@ class Globals {
         const val OBJ_PLANNING_SEVENTH_DAY = "seventhDay"
         const val OBJ_PLANNING_DAY_INDEX = "dayIndex"
 
+        const val OBJ_MEAL_DATA_MEAL = "meal"
+        const val OBJ_MEAL_DATA_OP = "op"
+
         const val OBJ_SHOPPING_LIST = "list"
 
         const val OBJ_SHARED_PLANNING_USERS = "users"
-
-        const val MODIFIED_PLANNING_RECIPE = "MODIFIED"
     }
 }

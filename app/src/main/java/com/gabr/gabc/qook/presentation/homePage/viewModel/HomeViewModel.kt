@@ -49,7 +49,13 @@ class HomeViewModel @Inject constructor(
             val result = planningRepository.getPlanning()
             result.fold(
                 ifLeft = {},
-                ifRight = { p -> updatePlanningLocally(p) }
+                ifRight = { p ->
+                    if (p.isEmpty()) {
+                        getPlanning()
+                    } else {
+                        updatePlanningLocally(p)
+                    }
+                }
             )
         }
     }

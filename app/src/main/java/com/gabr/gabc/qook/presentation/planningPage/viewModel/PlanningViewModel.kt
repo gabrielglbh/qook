@@ -120,7 +120,8 @@ class PlanningViewModel @Inject constructor(
             pastDayPlanning?.lunch?.meal?.ingredients?.forEach { i -> ingredients[i] = false }
             pastDayPlanning?.dinner?.meal?.ingredients?.forEach { i -> ingredients[i] = false }
 
-            val res = planningRepository.updateRecipeFromPlanning(dayPlanning, groupId.value)
+            val res =
+                planningRepository.updateRecipeFromPlanning(dayPlanning, groupId = groupId.value)
             res.fold(
                 ifLeft = { e -> onError(e.error) },
                 ifRight = {

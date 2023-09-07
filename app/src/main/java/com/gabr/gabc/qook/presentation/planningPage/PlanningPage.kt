@@ -45,6 +45,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.planning.DayPlanning
+import com.gabr.gabc.qook.domain.planning.MealData
 import com.gabr.gabc.qook.domain.recipe.Recipe
 import com.gabr.gabc.qook.presentation.homePage.HomePage
 import com.gabr.gabc.qook.presentation.planningPage.viewModel.PlanningViewModel
@@ -279,8 +280,8 @@ class PlanningPage : ComponentActivity() {
                             onClearDayPlanning = { dp ->
                                 viewModel.updatePlanning(
                                     dp.copy(
-                                        lunch = dp.lunch.copy(meal = Recipe.EMPTY_RECIPE),
-                                        dinner = dp.dinner.copy(meal = Recipe.EMPTY_RECIPE),
+                                        lunch = MealData.EMPTY_MEAL_DATA,
+                                        dinner = MealData.EMPTY_MEAL_DATA,
                                     )
                                 ) { }
                             },

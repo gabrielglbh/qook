@@ -6,12 +6,10 @@ import androidx.lifecycle.viewModelScope
 import com.gabr.gabc.qook.domain.ingredients.Ingredients
 import com.gabr.gabc.qook.domain.ingredients.IngredientsRepository
 import com.gabr.gabc.qook.domain.planning.DayPlanning
-import com.gabr.gabc.qook.domain.planning.MealData
 import com.gabr.gabc.qook.domain.planning.PlanningRepository
 import com.gabr.gabc.qook.domain.recipe.Recipe
 import com.gabr.gabc.qook.domain.recipe.RecipeRepository
 import com.gabr.gabc.qook.domain.tag.TagRepository
-import com.gabr.gabc.qook.presentation.shared.Globals
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -140,31 +138,23 @@ class RecipesViewModel @Inject constructor(
         viewModelScope.launch {
             isLoadingRecipes.value = true
 
+            val dp = _planningState.value.dayPlanning
             val groupId = _planningState.value.groupId
             val ingredients = mutableMapOf<String, Boolean>()
             recipe.ingredients.forEach { i -> ingredients[i] = false }
 
             _planningState.value.isLunch?.let { isLunch ->
                 val dayPlanning = if (isLunch) {
-                    _planningState.value.dayPlanning.copy(
-                        lunch = MealData(
-                            recipe,
-                            Globals.MODIFIED_PLANNING_RECIPE,
-                        )
-                    )
+                    dp.copy(lunch = dp.lunch.copy(meal = recipe))
                 } else {
-                    _planningState.value.dayPlanning.copy(
-                        dinner = MealData(
-                            recipe,
-                            Globals.MODIFIED_PLANNING_RECIPE,
-                        )
-                    )
+                    dp.copy(dinner = dp.dinner.copy(meal = recipe))
                 }
 
-                val result = planningRepository.updateRecipeFromPlanning(dayPlanning, groupId)
+                val result =
+                    planningRepository.updateRecipeFromPlanning(dayPlanning, isLunch, groupId)
                 result.fold(
                     ifLeft = { e -> onError(e.error) },
-                    ifRight = {
+                    ifRight = { updatedDayPlanning ->
                         val iResult =
                             ingredientsRepository.updateIngredients(
                                 Ingredients(ingredients),
@@ -172,7 +162,7 @@ class RecipesViewModel @Inject constructor(
                             )
                         iResult.fold(
                             ifLeft = { e -> onError(e.error) },
-                            ifRight = { onSuccess(recipe, dayPlanning) }
+                            ifRight = { onSuccess(recipe, updatedDayPlanning) }
                         )
                     }
                 )
