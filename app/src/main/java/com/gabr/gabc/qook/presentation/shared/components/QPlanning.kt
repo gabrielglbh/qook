@@ -4,10 +4,8 @@ import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -15,7 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.ClearAll
 import androidx.compose.material.icons.outlined.KeyboardOptionKey
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -34,15 +32,17 @@ import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.planning.DayPlanning
 import com.gabr.gabc.qook.domain.recipe.Recipe
+import com.gabr.gabc.qook.domain.user.User
 import com.gabr.gabc.qook.presentation.shared.QDateUtils
 
 @Composable
 fun QPlanning(
     planning: List<DayPlanning>,
     modifier: Modifier = Modifier,
+    users: List<User> = listOf(),
     onClearFullDayPlanning: (DayPlanning) -> Unit,
     onAddRecipeToDayPlanning: (DayPlanning, Boolean) -> Unit,
-    onRecipeTapped: (Recipe) -> Unit,
+    onRecipeTapped: (Recipe, String) -> Unit,
     onClearDayPlanning: (DayPlanning, Boolean) -> Unit,
 ) {
     Column(
@@ -74,7 +74,6 @@ fun QPlanning(
                         Icon(Icons.Outlined.ClearAll, "")
                     }
                 }
-                Spacer(modifier = Modifier.size(8.dp))
                 Column(
                     verticalArrangement = Arrangement.spacedBy(4.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -83,6 +82,7 @@ fun QPlanning(
                     PlanningDayRecipe(
                         dp,
                         dp.lunch.meal,
+                        users,
                         true,
                         onAddRecipeToDayPlanning,
                         onRecipeTapped,
@@ -91,13 +91,14 @@ fun QPlanning(
                     PlanningDayRecipe(
                         dp,
                         dp.dinner.meal,
+                        users,
                         false,
                         onAddRecipeToDayPlanning,
                         onRecipeTapped,
                         onClearDayPlanning,
                     )
                 }
-                Divider(
+                HorizontalDivider(
                     color = MaterialTheme.colorScheme.outlineVariant,
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
                 )
@@ -111,11 +112,17 @@ fun QPlanning(
 fun PlanningDayRecipe(
     dayPlanning: DayPlanning,
     recipe: Recipe,
+    users: List<User> = listOf(),
     isLunch: Boolean,
     onAddRecipeToDayPlanning: (DayPlanning, Boolean) -> Unit,
-    onRecipeTapped: (Recipe) -> Unit,
+    onRecipeTapped: (Recipe, String) -> Unit,
     onClearDayPlanning: (DayPlanning, Boolean) -> Unit,
 ) {
+    val op = if (isLunch) {
+        dayPlanning.lunch.op
+    } else {
+        dayPlanning.dinner.op
+    }
     var recipeForOptions by remember { mutableStateOf(Recipe.EMPTY_RECIPE) }
 
     if (recipeForOptions != Recipe.EMPTY_RECIPE) {
@@ -178,12 +185,13 @@ fun PlanningDayRecipe(
         } else {
             QRecipeItem(
                 recipe = recipe,
+                op = users.find { it.id == op },
                 simplified = true,
                 modifier = Modifier
                     .weight(1f)
                     .padding(4.dp),
                 onClick = {
-                    onRecipeTapped(recipe)
+                    onRecipeTapped(recipe, op)
                 },
                 onLongClick = {
                     recipeForOptions = if (isLunch) {

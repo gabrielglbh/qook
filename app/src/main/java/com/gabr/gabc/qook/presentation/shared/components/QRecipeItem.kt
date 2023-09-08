@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Bolt
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Photo
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.Icon
@@ -33,6 +34,7 @@ import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.recipe.Easiness
 import com.gabr.gabc.qook.domain.recipe.Recipe
 import com.gabr.gabc.qook.domain.tag.Tag
+import com.gabr.gabc.qook.domain.user.User
 import com.gabr.gabc.qook.presentation.theme.AppTheme
 import java.util.Calendar
 
@@ -41,6 +43,7 @@ import java.util.Calendar
 fun QRecipeItem(
     recipe: Recipe,
     modifier: Modifier = Modifier,
+    op: User? = null,
     simplified: Boolean = false,
     onClick: (() -> Unit)? = null,
     onLongClick: (() -> Unit)? = null
@@ -70,12 +73,24 @@ fun QRecipeItem(
                         .padding(end = 12.dp)
                         .weight(1f)
                 ) {
-                    Text(
-                        recipe.name,
-                        style = MaterialTheme.typography.titleMedium,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier.padding(top = 8.dp)
+                    ) {
+                        if (op != null) QImageContainer(
+                            uri = op.photo,
+                            placeholder = Icons.Outlined.Person,
+                            size = 32.dp,
+                            modifier = Modifier.padding(end = 12.dp)
+                        )
+                        Text(
+                            recipe.name,
+                            style = MaterialTheme.typography.titleMedium,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                     Spacer(modifier = Modifier.size(8.dp))
                     Row(
                         verticalAlignment = Alignment.CenterVertically,

@@ -12,7 +12,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -34,6 +33,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.recipe.Recipe
+import com.gabr.gabc.qook.domain.user.User
 import com.gabr.gabc.qook.presentation.addRecipePage.AddRecipePage
 import com.gabr.gabc.qook.presentation.recipeDetailsPage.viewModel.RecipeDetailsViewModel
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
@@ -52,6 +52,7 @@ class RecipeDetailsPage : ComponentActivity() {
         const val RECIPE_FROM_DETAILS = "RECIPE_FROM_DETAILS"
         const val ALLOW_TO_UPDATE = "ALLOW_TO_UPDATE"
         const val RECIPE = "RECIPE"
+        const val RECIPE_OP = "OP"
     }
 
     private val resultLauncher =
@@ -87,6 +88,14 @@ class RecipeDetailsPage : ComponentActivity() {
         viewModel.canUpdate(intent.getBooleanExtra(ALLOW_TO_UPDATE, true))
         viewModel.updateRecipe(recipeFromList!!)
 
+        val op = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.getParcelableExtra(RECIPE_OP, User::class.java)
+        } else {
+            intent.getParcelableExtra(RECIPE_OP)
+        }
+
+        viewModel.updateOp(op)
+
         setContent {
             AppTheme {
                 RecipeDetailsView()
@@ -94,7 +103,6 @@ class RecipeDetailsPage : ComponentActivity() {
         }
     }
 
-    @OptIn(ExperimentalLayoutApi::class)
     @Composable
     fun RecipeDetailsView() {
         val viewModel: RecipeDetailsViewModel by viewModels()
@@ -208,6 +216,7 @@ class RecipeDetailsPage : ComponentActivity() {
                         QRecipeDetail(
                             recipe = viewModel.recipe.value,
                             modifier = Modifier.padding(start = 12.dp, end = 12.dp, bottom = 12.dp),
+                            op = viewModel.op.value,
                             onRecipeUrlClick = {
                                 try {
                                     startActivity(

@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gabr.gabc.qook.domain.recipe.Recipe
 import com.gabr.gabc.qook.domain.recipe.RecipeRepository
+import com.gabr.gabc.qook.domain.user.User
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -15,6 +16,8 @@ class RecipeDetailsViewModel @Inject constructor(
 ) : ViewModel() {
     var recipe = mutableStateOf(Recipe.EMPTY_RECIPE)
         private set
+    var op = mutableStateOf<User?>(null)
+        private set
     var isUpdate = mutableStateOf(false)
         private set
     var isLoading = mutableStateOf(false)
@@ -24,6 +27,10 @@ class RecipeDetailsViewModel @Inject constructor(
 
     fun updateRecipe(r: Recipe) {
         recipe.value = r
+    }
+
+    fun updateOp(op: User?) {
+        this.op.value = op
     }
 
     fun isUpdating(value: Boolean) {

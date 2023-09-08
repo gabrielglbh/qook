@@ -165,4 +165,5 @@
     <string name="plannings_remove_shared_planning">Eliminar el planning compartido</string>
     <string name="plannings_delete_group_title">¿Estás seguro de que quieres eliminar el planning compartido?</string>
     <string name="plannings_delete_group_description">Todo el planning y la lista de la compra se eliminarán. Los usuariosno podrán acceder al grupo nunca más. Esta acción no se puede deshacer.</string>
+    <string name="recipe_details_op">Añadida por %1$s</string>
 </resources>

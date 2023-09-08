@@ -20,11 +20,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.Group
 import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.RestartAlt
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -170,6 +171,7 @@ class PlanningPage : ComponentActivity() {
         val viewModel: PlanningViewModel by viewModels()
         val planning = viewModel.planning.toList()
         val groupId = viewModel.groupId.value
+        val group = viewModel.sharedPlanning.value
         val isSharedPlanning = groupId != null
 
         val scope = rememberCoroutineScope()
@@ -235,7 +237,7 @@ class PlanningPage : ComponentActivity() {
                             finish()
                         },
                         actions = if (isSharedPlanning) {
-                            if (viewModel.sharedPlanning.value == SharedPlanning.EMPTY_SHARED_PLANNING) {
+                            if (group == SharedPlanning.EMPTY_SHARED_PLANNING) {
                                 null
                             } else {
                                 listOf {
@@ -245,10 +247,7 @@ class PlanningPage : ComponentActivity() {
                                                 this@PlanningPage,
                                                 PlanningSettingsPage::class.java
                                             )
-                                        intent.putExtra(
-                                            SHARED_PLANNING,
-                                            viewModel.sharedPlanning.value
-                                        )
+                                        intent.putExtra(SHARED_PLANNING, group)
                                         resultLauncher.launch(intent)
                                     }) {
                                         Icon(Icons.Outlined.Settings, "")
@@ -296,6 +295,7 @@ class PlanningPage : ComponentActivity() {
                         Spacer(modifier = Modifier.size(8.dp))
                         QPlanning(
                             planning,
+                            users = group.users,
                             onClearFullDayPlanning = { dp ->
                                 viewModel.updatePlanning(
                                     dp.copy(
@@ -324,11 +324,14 @@ class PlanningPage : ComponentActivity() {
                                 intent.putExtra(SHARED_PLANNING_ID, groupId)
                                 resultLauncher.launch(intent)
                             },
-                            onRecipeTapped = { recipe ->
+                            onRecipeTapped = { recipe, op ->
                                 val intent =
                                     Intent(this@PlanningPage, RecipeDetailsPage::class.java)
                                 intent.putExtra(RecipeDetailsPage.RECIPE, recipe)
                                 intent.putExtra(RecipeDetailsPage.ALLOW_TO_UPDATE, false)
+                                intent.putExtra(
+                                    RecipeDetailsPage.RECIPE_OP,
+                                    group.users.find { u -> u.id == op })
                                 startActivity(intent)
                             },
                         )
@@ -374,21 +377,40 @@ class PlanningPage : ComponentActivity() {
             Spacer(modifier = Modifier.size(12.dp))
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.padding(horizontal = 12.dp)
             ) {
+                IconButton(onClick = {
+                    showInfoDialog = true
+                }) {
+                    Icon(Icons.Outlined.Info, "")
+                }
                 Text(
                     group.name,
                     style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
                         .weight(1f)
-                        .padding(start = 60.dp)
+                        .padding(horizontal = 12.dp)
                 )
-                Spacer(modifier = Modifier.size(12.dp))
-                IconButton(onClick = {
-                    showInfoDialog = true
-                }) {
-                    Icon(Icons.Outlined.Info, "")
+                IconButton(
+                    onClick = {
+                        val intent = Intent().setAction(Intent.ACTION_SEND)
+                        intent.type = "text/plain"
+                        intent.putExtra(
+                            Intent.EXTRA_TEXT,
+                            "${getString(R.string.shared_planning_message_on_code_sharing)}\n" +
+                                    "${getString(R.string.deepLinkJoinGroup)}${group.id}"
+                        )
+                        startActivity(
+                            Intent.createChooser(
+                                intent,
+                                getString(R.string.shared_planning_group_code)
+                            )
+                        )
+                    }
+                ) {
+                    Icon(Icons.Outlined.Share, "")
                 }
             }
             Spacer(modifier = Modifier.size(8.dp))
@@ -415,7 +437,7 @@ class PlanningPage : ComponentActivity() {
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier.weight(1f)
                     )
-                    Icon(Icons.Outlined.KeyboardArrowRight, "")
+                    Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, "")
                 }
             }
         }

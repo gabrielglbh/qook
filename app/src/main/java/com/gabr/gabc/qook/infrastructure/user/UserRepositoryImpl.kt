@@ -195,7 +195,14 @@ class UserRepositoryImpl @Inject constructor(
                 )
                 else {
                     ref.toObject<UserDto>()?.let { dto ->
-                        return Right(dto.toDomain())
+                        var user = dto.toDomain()
+                        val result =
+                            storage.getDownloadUrl("${Globals.STORAGE_USERS}${it.uid}/${Globals.STORAGE_AVATAR}")
+                        result.fold(
+                            ifLeft = {},
+                            ifRight = { uri -> user = user.copy(photo = uri) }
+                        )
+                        return Right(user)
                     }
                     return Left(
                         UserFailure.UserTranslationFailed(res.getString(R.string.error_user_corrupted))

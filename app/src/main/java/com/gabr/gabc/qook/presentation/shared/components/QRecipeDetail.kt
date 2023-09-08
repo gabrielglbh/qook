@@ -15,14 +15,15 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.MenuBook
+import androidx.compose.material.icons.automirrored.outlined.ReceiptLong
 import androidx.compose.material.icons.outlined.Bolt
 import androidx.compose.material.icons.outlined.ContentPaste
-import androidx.compose.material.icons.outlined.MenuBook
 import androidx.compose.material.icons.outlined.ModeEdit
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Photo
-import androidx.compose.material.icons.outlined.ReceiptLong
 import androidx.compose.material.icons.outlined.Timer
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -43,12 +44,18 @@ import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.recipe.Easiness
 import com.gabr.gabc.qook.domain.recipe.Recipe
 import com.gabr.gabc.qook.domain.tag.Tag
+import com.gabr.gabc.qook.domain.user.User
 import com.gabr.gabc.qook.presentation.shared.QDateUtils.Companion.formatDate
 import com.gabr.gabc.qook.presentation.theme.AppTheme
 import java.util.Calendar
 
 @Composable
-fun QRecipeDetail(recipe: Recipe, modifier: Modifier, onRecipeUrlClick: (() -> Unit)? = null) {
+fun QRecipeDetail(
+    recipe: Recipe,
+    modifier: Modifier,
+    op: User? = null,
+    onRecipeUrlClick: (() -> Unit)? = null
+) {
     val config = LocalConfiguration.current
 
     Column(
@@ -80,7 +87,20 @@ fun QRecipeDetail(recipe: Recipe, modifier: Modifier, onRecipeUrlClick: (() -> U
                 }
             }
         )
-        Spacer(modifier = Modifier.size(12.dp))
+        if (op != null) Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.padding(top = 8.dp)
+        ) {
+            QImageContainer(uri = op.photo, placeholder = Icons.Outlined.Person, size = 48.dp)
+            Spacer(modifier = Modifier.size(12.dp))
+            Text(
+                stringResource(R.string.recipe_details_op, op.name),
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center
+            )
+        }
+        Spacer(modifier = Modifier.size(8.dp))
         QContentCard {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -102,7 +122,7 @@ fun QRecipeDetail(recipe: Recipe, modifier: Modifier, onRecipeUrlClick: (() -> U
                     modifier = Modifier.weight(1f)
                 )
             }
-            Divider(
+            HorizontalDivider(
                 modifier = Modifier.padding(
                     vertical = 8.dp,
                     horizontal = config.screenWidthDp.dp / 4
@@ -115,7 +135,7 @@ fun QRecipeDetail(recipe: Recipe, modifier: Modifier, onRecipeUrlClick: (() -> U
                 modifier = Modifier.height(36.dp)
             ) {
                 TextWithIcon(
-                    icon = Icons.Outlined.MenuBook,
+                    icon = Icons.AutoMirrored.Outlined.MenuBook,
                     text = recipe.creationDate.formatDate(),
                     modifier = Modifier.weight(1f)
                 )
@@ -125,7 +145,7 @@ fun QRecipeDetail(recipe: Recipe, modifier: Modifier, onRecipeUrlClick: (() -> U
                     modifier = Modifier.weight(1f)
                 )
             }
-            if (recipe.recipeUrl != null) Divider(
+            if (recipe.recipeUrl != null) HorizontalDivider(
                 modifier = Modifier.padding(
                     vertical = 8.dp,
                     horizontal = config.screenWidthDp.dp / 4
@@ -154,7 +174,7 @@ fun QRecipeDetail(recipe: Recipe, modifier: Modifier, onRecipeUrlClick: (() -> U
             modifier = Modifier.fillMaxWidth(),
             backgroundContent = {
                 Icon(
-                    Icons.Outlined.ReceiptLong,
+                    Icons.AutoMirrored.Outlined.ReceiptLong,
                     contentDescription = null,
                     modifier = it
                 )
