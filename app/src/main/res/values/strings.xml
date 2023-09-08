@@ -168,4 +168,5 @@
     <string name="plannings_delete_group_description">The whole planning and shopping list will be removed. Users will have no access to this group anymore. This action cannot be undone.</string>
     <string name="plannings_add_to_my_recipes">Add it to my recipes</string>
     <string name="err_recipes_dup">You already have this recipe saved!</string>
+    <string name="plannings_group_users">Users</string>
 </resources>

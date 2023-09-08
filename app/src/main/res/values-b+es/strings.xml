@@ -168,4 +168,5 @@
     <string name="plannings_delete_group_description">Todo el planning y la lista de la compra se eliminarán. Los usuariosno podrán acceder al grupo nunca más. Esta acción no se puede deshacer.</string>
     <string name="plannings_add_to_my_recipes">Añadir a mis recetas</string>
     <string name="err_recipes_dup">¡Ya tienes esta receta guardada!</string>
+    <string name="plannings_group_users">Usuarios</string>
 </resources>

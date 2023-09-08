@@ -22,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Group
+import androidx.compose.material.icons.outlined.VerifiedUser
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -250,6 +251,28 @@ class PlanningSettingsPage : ComponentActivity() {
                     textColor = MaterialTheme.colorScheme.error,
                 ) {
                     showRemoveSharedPlanningDialog = true
+                }
+            }
+            QContentCard(
+                modifier = Modifier.padding(12.dp),
+                arrangement = Arrangement.Top,
+                alignment = Alignment.Start,
+                backgroundContent = { m ->
+                    Icon(Icons.Outlined.VerifiedUser, "", modifier = m)
+                }
+            ) {
+                Text(
+                    stringResource(R.string.plannings_group_users),
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(start = 16.dp, bottom = 12.dp)
+                )
+                group.users.forEach { user ->
+                    QSelectableItem(
+                        uri = user.photo,
+                        text = user.name,
+                    ) {
+                        // TODO: Do something?
+                    }
                 }
             }
         }
