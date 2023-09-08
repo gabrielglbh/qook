@@ -231,6 +231,7 @@ fun QRecipeDetail(
             }
         }
         Spacer(modifier = Modifier.size(12.dp))
+        if (op != null) Spacer(modifier = Modifier.size(48.dp))
     }
 }
 

@@ -116,6 +116,7 @@
     <string name="recipe_details_remove_recipe">Remove recipe</string>
     <string name="recipe_details_delete_warning">Are you sure you want to remove %1$s?</string>
     <string name="recipe_details_remove_recipe_button">Remove</string>
+    <string name="recipe_details_op">Added by %1$s</string>
     <string name="err_recipe_details_open_link">Could not open external link, provide a new one</string>
 
     <string name="err_plannings_retrieval">Could not retrieve planning, try again</string>
@@ -165,5 +166,6 @@
     <string name="plannings_remove_shared_planning">Remove shared planning</string>
     <string name="plannings_delete_group_title">Are you sure you want to delete this shared planning?</string>
     <string name="plannings_delete_group_description">The whole planning and shopping list will be removed. Users will have no access to this group anymore. This action cannot be undone.</string>
-    <string name="recipe_details_op">Added by %1$s</string>
+    <string name="plannings_add_to_my_recipes">Add it to my recipes</string>
+    <string name="err_recipes_dup">You already have this recipe saved!</string>
 </resources>

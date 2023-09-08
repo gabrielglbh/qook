@@ -13,10 +13,12 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.ModeEdit
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -28,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -106,6 +109,7 @@ class RecipeDetailsPage : ComponentActivity() {
     @Composable
     fun RecipeDetailsView() {
         val viewModel: RecipeDetailsViewModel by viewModels()
+        val op = viewModel.op.value
 
         val scope = rememberCoroutineScope()
         val snackbarHostState = remember { SnackbarHostState() }
@@ -148,7 +152,9 @@ class RecipeDetailsPage : ComponentActivity() {
                 },
             )
 
-        Box {
+        Box(
+            contentAlignment = Alignment.BottomCenter
+        ) {
             Scaffold(
                 topBar = {
                     QActionBar(
@@ -216,7 +222,7 @@ class RecipeDetailsPage : ComponentActivity() {
                         QRecipeDetail(
                             recipe = viewModel.recipe.value,
                             modifier = Modifier.padding(start = 12.dp, end = 12.dp, bottom = 12.dp),
-                            op = viewModel.op.value,
+                            op = op,
                             onRecipeUrlClick = {
                                 try {
                                     startActivity(
@@ -232,9 +238,22 @@ class RecipeDetailsPage : ComponentActivity() {
                                 }
                             }
                         )
-
                     }
                 }
+            }
+            if (op != null && op.id != viewModel.currentUserUid.value) Button(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 12.dp, end = 12.dp, bottom = 16.dp),
+                onClick = {
+                    viewModel.addToMyOwnRecipes { error ->
+                        scope.launch {
+                            snackbarHostState.showSnackbar(error)
+                        }
+                    }
+                }
+            ) {
+                Text(stringResource(R.string.plannings_add_to_my_recipes))
             }
             if (viewModel.isLoading.value) QLoadingScreen()
         }

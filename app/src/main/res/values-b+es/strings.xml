@@ -116,6 +116,7 @@
     <string name="recipe_details_remove_recipe">Eliminar receta</string>
     <string name="recipe_details_delete_warning">¿Estás seguro de que quieres eliminar %1$s?</string>
     <string name="recipe_details_remove_recipe_button">Eliminar</string>
+    <string name="recipe_details_op">Añadida por %1$s</string>
     <string name="err_recipe_details_open_link">No se ha podido abrir el link externo, prueba con uno nuevo</string>
 
     <string name="err_plannings_retrieval">No se ha podido recoger el planning, prueba otra vez</string>
@@ -165,5 +166,6 @@
     <string name="plannings_remove_shared_planning">Eliminar el planning compartido</string>
     <string name="plannings_delete_group_title">¿Estás seguro de que quieres eliminar el planning compartido?</string>
     <string name="plannings_delete_group_description">Todo el planning y la lista de la compra se eliminarán. Los usuariosno podrán acceder al grupo nunca más. Esta acción no se puede deshacer.</string>
-    <string name="recipe_details_op">Añadida por %1$s</string>
+    <string name="plannings_add_to_my_recipes">Añadir a mis recetas</string>
+    <string name="err_recipes_dup">¡Ya tienes esta receta guardada!</string>
 </resources>

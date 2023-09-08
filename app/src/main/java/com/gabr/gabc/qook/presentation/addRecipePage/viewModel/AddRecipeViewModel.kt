@@ -72,48 +72,46 @@ class AddRecipeViewModel @Inject constructor(
             withContext(Dispatchers.Main) { isLoading.value = true }
             val recipe = recipeState.value.recipe
             val isUpdating = recipeState.value.originalRecipe != Recipe.EMPTY_RECIPE
-
-            val result = recipeRepository.updateRecipe(
-                recipe = recipe.copy(
-                    photo = if (recipe.photo == Uri.EMPTY) {
-                        Uri.EMPTY
-                    } else if (recipe.photo.host != Globals.FIREBASE_HOST) {
-                        Uri.fromFile(
-                            resizeImageToFile(
-                                recipe.photo,
-                                provider.contentResolver(),
-                                name = Calendar.getInstance().timeInMillis.toString()
-                            )
+            val recipeUpdated = recipe.copy(
+                photo = if (recipe.photo == Uri.EMPTY) {
+                    Uri.EMPTY
+                } else if (recipe.photo.host != Globals.FIREBASE_HOST) {
+                    Uri.fromFile(
+                        resizeImageToFile(
+                            recipe.photo,
+                            provider.contentResolver(),
+                            name = Calendar.getInstance().timeInMillis.toString()
                         )
-                    } else {
-                        recipe.photo
-                    },
-                    creationDate = if (isUpdating) {
-                        recipe.creationDate
-                    } else {
-                        Calendar.getInstance().time
-                    },
-                    updateDate = Calendar.getInstance().time,
-                    recipeUrl = if (recipe.recipeUrl?.trim()?.isEmpty() == true) {
-                        null
-                    } else {
-                        recipe.recipeUrl
-                    }
-                ),
-                id = if (isUpdating) {
-                    recipe.id
+                    )
                 } else {
-                    null
-                }
-            )
-            result.fold(
-                ifLeft = { fail ->
-                    ifError(fail.error)
+                    recipe.photo
                 },
-                ifRight = { recipeWithId ->
-                    ifSuccess(recipeWithId)
+                creationDate = if (isUpdating) {
+                    recipe.creationDate
+                } else {
+                    Calendar.getInstance().time
+                },
+                updateDate = Calendar.getInstance().time,
+                recipeUrl = if (recipe.recipeUrl?.trim()?.isEmpty() == true) {
+                    null
+                } else {
+                    recipe.recipeUrl
                 }
             )
+
+            if (isUpdating) {
+                val result = recipeRepository.updateRecipe(recipe = recipeUpdated)
+                result.fold(
+                    ifLeft = { fail -> ifError(fail.error) },
+                    ifRight = { recipeWithId -> ifSuccess(recipeWithId) }
+                )
+            } else {
+                val result = recipeRepository.createRecipe(recipe = recipeUpdated)
+                result.fold(
+                    ifLeft = { fail -> ifError(fail.error) },
+                    ifRight = { recipeWithId -> ifSuccess(recipeWithId) }
+                )
+            }
 
             withContext(Dispatchers.Main) { isLoading.value = false }
         }
@@ -145,7 +143,7 @@ class AddRecipeViewModel @Inject constructor(
                 photo = photo ?: recipe.photo,
                 easiness = easiness ?: recipe.easiness,
                 time = time ?: recipe.time,
-                recipeUrl = recipeUrl ?: recipeUrl,
+                recipeUrl = recipeUrl ?: recipe.recipeUrl,
                 ingredients = ingredients ?: recipe.ingredients,
                 description = description ?: recipe.description
             )

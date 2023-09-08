@@ -431,7 +431,9 @@ class PlanningPage : ComponentActivity() {
                     startActivity(intent)
                 }
             ) {
-                Row {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Text(
                         stringResource(R.string.home_shopping_bnb),
                         style = MaterialTheme.typography.titleLarge,

@@ -15,7 +15,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -29,9 +28,9 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.DoubleArrow
-import androidx.compose.material.icons.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.NightlightRound
 import androidx.compose.material.icons.outlined.PostAdd
 import androidx.compose.material.icons.outlined.Today
@@ -144,7 +143,6 @@ class HomePage : ComponentActivity() {
         }
     }
 
-    @OptIn(ExperimentalLayoutApi::class)
     @Preview
     @Composable
     fun HomeView() {
@@ -319,23 +317,27 @@ class HomePage : ComponentActivity() {
                     }
                 }
             }
-            QContentCard(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-                    .fillMaxWidth(),
-                arrangement = Arrangement.Top,
-                alignment = Alignment.CenterHorizontally,
-                onClick = {
-                    startActivity(Intent(this@HomePage, PlanningsPage::class.java))
-                }
-            ) {
-                Row {
-                    Text(
-                        stringResource(R.string.shared_plannings_title),
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.weight(1f)
-                    )
-                    Icon(Icons.Outlined.KeyboardArrowRight, "")
+            QShimmer(controller = showActions) { modifier ->
+                QContentCard(
+                    modifier = modifier
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .fillMaxWidth(),
+                    arrangement = Arrangement.Top,
+                    alignment = Alignment.CenterHorizontally,
+                    onClick = {
+                        startActivity(Intent(this@HomePage, PlanningsPage::class.java))
+                    }
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            stringResource(R.string.shared_plannings_title),
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, "")
+                    }
                 }
             }
             LazyVerticalGrid(

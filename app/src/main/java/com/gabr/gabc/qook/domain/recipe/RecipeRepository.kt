@@ -10,7 +10,8 @@ interface RecipeRepository {
         tagId: String? = null,
     ): Either<RecipeFailure, List<Recipe>>
 
-    suspend fun updateRecipe(recipe: Recipe, id: String? = null): Either<RecipeFailure, Recipe>
+    suspend fun createRecipe(recipe: Recipe): Either<RecipeFailure, Recipe>
+    suspend fun updateRecipe(recipe: Recipe): Either<RecipeFailure, Recipe>
     suspend fun removeRecipe(recipe: Recipe): Either<RecipeFailure, Unit>
     suspend fun getRecipe(recipeId: String, userId: String): Either<RecipeFailure, Recipe>
 }
