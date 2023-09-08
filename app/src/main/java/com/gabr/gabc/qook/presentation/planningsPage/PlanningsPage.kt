@@ -21,6 +21,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Group
 import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -43,6 +44,7 @@ import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.presentation.addSharedPlanningPage.AddSharedPlanningPage
 import com.gabr.gabc.qook.presentation.planningPage.PlanningPage
 import com.gabr.gabc.qook.presentation.planningsPage.viewModel.PlanningsViewModel
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.SHARED_PLANNING_ID
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.shared.components.QEmptyBox
 import com.gabr.gabc.qook.presentation.shared.components.QImageContainer
@@ -64,7 +66,6 @@ class PlanningsPage : ComponentActivity() {
         }
     }
 
-    @OptIn(ExperimentalLayoutApi::class)
     @Composable
     fun PlanningsView() {
         val viewModel: PlanningsViewModel by viewModels()
@@ -144,7 +145,7 @@ class PlanningsPage : ComponentActivity() {
                                                         PlanningPage::class.java
                                                     )
                                                     intent.putExtra(
-                                                        PlanningPage.SHARED_PLANNING_ID,
+                                                        SHARED_PLANNING_ID,
                                                         group.id
                                                     )
                                                     startActivity(intent)
@@ -168,7 +169,7 @@ class PlanningsPage : ComponentActivity() {
                                                     )
                                                 }
                                             }
-                                            if (x < groups.size - 1) Divider(color = MaterialTheme.colorScheme.outlineVariant)
+                                            if (x < groups.size - 1) HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                                         }
                                     }
                                 }

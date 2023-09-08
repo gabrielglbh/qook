@@ -1,7 +1,6 @@
 package com.gabr.gabc.qook.presentation.homePage
 
 import android.Manifest
-import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -71,6 +70,12 @@ import com.gabr.gabc.qook.presentation.planningsPage.PlanningsPage
 import com.gabr.gabc.qook.presentation.profilePage.ProfilePage
 import com.gabr.gabc.qook.presentation.recipeDetailsPage.RecipeDetailsPage
 import com.gabr.gabc.qook.presentation.recipesPage.RecipesPage
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.ALLOW_TO_UPDATE
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.HAS_UPDATED_DAY_PLANNING
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.HAS_UPDATED_PROFILE
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.PLANNING
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.RECIPE
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.USER
 import com.gabr.gabc.qook.presentation.shared.QDateUtils
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.shared.components.QContentCard
@@ -86,21 +91,16 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class HomePage : ComponentActivity() {
-    companion object {
-        const val HOME_USER = "HOME_USER"
-        const val HOME_PLANNING = "HOME_PLANNING"
-    }
-
     private val resultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
+            if (result.resultCode == RESULT_OK) {
                 val extras = result.data?.extras
                 val viewModel: HomeViewModel by viewModels()
 
                 val scope = CoroutineScope(Dispatchers.Main)
                 val snackbarHostState = SnackbarHostState()
 
-                if (extras?.getBoolean(ProfilePage.HAS_UPDATED_PROFILE) == true) {
+                if (extras?.getBoolean(HAS_UPDATED_PROFILE) == true) {
                     viewModel.getUser { errorMessage ->
                         scope.launch {
                             snackbarHostState.showSnackbar(errorMessage)
@@ -110,11 +110,11 @@ class HomePage : ComponentActivity() {
 
                 val updatedPlanning = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     extras?.getParcelableArray(
-                        PlanningPage.HAS_UPDATED_PLANNING,
+                        HAS_UPDATED_DAY_PLANNING,
                         DayPlanning::class.java
                     )
                 } else {
-                    extras?.getParcelableArray(PlanningPage.HAS_UPDATED_PLANNING)
+                    extras?.getParcelableArray(HAS_UPDATED_DAY_PLANNING)
                 }
 
                 updatedPlanning?.let { p -> viewModel.updatePlanningLocally(p.map { it as DayPlanning }) }
@@ -218,7 +218,7 @@ class HomePage : ComponentActivity() {
             modifier = Modifier.size(48.dp),
             onClick = {
                 val intent = Intent(this@HomePage, ProfilePage::class.java)
-                intent.putExtra(HOME_USER, user)
+                intent.putExtra(USER, user)
                 resultLauncher.launch(intent)
             },
             shape = CircleShape,
@@ -263,7 +263,7 @@ class HomePage : ComponentActivity() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            QShimmer(controller = state.user != User.EMPTY_USER) {
+            QShimmer(controller = state.user != User.EMPTY) {
                 Text(
                     stringResource(R.string.home_welcome_message, state.user.name),
                     style = MaterialTheme.typography.headlineSmall,
@@ -284,8 +284,8 @@ class HomePage : ComponentActivity() {
                 )
                 Spacer(modifier = Modifier.size(6.dp))
                 QShimmer(controller = planning.isNotEmpty()) {
-                    if (planning.isNotEmpty() && planning[day].lunch.meal == Recipe.EMPTY_RECIPE &&
-                        planning[day].dinner.meal == Recipe.EMPTY_RECIPE
+                    if (planning.isNotEmpty() && planning[day].lunch.meal == Recipe.EMPTY &&
+                        planning[day].dinner.meal == Recipe.EMPTY
                     ) {
                         Text(
                             stringResource(R.string.home_planning_empty_today),
@@ -301,14 +301,14 @@ class HomePage : ComponentActivity() {
                         ) {
                             PlanningTodayItem(
                                 if (planning.isEmpty()) {
-                                    Recipe.EMPTY_RECIPE
+                                    Recipe.EMPTY
                                 } else {
                                     planning[day].lunch.meal
                                 }, true
                             )
                             PlanningTodayItem(
                                 if (planning.isEmpty()) {
-                                    Recipe.EMPTY_RECIPE
+                                    Recipe.EMPTY
                                 } else {
                                     planning[day].dinner.meal
                                 }, false
@@ -375,7 +375,7 @@ class HomePage : ComponentActivity() {
                                                         this@HomePage,
                                                         RecipeDetailsPage::class.java
                                                     )
-                                                    intent.putExtra(RecipeDetailsPage.RECIPE, it)
+                                                    intent.putExtra(RECIPE, it)
                                                     startActivity(intent)
                                                 },
                                                 onEmptyRecipes = {
@@ -389,7 +389,7 @@ class HomePage : ComponentActivity() {
                                                 this@HomePage,
                                                 PlanningPage::class.java
                                             )
-                                            intent.putExtra(HOME_PLANNING, planning.toTypedArray())
+                                            intent.putExtra(PLANNING, planning.toTypedArray())
                                             resultLauncher.launch(intent)
                                         }
 
@@ -431,10 +431,10 @@ class HomePage : ComponentActivity() {
             color = Color.Transparent,
             shape = MaterialTheme.shapes.medium,
             onClick = {
-                if (recipe != Recipe.EMPTY_RECIPE) {
+                if (recipe != Recipe.EMPTY) {
                     val intent = Intent(this@HomePage, RecipeDetailsPage::class.java)
-                    intent.putExtra(RecipeDetailsPage.RECIPE, recipe)
-                    intent.putExtra(RecipeDetailsPage.ALLOW_TO_UPDATE, false)
+                    intent.putExtra(RECIPE, recipe)
+                    intent.putExtra(ALLOW_TO_UPDATE, false)
                     startActivity(intent)
                 }
             }

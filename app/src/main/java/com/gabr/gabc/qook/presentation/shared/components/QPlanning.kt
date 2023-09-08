@@ -123,11 +123,11 @@ fun PlanningDayRecipe(
     } else {
         dayPlanning.dinner.op
     }
-    var recipeForOptions by remember { mutableStateOf(Recipe.EMPTY_RECIPE) }
+    var recipeForOptions by remember { mutableStateOf(Recipe.EMPTY) }
 
-    if (recipeForOptions != Recipe.EMPTY_RECIPE) {
+    if (recipeForOptions != Recipe.EMPTY) {
         QDialog(
-            onDismissRequest = { recipeForOptions = Recipe.EMPTY_RECIPE },
+            onDismissRequest = { recipeForOptions = Recipe.EMPTY },
             leadingIcon = Icons.Outlined.KeyboardOptionKey,
             title = R.string.plannings_options_title,
             content = {
@@ -136,12 +136,12 @@ fun PlanningDayRecipe(
             buttonTitle = R.string.plannings_replace,
             onSubmit = {
                 onAddRecipeToDayPlanning(dayPlanning, isLunch)
-                recipeForOptions = Recipe.EMPTY_RECIPE
+                recipeForOptions = Recipe.EMPTY
             },
             buttonSecondaryTitle = R.string.plannings_remove,
             onSubmitSecondary = {
                 onClearDayPlanning(dayPlanning, isLunch)
-                recipeForOptions = Recipe.EMPTY_RECIPE
+                recipeForOptions = Recipe.EMPTY
             },
         )
     }
@@ -162,7 +162,7 @@ fun PlanningDayRecipe(
                 .rotate(-90f)
                 .width(56.dp),
         )
-        if (recipe == Recipe.EMPTY_RECIPE) QAutoSizeText(
+        if (recipe == Recipe.EMPTY) QAutoSizeText(
             stringResource(R.string.planning_no_recipe_added),
             style = MaterialTheme.typography.titleMedium.copy(
                 color = MaterialTheme.colorScheme.outline,
@@ -172,7 +172,7 @@ fun PlanningDayRecipe(
                 .weight(1f)
                 .padding(end = 12.dp)
         )
-        if (recipe == Recipe.EMPTY_RECIPE) {
+        if (recipe == Recipe.EMPTY) {
             QImageContainer(
                 uri = Uri.EMPTY,
                 placeholder = Icons.Outlined.Add,

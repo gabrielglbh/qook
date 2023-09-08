@@ -39,6 +39,12 @@ import com.gabr.gabc.qook.domain.recipe.Recipe
 import com.gabr.gabc.qook.domain.user.User
 import com.gabr.gabc.qook.presentation.addRecipePage.AddRecipePage
 import com.gabr.gabc.qook.presentation.recipeDetailsPage.viewModel.RecipeDetailsViewModel
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.ALLOW_TO_UPDATE
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.HAS_DELETED_RECIPE
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.HAS_UPDATED_RECIPE
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.RECIPE
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.RECIPE_FROM_DETAILS
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.RECIPE_OP
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.shared.components.QDialog
 import com.gabr.gabc.qook.presentation.shared.components.QLoadingScreen
@@ -49,15 +55,6 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class RecipeDetailsPage : ComponentActivity() {
-    companion object {
-        const val HAS_UPDATED_RECIPE = "HAS_UPDATED_RECIPE"
-        const val HAS_DELETED_RECIPE = "HAS_DELETED_RECIPE"
-        const val RECIPE_FROM_DETAILS = "RECIPE_FROM_DETAILS"
-        const val ALLOW_TO_UPDATE = "ALLOW_TO_UPDATE"
-        const val RECIPE = "RECIPE"
-        const val RECIPE_OP = "OP"
-    }
-
     private val resultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
@@ -65,9 +62,9 @@ class RecipeDetailsPage : ComponentActivity() {
 
                 val viewModel: RecipeDetailsViewModel by viewModels()
                 val updatedRecipe = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    extras?.getParcelable(AddRecipePage.RECIPE_UPDATED, Recipe::class.java)
+                    extras?.getParcelable(HAS_UPDATED_RECIPE, Recipe::class.java)
                 } else {
-                    extras?.getParcelable(AddRecipePage.RECIPE_UPDATED)
+                    extras?.getParcelable(HAS_UPDATED_RECIPE)
                 }
 
                 updatedRecipe?.let {

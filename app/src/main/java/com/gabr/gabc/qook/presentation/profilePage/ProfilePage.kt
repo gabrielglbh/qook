@@ -14,7 +14,6 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -41,11 +40,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.user.User
-import com.gabr.gabc.qook.presentation.homePage.HomePage
 import com.gabr.gabc.qook.presentation.loginPage.LoginPage
 import com.gabr.gabc.qook.presentation.profilePage.components.Account
 import com.gabr.gabc.qook.presentation.profilePage.components.Settings
 import com.gabr.gabc.qook.presentation.profilePage.viewModel.ProfileViewModel
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.HAS_UPDATED_PROFILE
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.USER
 import com.gabr.gabc.qook.presentation.shared.PermissionsRequester
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.shared.components.QAutoSizeText
@@ -57,10 +57,6 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ProfilePage : ComponentActivity() {
-    companion object {
-        const val HAS_UPDATED_PROFILE = "HAS_UPDATED_PROFILE"
-    }
-
     private var hasChangedProfilePicture = false
     private var hasChangedName = false
 
@@ -72,9 +68,9 @@ class ProfilePage : ComponentActivity() {
 
         val viewModel: ProfileViewModel by viewModels()
         val user = if (VERSION.SDK_INT >= VERSION_CODES.TIRAMISU) {
-            intent.getParcelableExtra(HomePage.HOME_USER, User::class.java)
+            intent.getParcelableExtra(USER, User::class.java)
         } else {
-            intent.getParcelableExtra(HomePage.HOME_USER)
+            intent.getParcelableExtra(USER)
         }
 
         viewModel.setDataForLocalLoading(user)
@@ -97,7 +93,6 @@ class ProfilePage : ComponentActivity() {
         }
     }
 
-    @OptIn(ExperimentalLayoutApi::class)
     @Composable
     fun ProfileView() {
         val viewModel: ProfileViewModel by viewModels()
@@ -106,7 +101,7 @@ class ProfilePage : ComponentActivity() {
         val scope = rememberCoroutineScope()
         val snackbarHostState = remember { SnackbarHostState() }
 
-        val isUserEmpty = state.user == User.EMPTY_USER
+        val isUserEmpty = state.user == User.EMPTY
 
         val passwordChangeSuccessfulMessage =
             stringResource(R.string.profile_password_change_successful)

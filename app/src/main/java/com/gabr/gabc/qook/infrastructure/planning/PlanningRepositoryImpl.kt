@@ -134,49 +134,49 @@ class PlanningRepositoryImpl @Inject constructor(
 
                 batch.set(
                     planningCollection.document(Globals.OBJ_PLANNING_FIRST_DAY),
-                    DayPlanning.EMPTY_DAY_PLANNING.copy(
+                    DayPlanning.EMPTY.copy(
                         dayIndex = 0,
                         id = Globals.OBJ_PLANNING_FIRST_DAY
                     ).toDto()
                 )
                 batch.set(
                     planningCollection.document(Globals.OBJ_PLANNING_SECOND_DAY),
-                    DayPlanning.EMPTY_DAY_PLANNING.copy(
+                    DayPlanning.EMPTY.copy(
                         dayIndex = 1,
                         id = Globals.OBJ_PLANNING_SECOND_DAY
                     ).toDto()
                 )
                 batch.set(
                     planningCollection.document(Globals.OBJ_PLANNING_THIRD_DAY),
-                    DayPlanning.EMPTY_DAY_PLANNING.copy(
+                    DayPlanning.EMPTY.copy(
                         dayIndex = 2,
                         id = Globals.OBJ_PLANNING_THIRD_DAY
                     ).toDto()
                 )
                 batch.set(
                     planningCollection.document(Globals.OBJ_PLANNING_FOURTH_DAY),
-                    DayPlanning.EMPTY_DAY_PLANNING.copy(
+                    DayPlanning.EMPTY.copy(
                         dayIndex = 3,
                         id = Globals.OBJ_PLANNING_FOURTH_DAY
                     ).toDto()
                 )
                 batch.set(
                     planningCollection.document(Globals.OBJ_PLANNING_FIFTH_DAY),
-                    DayPlanning.EMPTY_DAY_PLANNING.copy(
+                    DayPlanning.EMPTY.copy(
                         dayIndex = 4,
                         id = Globals.OBJ_PLANNING_FIFTH_DAY
                     ).toDto()
                 )
                 batch.set(
                     planningCollection.document(Globals.OBJ_PLANNING_SIXTH_DAY),
-                    DayPlanning.EMPTY_DAY_PLANNING.copy(
+                    DayPlanning.EMPTY.copy(
                         dayIndex = 5,
                         id = Globals.OBJ_PLANNING_SIXTH_DAY
                     ).toDto()
                 )
                 batch.set(
                     planningCollection.document(Globals.OBJ_PLANNING_SEVENTH_DAY),
-                    DayPlanning.EMPTY_DAY_PLANNING.copy(
+                    DayPlanning.EMPTY.copy(
                         dayIndex = 6,
                         id = Globals.OBJ_PLANNING_SEVENTH_DAY
                     ).toDto()

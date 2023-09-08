@@ -17,7 +17,7 @@ data class User(
     val messagingToken: String,
 ) : Parcelable {
     companion object {
-        val EMPTY_USER = User("", "", "", 0, Uri.EMPTY, "", listOf(), "")
+        val EMPTY = User("", "", "", 0, Uri.EMPTY, "", listOf(), "")
     }
 }
 

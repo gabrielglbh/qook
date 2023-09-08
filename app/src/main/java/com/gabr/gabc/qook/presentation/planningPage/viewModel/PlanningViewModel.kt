@@ -23,7 +23,7 @@ class PlanningViewModel @Inject constructor(
     private val recipeRepository: RecipeRepository,
     private val sharedPlanningRepository: SharedPlanningRepository,
 ) : ViewModel() {
-    var sharedPlanning = mutableStateOf(SharedPlanning.EMPTY_SHARED_PLANNING)
+    var sharedPlanning = mutableStateOf(SharedPlanning.EMPTY)
         private set
     var planning = mutableStateListOf<DayPlanning>()
         private set

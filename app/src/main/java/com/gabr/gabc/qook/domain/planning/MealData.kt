@@ -11,10 +11,10 @@ data class MealData(
     val op: String
 ) : Parcelable {
     companion object {
-        val EMPTY_MEAL_DATA = MealData(Recipe.EMPTY_RECIPE, "")
+        val EMPTY = MealData(Recipe.EMPTY, "")
 
         fun fromMap(map: Map<String, String>): MealData {
-            return MealData(Recipe.EMPTY_RECIPE, map[Globals.OBJ_MEAL_DATA_OP]!!)
+            return MealData(Recipe.EMPTY, map[Globals.OBJ_MEAL_DATA_OP]!!)
         }
     }
 }

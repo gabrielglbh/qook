@@ -13,7 +13,6 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -46,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.presentation.addSharedPlanningPage.viewModel.AddSharedPlanningViewModel
 import com.gabr.gabc.qook.presentation.planningPage.PlanningPage
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.SHARED_PLANNING_ID
 import com.gabr.gabc.qook.presentation.shared.PermissionsRequester
 import com.gabr.gabc.qook.presentation.shared.QDateUtils
 import com.gabr.gabc.qook.presentation.shared.Validators
@@ -86,7 +86,7 @@ class AddSharedPlanningPage : ComponentActivity() {
         }
     }
 
-    @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun AddSharedPlanningView() {
         val viewModel: AddSharedPlanningViewModel by viewModels()
@@ -203,7 +203,7 @@ class AddSharedPlanningPage : ComponentActivity() {
                                                 PlanningPage::class.java
                                             )
                                             intent.putExtra(
-                                                PlanningPage.SHARED_PLANNING_ID,
+                                                SHARED_PLANNING_ID,
                                                 sharedPlanningId
                                             )
                                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)

@@ -11,7 +11,6 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -50,11 +49,23 @@ import com.gabr.gabc.qook.domain.planning.DayPlanning
 import com.gabr.gabc.qook.domain.planning.MealData
 import com.gabr.gabc.qook.domain.recipe.Recipe
 import com.gabr.gabc.qook.domain.sharedPlanning.SharedPlanning
-import com.gabr.gabc.qook.presentation.homePage.HomePage
 import com.gabr.gabc.qook.presentation.planningPage.viewModel.PlanningViewModel
 import com.gabr.gabc.qook.presentation.planningSettingsPage.PlanningSettingsPage
 import com.gabr.gabc.qook.presentation.recipeDetailsPage.RecipeDetailsPage
 import com.gabr.gabc.qook.presentation.recipesPage.RecipesPage
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.ALLOW_TO_UPDATE
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.FROM_PLANNING
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.HAS_REMOVED_SHARED_PLANNING
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.HAS_UPDATED_DAY_PLANNING
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.HAS_UPDATED_DAY_PLANNING_WITH_RECIPE
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.HAS_UPDATED_SHARED_PLANNING
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.IS_LUNCH
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.PLANNING
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.RECIPE
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.RECIPES_LIST
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.RECIPE_OP
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.SHARED_PLANNING
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.SHARED_PLANNING_ID
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.shared.components.QContentCard
 import com.gabr.gabc.qook.presentation.shared.components.QDialog
@@ -68,24 +79,13 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class PlanningPage : ComponentActivity() {
-
-    // TODO: Refactor all Intent Keys to own class
-    companion object {
-        const val FROM_PLANNING = "FROM_PLANNING"
-        const val IS_LUNCH = "IS_LUNCH"
-        const val HAS_UPDATED_PLANNING = "HAS_UPDATED_PLANNING"
-        const val HAS_UPDATED_SHARED_PLANNING = "HAS_UPDATED_SHARED_PLANNING"
-        const val SHARED_PLANNING_ID = "SHARED_PLANNING_ID"
-        const val SHARED_PLANNING = "SHARED_PLANNING"
-    }
-
     private val resultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 val extras = result.data?.extras
 
                 val isGroupDeleted =
-                    extras?.getBoolean(PlanningSettingsPage.SHARED_PLANNING_REMOVED) ?: false
+                    extras?.getBoolean(HAS_REMOVED_SHARED_PLANNING) ?: false
                 if (isGroupDeleted) {
                     finish()
                 }
@@ -106,18 +106,18 @@ class PlanningPage : ComponentActivity() {
                 }
 
                 val updatedPlanning = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    extras?.getParcelable(RecipesPage.HAS_UPDATED_PLANNING, DayPlanning::class.java)
+                    extras?.getParcelable(HAS_UPDATED_DAY_PLANNING, DayPlanning::class.java)
                 } else {
-                    extras?.getParcelable(RecipesPage.HAS_UPDATED_PLANNING)
+                    extras?.getParcelable(HAS_UPDATED_DAY_PLANNING)
                 }
                 val updatedRecipeForPlanning =
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                         extras?.getParcelable(
-                            RecipesPage.HAS_UPDATED_PLANNING_RECIPE,
+                            HAS_UPDATED_DAY_PLANNING_WITH_RECIPE,
                             Recipe::class.java
                         )
                     } else {
-                        extras?.getParcelable(RecipesPage.HAS_UPDATED_PLANNING_RECIPE)
+                        extras?.getParcelable(HAS_UPDATED_DAY_PLANNING_WITH_RECIPE)
                     }
                 val isLunch = extras?.getBoolean(IS_LUNCH) ?: false
                 updatedPlanning?.let { dayPlanning ->
@@ -165,7 +165,6 @@ class PlanningPage : ComponentActivity() {
         }
     }
 
-    @OptIn(ExperimentalLayoutApi::class)
     @Composable
     fun PlanningView() {
         val viewModel: PlanningViewModel by viewModels()
@@ -180,9 +179,9 @@ class PlanningPage : ComponentActivity() {
 
         LaunchedEffect(key1 = Unit, block = {
             val loadedPlanning = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                intent.getParcelableArrayExtra(HomePage.HOME_PLANNING, DayPlanning::class.java)
+                intent.getParcelableArrayExtra(PLANNING, DayPlanning::class.java)
             } else {
-                intent.getParcelableArrayExtra(HomePage.HOME_PLANNING)
+                intent.getParcelableArrayExtra(PLANNING)
             }
 
             val id = intent.getStringExtra(SHARED_PLANNING_ID)
@@ -229,7 +228,7 @@ class PlanningPage : ComponentActivity() {
                             if (viewModel.hasUpdated.value && !isSharedPlanning) {
                                 val resultIntent = Intent()
                                 resultIntent.putExtra(
-                                    HAS_UPDATED_PLANNING,
+                                    HAS_UPDATED_DAY_PLANNING,
                                     viewModel.planning.toTypedArray()
                                 )
                                 setResult(RESULT_OK, resultIntent)
@@ -237,7 +236,7 @@ class PlanningPage : ComponentActivity() {
                             finish()
                         },
                         actions = if (isSharedPlanning) {
-                            if (group == SharedPlanning.EMPTY_SHARED_PLANNING) {
+                            if (group == SharedPlanning.EMPTY) {
                                 null
                             } else {
                                 listOf {
@@ -299,16 +298,16 @@ class PlanningPage : ComponentActivity() {
                             onClearFullDayPlanning = { dp ->
                                 viewModel.updatePlanning(
                                     dp.copy(
-                                        lunch = MealData.EMPTY_MEAL_DATA,
-                                        dinner = MealData.EMPTY_MEAL_DATA,
+                                        lunch = MealData.EMPTY,
+                                        dinner = MealData.EMPTY,
                                     )
                                 ) { }
                             },
                             onClearDayPlanning = { dp, isLunch ->
                                 val emptyDp = if (isLunch) {
-                                    dp.copy(lunch = MealData.EMPTY_MEAL_DATA)
+                                    dp.copy(lunch = MealData.EMPTY)
                                 } else {
-                                    dp.copy(dinner = MealData.EMPTY_MEAL_DATA)
+                                    dp.copy(dinner = MealData.EMPTY)
                                 }
                                 viewModel.updatePlanning(emptyDp) { }
                             },
@@ -316,7 +315,7 @@ class PlanningPage : ComponentActivity() {
                                 val intent =
                                     Intent(this@PlanningPage, RecipesPage::class.java)
                                 intent.putExtra(
-                                    RecipesPage.RECIPES_LIST,
+                                    RECIPES_LIST,
                                     viewModel.recipes.toTypedArray()
                                 )
                                 intent.putExtra(FROM_PLANNING, dp)
@@ -327,10 +326,10 @@ class PlanningPage : ComponentActivity() {
                             onRecipeTapped = { recipe, op ->
                                 val intent =
                                     Intent(this@PlanningPage, RecipeDetailsPage::class.java)
-                                intent.putExtra(RecipeDetailsPage.RECIPE, recipe)
-                                intent.putExtra(RecipeDetailsPage.ALLOW_TO_UPDATE, false)
+                                intent.putExtra(RECIPE, recipe)
+                                intent.putExtra(ALLOW_TO_UPDATE, false)
                                 intent.putExtra(
-                                    RecipeDetailsPage.RECIPE_OP,
+                                    RECIPE_OP,
                                     group.users.find { u -> u.id == op })
                                 startActivity(intent)
                             },
@@ -423,10 +422,7 @@ class PlanningPage : ComponentActivity() {
                 onClick = {
                     val intent =
                         Intent(this@PlanningPage, ShoppingListPage::class.java)
-                    intent.putExtra(
-                        HomePage.HOME_PLANNING,
-                        planning.toTypedArray()
-                    )
+                    intent.putExtra(PLANNING, planning.toTypedArray())
                     intent.putExtra(SHARED_PLANNING_ID, group.id)
                     startActivity(intent)
                 }

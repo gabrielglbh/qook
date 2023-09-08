@@ -40,8 +40,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.sharedPlanning.SharedPlanning
-import com.gabr.gabc.qook.presentation.planningPage.PlanningPage
 import com.gabr.gabc.qook.presentation.planningSettingsPage.viewModel.PlanningSettingsViewModel
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.HAS_REMOVED_SHARED_PLANNING
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.HAS_UPDATED_SHARED_PLANNING
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.SHARED_PLANNING
 import com.gabr.gabc.qook.presentation.shared.PermissionsRequester
 import com.gabr.gabc.qook.presentation.shared.QDateUtils
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
@@ -57,10 +59,6 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class PlanningSettingsPage : ComponentActivity() {
-    companion object {
-        const val SHARED_PLANNING_REMOVED = "SHARED_PLANNING_REMOVED"
-    }
-
     private lateinit var pickMedia: ActivityResultLauncher<PickVisualMediaRequest>
     private lateinit var requestMultiplePermissions: ActivityResultLauncher<Array<String>>
 
@@ -92,11 +90,11 @@ class PlanningSettingsPage : ComponentActivity() {
         LaunchedEffect(key1 = Unit, block = {
             val loadedSharedPlanning = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 intent.getParcelableExtra(
-                    PlanningPage.SHARED_PLANNING,
+                    SHARED_PLANNING,
                     SharedPlanning::class.java
                 )
             } else {
-                intent.getParcelableExtra(PlanningPage.SHARED_PLANNING)
+                intent.getParcelableExtra(SHARED_PLANNING)
             }
 
             loadedSharedPlanning?.let {
@@ -112,7 +110,7 @@ class PlanningSettingsPage : ComponentActivity() {
                         onBack = {
                             val resultIntent = Intent()
                             resultIntent.putExtra(
-                                PlanningPage.HAS_UPDATED_SHARED_PLANNING,
+                                HAS_UPDATED_SHARED_PLANNING,
                                 viewModel.sharedPlanning.value
                             )
                             setResult(RESULT_OK, resultIntent)
@@ -186,7 +184,7 @@ class PlanningSettingsPage : ComponentActivity() {
                 onSubmit = {
                     viewModel.deleteSharedPlanning {
                         val resultIntent = Intent()
-                        resultIntent.putExtra(SHARED_PLANNING_REMOVED, true)
+                        resultIntent.putExtra(HAS_REMOVED_SHARED_PLANNING, true)
                         setResult(RESULT_OK, resultIntent)
                         finish()
                     }

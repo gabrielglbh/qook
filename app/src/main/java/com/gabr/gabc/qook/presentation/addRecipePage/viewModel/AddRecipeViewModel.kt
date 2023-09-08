@@ -71,7 +71,7 @@ class AddRecipeViewModel @Inject constructor(
         viewModelScope.launch {
             withContext(Dispatchers.Main) { isLoading.value = true }
             val recipe = recipeState.value.recipe
-            val isUpdating = recipeState.value.originalRecipe != Recipe.EMPTY_RECIPE
+            val isUpdating = recipeState.value.originalRecipe != Recipe.EMPTY
             val recipeUpdated = recipe.copy(
                 photo = if (recipe.photo == Uri.EMPTY) {
                     Uri.EMPTY

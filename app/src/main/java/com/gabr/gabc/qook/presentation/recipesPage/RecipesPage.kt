@@ -11,7 +11,6 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,7 +27,7 @@ import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.PostAdd
 import androidx.compose.material.icons.outlined.Receipt
 import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -55,9 +54,18 @@ import com.gabr.gabc.qook.domain.planning.DayPlanning
 import com.gabr.gabc.qook.domain.recipe.Recipe
 import com.gabr.gabc.qook.domain.tag.Tag
 import com.gabr.gabc.qook.presentation.addRecipePage.AddRecipePage
-import com.gabr.gabc.qook.presentation.planningPage.PlanningPage
 import com.gabr.gabc.qook.presentation.recipeDetailsPage.RecipeDetailsPage
 import com.gabr.gabc.qook.presentation.recipesPage.viewModel.RecipesViewModel
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.FROM_PLANNING
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.HAS_DELETED_RECIPE
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.HAS_UPDATED_DAY_PLANNING
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.HAS_UPDATED_DAY_PLANNING_WITH_RECIPE
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.HAS_UPDATED_RECIPE
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.IS_LUNCH
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.RECIPE
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.RECIPES_LIST
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.RECIPE_UPDATED
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.SHARED_PLANNING_ID
 import com.gabr.gabc.qook.presentation.shared.QDateUtils
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.shared.components.QDialog
@@ -73,12 +81,6 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class RecipesPage : ComponentActivity() {
-    companion object {
-        const val HAS_UPDATED_PLANNING = "HAS_UPDATED_PLANNING"
-        const val HAS_UPDATED_PLANNING_RECIPE = "HAS_UPDATED_PLANNING_RECIPE"
-        const val RECIPES_LIST = "RECIPES_LIST"
-    }
-
     private val resultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
@@ -86,9 +88,9 @@ class RecipesPage : ComponentActivity() {
 
                 val viewModel: RecipesViewModel by viewModels()
                 val updatedRecipe = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    extras?.getParcelable(RecipeDetailsPage.HAS_UPDATED_RECIPE, Recipe::class.java)
+                    extras?.getParcelable(HAS_UPDATED_RECIPE, Recipe::class.java)
                 } else {
-                    extras?.getParcelable(RecipeDetailsPage.HAS_UPDATED_RECIPE)
+                    extras?.getParcelable(HAS_UPDATED_RECIPE)
                 }
 
                 // TODO: Maintain the scroll? --- possible with lazy loading?
@@ -99,9 +101,9 @@ class RecipesPage : ComponentActivity() {
                 } else {
                     val toBeAddedRecipe =
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                            extras?.getParcelable(AddRecipePage.RECIPE_UPDATED, Recipe::class.java)
+                            extras?.getParcelable(RECIPE_UPDATED, Recipe::class.java)
                         } else {
-                            extras?.getParcelable(AddRecipePage.RECIPE_UPDATED)
+                            extras?.getParcelable(RECIPE_UPDATED)
                         }
 
                     toBeAddedRecipe?.let { recipe ->
@@ -110,9 +112,9 @@ class RecipesPage : ComponentActivity() {
                 }
 
                 val deletedRecipe = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    extras?.getParcelable(RecipeDetailsPage.HAS_DELETED_RECIPE, Recipe::class.java)
+                    extras?.getParcelable(HAS_DELETED_RECIPE, Recipe::class.java)
                 } else {
-                    extras?.getParcelable(RecipeDetailsPage.HAS_DELETED_RECIPE)
+                    extras?.getParcelable(HAS_DELETED_RECIPE)
                 }
 
                 deletedRecipe?.let {
@@ -127,12 +129,12 @@ class RecipesPage : ComponentActivity() {
         val viewModel: RecipesViewModel by viewModels()
 
         val dayPlanning = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent.getParcelableExtra(PlanningPage.FROM_PLANNING, DayPlanning::class.java)
+            intent.getParcelableExtra(FROM_PLANNING, DayPlanning::class.java)
         } else {
-            intent.getParcelableExtra(PlanningPage.FROM_PLANNING)
+            intent.getParcelableExtra(FROM_PLANNING)
         }
-        val isLunchFromPlanning = intent.getBooleanExtra(PlanningPage.IS_LUNCH, false)
-        val id = intent.getStringExtra(PlanningPage.SHARED_PLANNING_ID)
+        val isLunchFromPlanning = intent.getBooleanExtra(IS_LUNCH, false)
+        val id = intent.getStringExtra(SHARED_PLANNING_ID)
         dayPlanning?.let {
             viewModel.updatePlanning(
                 viewModel.planningState.value.copy(
@@ -150,7 +152,6 @@ class RecipesPage : ComponentActivity() {
         }
     }
 
-    @OptIn(ExperimentalLayoutApi::class)
     @Composable
     fun RecipesView() {
         val viewModel: RecipesViewModel by viewModels()
@@ -164,7 +165,7 @@ class RecipesPage : ComponentActivity() {
 
         val focusManager = LocalFocusManager.current
         var selectedFilterTag by remember { mutableStateOf<Tag?>(null) }
-        var selectedRecipeForPlanning by remember { mutableStateOf(Recipe.EMPTY_RECIPE) }
+        var selectedRecipeForPlanning by remember { mutableStateOf(Recipe.EMPTY) }
 
         fun clearSearch() {
             viewModel.updateSearchState(searchState.copy(query = ""))
@@ -193,9 +194,9 @@ class RecipesPage : ComponentActivity() {
             )
         })
 
-        if (selectedRecipeForPlanning != Recipe.EMPTY_RECIPE)
+        if (selectedRecipeForPlanning != Recipe.EMPTY)
             QDialog(
-                onDismissRequest = { selectedRecipeForPlanning = Recipe.EMPTY_RECIPE },
+                onDismissRequest = { selectedRecipeForPlanning = Recipe.EMPTY },
                 leadingIcon = Icons.Outlined.CalendarMonth,
                 title = R.string.add_recipe_to_planning,
                 buttonTitle = R.string.planning_add_to_planning_button,
@@ -218,14 +219,14 @@ class RecipesPage : ComponentActivity() {
                         },
                         onSuccess = { recipe, dayPlanning ->
                             val intent = Intent()
-                            intent.putExtra(HAS_UPDATED_PLANNING, dayPlanning)
-                            intent.putExtra(PlanningPage.IS_LUNCH, planningState.isLunch!!)
-                            intent.putExtra(HAS_UPDATED_PLANNING_RECIPE, recipe)
+                            intent.putExtra(HAS_UPDATED_DAY_PLANNING, dayPlanning)
+                            intent.putExtra(IS_LUNCH, planningState.isLunch!!)
+                            intent.putExtra(HAS_UPDATED_DAY_PLANNING_WITH_RECIPE, recipe)
                             setResult(RESULT_OK, intent)
                             finish()
                         },
                     )
-                    selectedRecipeForPlanning = Recipe.EMPTY_RECIPE
+                    selectedRecipeForPlanning = Recipe.EMPTY
                 },
             )
 
@@ -235,7 +236,7 @@ class RecipesPage : ComponentActivity() {
                     QActionBar(
                         title = R.string.recipes_title,
                         onBack = { finish() },
-                        actions = if (planningState.dayPlanning == DayPlanning.EMPTY_DAY_PLANNING) {
+                        actions = if (planningState.dayPlanning == DayPlanning.EMPTY) {
                             listOf {
                                 IconButton(
                                     onClick = {
@@ -271,8 +272,8 @@ class RecipesPage : ComponentActivity() {
                         QTextForm(
                             labelId = R.string.recipes_search_recipes,
                             value = searchState.query,
-                            onValueChange = {
-                                viewModel.updateSearchState(searchState.copy(query = it))
+                            onValueChange = { value ->
+                                viewModel.updateSearchState(searchState.copy(query = value))
                             },
                             leadingIcon = Icons.Outlined.Search,
                             trailingIcon = if (searchState.query.isEmpty()) {
@@ -346,7 +347,7 @@ class RecipesPage : ComponentActivity() {
                                                 recipe = recipe,
                                                 modifier = Modifier.padding(8.dp),
                                                 onClick = {
-                                                    if (planningState.dayPlanning != DayPlanning.EMPTY_DAY_PLANNING || planningState.isLunch != null) {
+                                                    if (planningState.dayPlanning != DayPlanning.EMPTY || planningState.isLunch != null) {
                                                         selectedRecipeForPlanning = recipe
                                                     } else {
                                                         val intent =
@@ -354,15 +355,14 @@ class RecipesPage : ComponentActivity() {
                                                                 this@RecipesPage,
                                                                 RecipeDetailsPage::class.java
                                                             )
-                                                        intent.putExtra(
-                                                            RecipeDetailsPage.RECIPE,
-                                                            recipe
-                                                        )
+                                                        intent.putExtra(RECIPE, recipe)
                                                         resultLauncher.launch(intent)
                                                     }
                                                 }
                                             )
-                                            if (x < state.searchedRecipes.size - 1) Divider(color = MaterialTheme.colorScheme.outlineVariant)
+                                            if (x < state.searchedRecipes.size - 1) HorizontalDivider(
+                                                color = MaterialTheme.colorScheme.outlineVariant
+                                            )
                                         }
                                     }
                                 }

@@ -13,21 +13,21 @@ data class DayPlanning constructor(
     val dinner: MealData,
 ) : Parcelable {
     companion object {
-        val EMPTY_DAY_PLANNING =
+        val EMPTY =
             DayPlanning(
                 "",
                 0,
-                MealData.EMPTY_MEAL_DATA,
-                MealData.EMPTY_MEAL_DATA
+                MealData.EMPTY,
+                MealData.EMPTY
             )
         val EMPTY_PLANNING = listOf(
-            EMPTY_DAY_PLANNING.copy(id = Globals.OBJ_PLANNING_FIRST_DAY, dayIndex = 0),
-            EMPTY_DAY_PLANNING.copy(id = Globals.OBJ_PLANNING_SECOND_DAY, dayIndex = 1),
-            EMPTY_DAY_PLANNING.copy(id = Globals.OBJ_PLANNING_THIRD_DAY, dayIndex = 2),
-            EMPTY_DAY_PLANNING.copy(id = Globals.OBJ_PLANNING_FOURTH_DAY, dayIndex = 3),
-            EMPTY_DAY_PLANNING.copy(id = Globals.OBJ_PLANNING_FIFTH_DAY, dayIndex = 4),
-            EMPTY_DAY_PLANNING.copy(id = Globals.OBJ_PLANNING_SIXTH_DAY, dayIndex = 5),
-            EMPTY_DAY_PLANNING.copy(id = Globals.OBJ_PLANNING_SEVENTH_DAY, dayIndex = 6)
+            EMPTY.copy(id = Globals.OBJ_PLANNING_FIRST_DAY, dayIndex = 0),
+            EMPTY.copy(id = Globals.OBJ_PLANNING_SECOND_DAY, dayIndex = 1),
+            EMPTY.copy(id = Globals.OBJ_PLANNING_THIRD_DAY, dayIndex = 2),
+            EMPTY.copy(id = Globals.OBJ_PLANNING_FOURTH_DAY, dayIndex = 3),
+            EMPTY.copy(id = Globals.OBJ_PLANNING_FIFTH_DAY, dayIndex = 4),
+            EMPTY.copy(id = Globals.OBJ_PLANNING_SIXTH_DAY, dayIndex = 5),
+            EMPTY.copy(id = Globals.OBJ_PLANNING_SEVENTH_DAY, dayIndex = 6)
         )
     }
 }

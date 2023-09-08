@@ -13,7 +13,6 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -57,7 +56,11 @@ import com.gabr.gabc.qook.presentation.addRecipePage.components.RecipeTags
 import com.gabr.gabc.qook.presentation.addRecipePage.viewModel.AddRecipeViewModel
 import com.gabr.gabc.qook.presentation.addTagPage.AddTagPage
 import com.gabr.gabc.qook.presentation.addTagPage.AlteredMode
-import com.gabr.gabc.qook.presentation.recipeDetailsPage.RecipeDetailsPage
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.HAS_ALTERED_MODE
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.HAS_ALTERED_TAG
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.RECIPE_FROM_DETAILS
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.RECIPE_UPDATED
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.UPDATE_TAG
 import com.gabr.gabc.qook.presentation.shared.PermissionsRequester
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.shared.components.QLoadingScreen
@@ -67,11 +70,6 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class AddRecipePage : ComponentActivity() {
-    companion object {
-        const val UPDATE_TAG = "UPDATE_TAG"
-        const val RECIPE_UPDATED = "RECIPE_UPDATED"
-    }
-
     private lateinit var pickMedia: ActivityResultLauncher<PickVisualMediaRequest>
     private lateinit var requestMultiplePermissions: ActivityResultLauncher<Array<String>>
 
@@ -82,17 +80,14 @@ class AddRecipePage : ComponentActivity() {
                 val viewModel: AddRecipeViewModel by viewModels()
 
                 val updatedTag = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    extras?.getParcelableExtra(AddTagPage.HAS_ALTERED_TAG, Tag::class.java)
+                    extras?.getParcelableExtra(HAS_ALTERED_TAG, Tag::class.java)
                 } else {
-                    extras?.getParcelableExtra(AddTagPage.HAS_ALTERED_TAG)
+                    extras?.getParcelableExtra(HAS_ALTERED_TAG)
                 }
                 val mode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    extras?.getSerializableExtra(
-                        AddTagPage.HAS_ALTERED_MODE,
-                        AlteredMode::class.java
-                    )
+                    extras?.getSerializableExtra(HAS_ALTERED_MODE, AlteredMode::class.java)
                 } else {
-                    extras?.getSerializableExtra(AddTagPage.HAS_ALTERED_MODE)
+                    extras?.getSerializableExtra(HAS_ALTERED_MODE)
                 }
 
                 updatedTag?.let {
@@ -119,9 +114,9 @@ class AddRecipePage : ComponentActivity() {
         val viewModel: AddRecipeViewModel by viewModels()
 
         val recipeFromDetails = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent.getParcelableExtra(RecipeDetailsPage.RECIPE_FROM_DETAILS, Recipe::class.java)
+            intent.getParcelableExtra(RECIPE_FROM_DETAILS, Recipe::class.java)
         } else {
-            intent.getParcelableExtra(RecipeDetailsPage.RECIPE_FROM_DETAILS)
+            intent.getParcelableExtra(RECIPE_FROM_DETAILS)
         }
 
         recipeFromDetails?.let {
@@ -145,7 +140,6 @@ class AddRecipePage : ComponentActivity() {
         }
     }
 
-    @OptIn(ExperimentalLayoutApi::class)
     @Composable
     fun AddRecipeView() {
         val viewModel: AddRecipeViewModel by viewModels()
@@ -197,7 +191,7 @@ class AddRecipePage : ComponentActivity() {
             Scaffold(
                 topBar = {
                     QActionBar(
-                        title = if (state.originalRecipe == Recipe.EMPTY_RECIPE) {
+                        title = if (state.originalRecipe == Recipe.EMPTY) {
                             R.string.add_recipe_title
                         } else {
                             R.string.update_recipe_title
@@ -317,7 +311,7 @@ class AddRecipePage : ComponentActivity() {
                                                 }
                                             },
                                             ifSuccess = { uploadedRecipe ->
-                                                if (state.originalRecipe != Recipe.EMPTY_RECIPE || state.recipe != Recipe.EMPTY_RECIPE) {
+                                                if (state.originalRecipe != Recipe.EMPTY || state.recipe != Recipe.EMPTY) {
                                                     val resultIntent = Intent()
                                                     resultIntent.putExtra(
                                                         RECIPE_UPDATED,

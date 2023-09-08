@@ -17,7 +17,7 @@ class RecipeDetailsViewModel @Inject constructor(
     private val recipeRepository: RecipeRepository,
     private val userRepository: UserRepository,
 ) : ViewModel() {
-    var recipe = mutableStateOf(Recipe.EMPTY_RECIPE)
+    var recipe = mutableStateOf(Recipe.EMPTY)
         private set
     var op = mutableStateOf<User?>(null)
         private set

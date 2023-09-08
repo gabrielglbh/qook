@@ -46,6 +46,8 @@ import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.planning.DayPlanning
 import com.gabr.gabc.qook.presentation.homePage.HomePage
 import com.gabr.gabc.qook.presentation.planningPage.PlanningPage
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.PLANNING
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.SHARED_PLANNING_ID
 import com.gabr.gabc.qook.presentation.shared.Validators
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.shared.components.QDialog
@@ -69,7 +71,6 @@ class ShoppingListPage : ComponentActivity() {
         }
     }
 
-    @OptIn(ExperimentalLayoutApi::class)
     @Composable
     fun ShoppingListView() {
         val viewModel: ShoppingListViewModel by viewModels()
@@ -77,11 +78,11 @@ class ShoppingListPage : ComponentActivity() {
 
         LaunchedEffect(key1 = Unit, block = {
             val planning = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                intent.getParcelableArrayExtra(HomePage.HOME_PLANNING, DayPlanning::class.java)
+                intent.getParcelableArrayExtra(PLANNING, DayPlanning::class.java)
             } else {
-                intent.getParcelableArrayExtra(HomePage.HOME_PLANNING)
+                intent.getParcelableArrayExtra(PLANNING)
             }
-            val groupId = intent.getStringExtra(PlanningPage.SHARED_PLANNING_ID)
+            val groupId = intent.getStringExtra(SHARED_PLANNING_ID)
 
             viewModel.loadShoppingList(planning?.map { it as DayPlanning }, groupId)
         })

@@ -19,7 +19,7 @@ class PlanningSettingsViewModel @Inject constructor(
     private val sharedPlanningRepository: SharedPlanningRepository,
     private val provider: ContentResolverProvider
 ) : ViewModel() {
-    var sharedPlanning = mutableStateOf(SharedPlanning.EMPTY_SHARED_PLANNING)
+    var sharedPlanning = mutableStateOf(SharedPlanning.EMPTY)
         private set
     var isLoading = mutableStateOf(false)
         private set

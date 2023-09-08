@@ -19,7 +19,7 @@ data class SharedPlanning(
     val users: List<User>,
 ) : Parcelable {
     companion object {
-        val EMPTY_SHARED_PLANNING =
+        val EMPTY =
             SharedPlanning("", "", Uri.EMPTY, 0, listOf(), Ingredients(mapOf()), listOf())
     }
 }

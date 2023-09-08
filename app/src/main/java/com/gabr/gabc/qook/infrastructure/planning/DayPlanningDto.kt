@@ -18,11 +18,11 @@ fun DayPlanningDto.toDomain(): DayPlanning {
         id,
         dayIndex,
         MealData(
-            Recipe.EMPTY_RECIPE,
+            Recipe.EMPTY,
             ""
         ),
         MealData(
-            Recipe.EMPTY_RECIPE,
+            Recipe.EMPTY,
             ""
         ),
     )

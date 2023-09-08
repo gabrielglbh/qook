@@ -27,7 +27,7 @@ data class Recipe(
     val tags: List<Tag>
 ) : Parcelable {
     companion object : Parceler<Recipe> {
-        val EMPTY_RECIPE = Recipe(
+        val EMPTY = Recipe(
             id = "",
             name = "",
             creationDate = Calendar.getInstance().time,
