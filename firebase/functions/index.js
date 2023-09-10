@@ -18,6 +18,16 @@ const intlMessages = {
     "body": "Empieza a planificar tu semana hoy y ¡asegúrate de comer sano!",
   },
 };
+const intlMessagesSP = {
+  "EN": {
+    "title": "New week, new shared planning!",
+    "body": "Start planning your week today and make sure to eat healthy!",
+  },
+  "ES": {
+    "title": "¡Nueva semana, nuevo planning compartido!",
+    "body": "Empieza a planificar tu semana hoy y ¡asegúrate de comer sano!",
+  },
+};
 const mealData = {
   "meal": "",
   "op": "",
@@ -311,6 +321,88 @@ exports.scheduleRestartPlanningCron = functions.pubsub
                 await admin.messaging().send(payload).then((result) => {
                   console.log("✅ Successfully sent notification to %s",
                       payload.token);
+                  return {success: true};
+                }).catch((reason) => {
+                  console.log("❌ Error while sending the notification: %s",
+                      reason.toString());
+                  return {success: false};
+                });
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.log("❌ Error setting up notifications %s", error);
+      }
+    });
+
+exports.scheduleRestartSharedPlanningCron = functions.pubsub
+    .schedule("0 9 * * *")
+    .timeZone("Europe/Madrid")
+    .onRun(async (context) => {
+      const groupCollection = database.collection("GROUPS");
+      const usersCollection = database.collection("USERS");
+
+      try {
+        const groupsSnapshot = await groupCollection.get();
+
+        const today = new Date(Date.now());
+        let dayOfWeek = today.getDay();
+
+        if (dayOfWeek == 0) dayOfWeek = 6;
+        else dayOfWeek--;
+
+        for (const snapshot of groupsSnapshot.docs) {
+          if (snapshot.exists) {
+            const group = (await groupCollection.doc(snapshot.ref.id).get())
+                .data();
+            const planningRef = await groupCollection.doc(snapshot.ref.id)
+                .collection("PLANNING").get();
+
+            if (group != undefined) {
+              const resetDay = group.resetDay;
+
+              if (resetDay == dayOfWeek) {
+                const batch = database.batch();
+
+                for (const planning of planningRef.docs) {
+                  batch.update(groupCollection.doc(snapshot.ref.id)
+                      .collection("PLANNING").doc(planning.id), {
+                    "lunch": mealData,
+                    "dinner": mealData,
+                  });
+                }
+
+                batch.update(groupCollection.doc(snapshot.ref.id)
+                    .collection("SHOPPING_LIST").doc("INGREDIENTS"), {
+                  "list": {},
+                });
+
+                await batch.commit().then((_) => {
+                  console.log("✅ Successfully reset plannings and lists");
+                }).catch((_) => {
+                  console.log("❌ Some error occurred while resetting");
+                });
+
+                const notificationPromises = [];
+
+                for (const user of group.users) {
+                  const userData = (await usersCollection.doc(user).get())
+                      .data();
+                  const payload = {
+                    token: userData.messagingToken,
+                    notification: {
+                      title: userData.language == "ES" ?
+                          intlMessagesSP.ES.title : intlMessagesSP.EN.title,
+                      body: userData.language == "ES" ?
+                          intlMessagesSP.ES.body : intlMessagesSP.EN.body,
+                    },
+                  };
+                  notificationPromises.push(admin.messaging().send(payload));
+                }
+
+                await Promise.all(notificationPromises).then((result) => {
+                  console.log("✅ Successfully sent notifications");
                   return {success: true};
                 }).catch((reason) => {
                   console.log("❌ Error while sending the notification: %s",
