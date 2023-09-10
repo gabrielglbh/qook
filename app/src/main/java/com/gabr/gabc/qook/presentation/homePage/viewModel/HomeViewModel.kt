@@ -1,6 +1,7 @@
 package com.gabr.gabc.qook.presentation.homePage.viewModel
 
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gabr.gabc.qook.domain.planning.DayPlanning
@@ -26,6 +27,8 @@ class HomeViewModel @Inject constructor(
     val userState: StateFlow<UserState> = _userState.asStateFlow()
 
     var planning = mutableStateListOf<DayPlanning>()
+        private set
+    var isLoading = mutableStateOf(false)
         private set
 
     fun getUser(onError: (String) -> Unit) {
@@ -62,6 +65,7 @@ class HomeViewModel @Inject constructor(
 
     fun getRandomRecipe(onSuccess: (Recipe) -> Unit, onEmptyRecipes: () -> Unit) {
         viewModelScope.launch {
+            isLoading.value = true
             val result = recipeRepository.getRecipes()
             result.fold(
                 ifLeft = {},
@@ -74,6 +78,7 @@ class HomeViewModel @Inject constructor(
                     }
                 }
             )
+            isLoading.value = false
         }
     }
 

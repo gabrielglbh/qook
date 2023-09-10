@@ -44,7 +44,7 @@ class RecipeRepositoryImpl @Inject constructor(
 
                 val recipeId = docRef.path.split("/").last()
 
-                docRef.set(recipe.toDto()).await()
+                docRef.set(recipe.toDto().copy(tagIds = listOf())).await()
 
                 if (recipe.photo.host != Globals.FIREBASE_HOST && recipe.photo != Uri.EMPTY) {
                     storage.uploadImage(

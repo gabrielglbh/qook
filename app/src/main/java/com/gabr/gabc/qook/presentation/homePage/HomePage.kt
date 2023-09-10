@@ -80,6 +80,7 @@ import com.gabr.gabc.qook.presentation.shared.QDateUtils
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.shared.components.QContentCard
 import com.gabr.gabc.qook.presentation.shared.components.QImage
+import com.gabr.gabc.qook.presentation.shared.components.QLoadingScreen
 import com.gabr.gabc.qook.presentation.shared.components.QShimmer
 import com.gabr.gabc.qook.presentation.shoppingListPage.ShoppingListPage
 import com.gabr.gabc.qook.presentation.theme.AppTheme
@@ -162,53 +163,56 @@ class HomePage : ComponentActivity() {
             viewModel.getPlanning()
         }
 
-        Scaffold(
-            topBar = {
-                QActionBar(
-                    actions = listOf {
-                        UserPhotoIcon(state.value.user)
-                    }
-                )
-            },
-            snackbarHost = {
-                SnackbarHost(snackbarHostState)
-            },
-            floatingActionButton = {
-                FloatingActionButton(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                    onClick = {
-                        startActivity(Intent(this@HomePage, AddRecipePage::class.java))
-                    }
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(4.dp)
+        Box {
+            Scaffold(
+                topBar = {
+                    QActionBar(
+                        actions = listOf {
+                            UserPhotoIcon(state.value.user)
+                        }
+                    )
+                },
+                snackbarHost = {
+                    SnackbarHost(snackbarHostState)
+                },
+                floatingActionButton = {
+                    FloatingActionButton(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                        onClick = {
+                            startActivity(Intent(this@HomePage, AddRecipePage::class.java))
+                        }
                     ) {
-                        Icon(Icons.Outlined.PostAdd, "")
-                        Spacer(modifier = Modifier.size(8.dp))
-                        Text(
-                            stringResource(R.string.home_add_recipe_bnb),
-                            style = MaterialTheme.typography.titleMedium
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(4.dp)
+                        ) {
+                            Icon(Icons.Outlined.PostAdd, "")
+                            Spacer(modifier = Modifier.size(8.dp))
+                            Text(
+                                stringResource(R.string.home_add_recipe_bnb),
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                        }
                     }
-                }
-            },
-            floatingActionButtonPosition = FabPosition.End
-        ) {
-            Box(
-                contentAlignment = Alignment.TopCenter,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(it)
-                    .consumeWindowInsets(it)
+                },
+                floatingActionButtonPosition = FabPosition.End
             ) {
-                Body(viewModel, state.value, viewModel.planning) {
-                    scope.launch {
-                        snackbarHostState.showSnackbar(emptyRecipesMsg)
+                Box(
+                    contentAlignment = Alignment.TopCenter,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(it)
+                        .consumeWindowInsets(it)
+                ) {
+                    Body(viewModel, state.value, viewModel.planning) {
+                        scope.launch {
+                            snackbarHostState.showSnackbar(emptyRecipesMsg)
+                        }
                     }
                 }
             }
+            if (viewModel.isLoading.value) QLoadingScreen()
         }
     }
 

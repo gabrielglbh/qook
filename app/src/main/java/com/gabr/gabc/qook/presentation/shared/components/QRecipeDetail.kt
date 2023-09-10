@@ -54,6 +54,7 @@ fun QRecipeDetail(
     recipe: Recipe,
     modifier: Modifier,
     op: User? = null,
+    addToOwnRecipesButton: @Composable (() -> Unit)? = null,
     onRecipeUrlClick: (() -> Unit)? = null
 ) {
     val config = LocalConfiguration.current
@@ -100,6 +101,8 @@ fun QRecipeDetail(
                 textAlign = TextAlign.Center
             )
         }
+        if (addToOwnRecipesButton != null) Spacer(modifier = Modifier.size(8.dp))
+        if (addToOwnRecipesButton != null) addToOwnRecipesButton()
         Spacer(modifier = Modifier.size(8.dp))
         QContentCard {
             Row(
@@ -127,7 +130,7 @@ fun QRecipeDetail(
                     vertical = 8.dp,
                     horizontal = config.screenWidthDp.dp / 4
                 ),
-                color = MaterialTheme.colorScheme.onPrimaryContainer
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -150,7 +153,7 @@ fun QRecipeDetail(
                     vertical = 8.dp,
                     horizontal = config.screenWidthDp.dp / 4
                 ),
-                color = MaterialTheme.colorScheme.onPrimaryContainer
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             if (recipe.recipeUrl != null) Surface(
                 onClick = {
@@ -184,17 +187,13 @@ fun QRecipeDetail(
                 stringResource(R.string.recipe_details_ingredients),
                 style = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onPrimaryContainer
             )
             Spacer(modifier = Modifier.size(12.dp))
             Column(
                 horizontalAlignment = Alignment.Start
             ) {
                 recipe.ingredients.forEach {
-                    QIngredient(
-                        ingredient = it,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
+                    QIngredient(ingredient = it)
                 }
             }
         }
@@ -213,7 +212,6 @@ fun QRecipeDetail(
                 stringResource(R.string.recipe_details_steps),
                 style = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onPrimaryContainer
             )
             Spacer(modifier = Modifier.size(8.dp))
             Column {
@@ -224,14 +222,12 @@ fun QRecipeDetail(
                         QDescriptionStep(
                             step = step,
                             stepIndex = index,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                     }
                 }
             }
         }
-        Spacer(modifier = Modifier.size(12.dp))
-        if (op != null) Spacer(modifier = Modifier.size(48.dp))
+        Spacer(modifier = Modifier.size(48.dp))
     }
 }
 
@@ -240,14 +236,12 @@ private fun TextWithIcon(icon: ImageVector, text: String, modifier: Modifier = M
     Icon(
         icon,
         "",
-        tint = MaterialTheme.colorScheme.onPrimaryContainer
+        tint = MaterialTheme.colorScheme.onSurfaceVariant
     )
     Spacer(modifier = Modifier.size(4.dp))
     Text(
         text,
-        style = MaterialTheme.typography.titleSmall.copy(
-            color = MaterialTheme.colorScheme.onPrimaryContainer
-        ),
+        style = MaterialTheme.typography.titleSmall,
         modifier = modifier,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis

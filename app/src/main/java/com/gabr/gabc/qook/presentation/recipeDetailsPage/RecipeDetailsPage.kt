@@ -113,6 +113,7 @@ class RecipeDetailsPage : ComponentActivity() {
         val showConfirmationDialog = remember { mutableStateOf(false) }
 
         val errOpenLink = stringResource(R.string.err_recipe_details_open_link)
+        val onSaveRecipe = stringResource(R.string.recipe_details_add_recipe_success)
 
         if (showConfirmationDialog.value)
             QDialog(
@@ -220,6 +221,33 @@ class RecipeDetailsPage : ComponentActivity() {
                             recipe = viewModel.recipe.value,
                             modifier = Modifier.padding(start = 12.dp, end = 12.dp, bottom = 12.dp),
                             op = op,
+                            addToOwnRecipesButton = if (op != null && op.id != viewModel.currentUserUid.value) {
+                                {
+                                    Button(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(start = 12.dp, end = 12.dp, bottom = 16.dp),
+                                        onClick = {
+                                            viewModel.addToMyOwnRecipes(
+                                                onError = { error ->
+                                                    scope.launch {
+                                                        snackbarHostState.showSnackbar(error)
+                                                    }
+                                                },
+                                                onSave = {
+                                                    scope.launch {
+                                                        snackbarHostState.showSnackbar(onSaveRecipe)
+                                                    }
+                                                }
+                                            )
+                                        }
+                                    ) {
+                                        Text(stringResource(R.string.plannings_add_to_my_recipes))
+                                    }
+                                }
+                            } else {
+                                null
+                            },
                             onRecipeUrlClick = {
                                 try {
                                     startActivity(
@@ -237,20 +265,6 @@ class RecipeDetailsPage : ComponentActivity() {
                         )
                     }
                 }
-            }
-            if (op != null && op.id != viewModel.currentUserUid.value) Button(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 12.dp, end = 12.dp, bottom = 16.dp),
-                onClick = {
-                    viewModel.addToMyOwnRecipes { error ->
-                        scope.launch {
-                            snackbarHostState.showSnackbar(error)
-                        }
-                    }
-                }
-            ) {
-                Text(stringResource(R.string.plannings_add_to_my_recipes))
             }
             if (viewModel.isLoading.value) QLoadingScreen()
         }

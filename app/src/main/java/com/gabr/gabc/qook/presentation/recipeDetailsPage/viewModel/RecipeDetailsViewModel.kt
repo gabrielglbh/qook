@@ -64,7 +64,7 @@ class RecipeDetailsViewModel @Inject constructor(
         }
     }
 
-    fun addToMyOwnRecipes(onError: (String) -> Unit) {
+    fun addToMyOwnRecipes(onError: (String) -> Unit, onSave: () -> Unit) {
         viewModelScope.launch {
             isLoading.value = true
             val res = recipeRepository.createRecipe(
@@ -75,7 +75,7 @@ class RecipeDetailsViewModel @Inject constructor(
             )
             res.fold(
                 ifLeft = { e -> onError(e.error) },
-                ifRight = {}
+                ifRight = { onSave() }
             )
             isLoading.value = false
         }

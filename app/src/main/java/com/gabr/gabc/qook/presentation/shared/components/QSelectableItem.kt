@@ -24,7 +24,7 @@ fun QSelectableItem(
     modifier: Modifier = Modifier,
     uri: Uri? = null,
     icon: ImageVector? = null,
-    textColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
+    textColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     trailingText: String? = null,
     text: String,
     onClick: () -> Unit,
