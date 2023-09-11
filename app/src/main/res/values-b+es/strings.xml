@@ -170,4 +170,5 @@
     <string name="err_recipes_dup">¡Ya tienes esta receta guardada!</string>
     <string name="plannings_group_users">Usuarios</string>
     <string name="recipe_details_add_recipe_success">La receta se ha guardado correctamente</string>
+    <string name="settings_notifications">Administrar notificaciones</string>
 </resources>

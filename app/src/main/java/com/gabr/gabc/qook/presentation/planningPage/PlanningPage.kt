@@ -22,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.Group
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.outlined.RestartAlt
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Share
@@ -236,10 +237,19 @@ class PlanningPage : ComponentActivity() {
                             finish()
                         },
                         actions = if (isSharedPlanning) {
-                            if (group == SharedPlanning.EMPTY) {
-                                null
-                            } else {
-                                listOf {
+                            listOf(
+                                {
+                                    IconButton(onClick = {
+                                        viewModel.loadPlanning(null, groupId) { e ->
+                                            scope.launch {
+                                                snackbarHostState.showSnackbar(e)
+                                            }
+                                        }
+                                    }) {
+                                        Icon(Icons.Outlined.Refresh, "")
+                                    }
+                                },
+                                {
                                     IconButton(onClick = {
                                         val intent =
                                             Intent(
@@ -252,7 +262,7 @@ class PlanningPage : ComponentActivity() {
                                         Icon(Icons.Outlined.Settings, "")
                                     }
                                 }
-                            }
+                            )
                         } else {
                             listOf {
                                 IconButton(onClick = {

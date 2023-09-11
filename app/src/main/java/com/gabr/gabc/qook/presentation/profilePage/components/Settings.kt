@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.NotificationsActive
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -33,7 +34,9 @@ import com.gabr.gabc.qook.presentation.shared.components.QSelectableItem
 fun Settings(
     viewModel: ProfileViewModel,
     user: User,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onOpenNotificationSettings: () -> Unit,
+    onQookInfo: () -> Unit,
 ) {
     var showWeekBeginningBottomSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
@@ -73,8 +76,16 @@ fun Settings(
             showWeekBeginningBottomSheet = true
         }
         QSelectableItem(
+            icon = Icons.Outlined.NotificationsActive,
+            text = stringResource(R.string.settings_notifications),
+        ) {
+            onOpenNotificationSettings()
+        }
+        QSelectableItem(
             icon = Icons.Outlined.Info,
             text = stringResource(R.string.profile_about_qook),
-        ) {}
+        ) {
+            onQookInfo()
+        }
     }
 }

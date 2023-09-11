@@ -8,7 +8,6 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -20,7 +19,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Group
-import androidx.compose.material3.Divider
+import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -90,20 +89,33 @@ class PlanningsPage : ComponentActivity() {
                         onBack = {
                             finish()
                         },
-                        actions = listOf {
-                            IconButton(
-                                onClick = {
-                                    startActivity(
-                                        Intent(
-                                            this@PlanningsPage,
-                                            AddSharedPlanningPage::class.java
-                                        )
-                                    )
+                        actions = listOf(
+                            {
+                                IconButton(onClick = {
+                                    viewModel.loadGroups { e ->
+                                        scope.launch {
+                                            snackbarHostState.showSnackbar(e)
+                                        }
+                                    }
+                                }) {
+                                    Icon(Icons.Outlined.Refresh, "")
                                 }
-                            ) {
-                                Icon(Icons.Outlined.Add, "")
+                            },
+                            {
+                                IconButton(
+                                    onClick = {
+                                        startActivity(
+                                            Intent(
+                                                this@PlanningsPage,
+                                                AddSharedPlanningPage::class.java
+                                            )
+                                        )
+                                    }
+                                ) {
+                                    Icon(Icons.Outlined.Add, "")
+                                }
                             }
-                        }
+                        )
                     )
                 },
                 snackbarHost = {

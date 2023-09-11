@@ -20,12 +20,22 @@ const intlMessages = {
 };
 const intlMessagesSP = {
   "EN": {
-    "title": "New week, new shared planning!",
-    "body": "Start planning your week today and make sure to eat healthy!",
+    "title": "New week, new planning!",
+    "body": "Start planning {0} today and make sure to eat healthy!",
   },
   "ES": {
-    "title": "¡Nueva semana, nuevo planning compartido!",
-    "body": "Empieza a planificar tu semana hoy y ¡asegúrate de comer sano!",
+    "title": "¡Nueva semana, nuevo planning!",
+    "body": "Empieza a planificar {0} hoy y ¡asegúrate de comer sano!",
+  },
+};
+const intlUpdateSharedPlanningMessages = {
+  "EN": {
+    "title": "{0} has been updated",
+    "body": "{0} has updated the planning for {1}. Look what has been added",
+  },
+  "ES": {
+    "title": "Se ha actualizado {0}",
+    "body": "{0} ha actualizado el planning para el {1}. Mira que ha añadido",
   },
 };
 const mealData = {
@@ -259,7 +269,7 @@ exports.onRemoveSharedPlanning = functions.firestore
     });
 
 exports.scheduleRestartPlanningCron = functions.pubsub
-    .schedule("0 9 * * *")
+    .schedule("0 7 * * *")
     .timeZone("Europe/Madrid")
     .onRun(async (context) => {
       const userCollection = database.collection("USERS");
@@ -337,7 +347,7 @@ exports.scheduleRestartPlanningCron = functions.pubsub
     });
 
 exports.scheduleRestartSharedPlanningCron = functions.pubsub
-    .schedule("0 9 * * *")
+    .schedule("0 8 * * *")
     .timeZone("Europe/Madrid")
     .onRun(async (context) => {
       const groupCollection = database.collection("GROUPS");
@@ -361,6 +371,7 @@ exports.scheduleRestartSharedPlanningCron = functions.pubsub
 
             if (group != undefined) {
               const resetDay = group.resetDay;
+              const groupName = group.name;
 
               if (resetDay == dayOfWeek) {
                 const batch = database.batch();
@@ -393,9 +404,11 @@ exports.scheduleRestartSharedPlanningCron = functions.pubsub
                     token: userData.messagingToken,
                     notification: {
                       title: userData.language == "ES" ?
-                          intlMessagesSP.ES.title : intlMessagesSP.EN.title,
+                          intlMessagesSP.ES.title :
+                          intlMessagesSP.EN.title,
                       body: userData.language == "ES" ?
-                          intlMessagesSP.ES.body : intlMessagesSP.EN.body,
+                          intlMessagesSP.ES.body.format(groupName) :
+                          intlMessagesSP.EN.body.format(groupName),
                     },
                   };
                   notificationPromises.push(admin.messaging().send(payload));
@@ -415,5 +428,92 @@ exports.scheduleRestartSharedPlanningCron = functions.pubsub
         }
       } catch (error) {
         console.log("❌ Error setting up notifications %s", error);
+      }
+    });
+
+exports.onUpdateSharedPlanning = functions.firestore
+    .document("GROUPS/{groupId}/PLANNING/{dpId}")
+    .onUpdate(async (change, context) => {
+      const newValue = change.after.data();
+      const newLunch = newValue.lunch;
+      const newDinner = newValue.dinner;
+
+      const previousValue = change.before.data();
+      const previousLunch = previousValue.lunch;
+      const previousDinner = previousValue.dinner;
+
+      if ((previousLunch !== newLunch && newLunch.meal.isNotEmpty()) ||
+          (previousDinner !== newDinner && newDinner.meal.isNotEmpty())) {
+        const groupCollection = database.collection("GROUPS");
+        const usersCollection = database.collection("USERS");
+
+        const group = (await groupCollection.doc(context.params.groupId).get())
+            .data();
+        const dayPlanning = (await groupCollection.doc(context.params.groupId)
+            .collection("PLANNING").doc(context.params.dpId).get())
+            .data();
+        const groupName = group.name;
+        let updatedDp = dayPlanning.dayIndex;
+
+        const opData = (await usersCollection.doc(newLunch.op).get())
+            .data();
+
+        const notificationPromises = [];
+
+        for (const user of group.users) {
+          const userData = (await usersCollection.doc(user).get())
+              .data();
+
+          if (newLunch.op != user) {
+            switch (updatedDp) {
+              case 0:
+                updatedDp = userData.language == "ES" ? "Lunes" : "Monday";
+                break;
+              case 1:
+                updatedDp = userData.language == "ES" ? "Martes" : "Tuesday";
+                break;
+              case 2:
+                updatedDp = userData.language == "ES" ?
+                  "Miércoles" : "Wednesday";
+                break;
+              case 3:
+                updatedDp = userData.language == "ES" ? "Jueves" : "Thursday";
+                break;
+              case 4:
+                updatedDp = userData.language == "ES" ? "Viernes" : "Friday";
+                break;
+              case 5:
+                updatedDp = userData.language == "ES" ? "Sábado" : "Saturday";
+                break;
+              case 6:
+                updatedDp = userData.language == "ES" ? "Domingo" : "Sunday";
+                break;
+            }
+
+            const payload = {
+              token: userData.messagingToken,
+              notification: {
+                title: userData.language == "ES" ?
+                    intlUpdateSharedPlanningMessages.ES.title.format(groupName):
+                    intlUpdateSharedPlanningMessages.EN.title.format(groupName),
+                body: userData.language == "ES" ?
+                    intlUpdateSharedPlanningMessages.ES.body
+                        .format(opData.name, updatedDp) :
+                    intlUpdateSharedPlanningMessages.EN.body
+                        .format(opData.name, updatedDp),
+              },
+            };
+            notificationPromises.push(admin.messaging().send(payload));
+          }
+        }
+
+        await Promise.all(notificationPromises).then((result) => {
+          console.log("✅ Successfully sent notifications");
+          return {success: true};
+        }).catch((reason) => {
+          console.log("❌ Error while sending the notification: %s",
+              reason.toString());
+          return {success: false};
+        });
       }
     });

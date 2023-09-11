@@ -2,6 +2,7 @@ package com.gabr.gabc.qook.presentation.profilePage
 
 import android.Manifest
 import android.content.Intent
+import android.net.Uri
 import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
 import android.os.Bundle
@@ -197,7 +198,27 @@ class ProfilePage : ComponentActivity() {
                         }
                         Spacer(modifier = Modifier.size(12.dp))
                         QShimmer(controller = !isUserEmpty) { modifier ->
-                            Settings(viewModel, state.user, modifier)
+                            Settings(viewModel, state.user, modifier,
+                                onOpenNotificationSettings = {
+                                    val intent = Intent()
+                                    intent.action = "android.settings.APP_NOTIFICATION_SETTINGS"
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                    intent.putExtra("app_package", packageName)
+                                    intent.putExtra("app_uid", applicationInfo.uid)
+                                    intent.putExtra(
+                                        "android.provider.extra.APP_PACKAGE",
+                                        packageName
+                                    )
+                                    startActivity(intent)
+                                },
+                                onQookInfo = {
+                                    startActivity(
+                                        Intent(
+                                            Intent.ACTION_VIEW,
+                                            Uri.parse("https://github.com/gabrielglbh/qook")
+                                        )
+                                    )
+                                })
                         }
                         QShimmer(controller = !isUserEmpty) { modifier ->
                             Account(viewModel, state.user, modifier,

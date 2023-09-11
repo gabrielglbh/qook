@@ -26,6 +26,7 @@ class PlanningsViewModel @Inject constructor(
             res.fold(
                 ifLeft = { e -> onError(e.error) },
                 ifRight = { p ->
+                    groups.clear()
                     groups.addAll(p)
                 }
             )

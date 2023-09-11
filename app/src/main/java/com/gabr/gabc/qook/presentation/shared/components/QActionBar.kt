@@ -46,8 +46,7 @@ fun QActionBar(
             style = MaterialTheme.typography.headlineMedium,
             textAlign = TextAlign.Center,
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = ((actions?.size ?: 1) * 48).dp)
+                .padding(horizontal = ((actions?.size ?: 1) * 52).dp)
         )
         Row(
             modifier = Modifier.fillMaxWidth(),
