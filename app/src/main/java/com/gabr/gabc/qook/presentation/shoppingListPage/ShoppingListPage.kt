@@ -8,7 +8,6 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -44,8 +43,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.planning.DayPlanning
-import com.gabr.gabc.qook.presentation.homePage.HomePage
-import com.gabr.gabc.qook.presentation.planningPage.PlanningPage
 import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.PLANNING
 import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.SHARED_PLANNING_ID
 import com.gabr.gabc.qook.presentation.shared.Validators
@@ -199,7 +196,7 @@ class ShoppingListPage : ComponentActivity() {
                         .weight(1f)
                         .padding(top = 8.dp)
                 ) {
-                    items(viewModel.ingredients.toList()) { ingredient ->
+                    items(viewModel.ingredients.toSortedMap().toList()) { ingredient ->
                         Surface(
                             onClick = {
                                 updateIngredient(ingredient)
