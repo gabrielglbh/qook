@@ -28,8 +28,9 @@ class TagRepositoryImpl @Inject constructor(
         try {
             auth.currentUser?.let {
                 val docRef = db.collection(Globals.DB_USER).document(it.uid)
-                    .collection(Globals.DB_TAGS).add(tag.toDto()).await()
+                    .collection(Globals.DB_TAGS).document()
                 val id = docRef.path.split("/").last()
+                docRef.set(tag.toDto()).await()
                 return Right(tag.copy(id = id))
             }
             return Left(TagFailure.NotAuthenticated(res.getString(R.string.error_user_not_auth)))

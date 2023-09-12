@@ -71,7 +71,8 @@ class RecipeDetailsViewModel @Inject constructor(
                 recipe.value.copy(
                     creationDate = Date(),
                     updateDate = Date(),
-                )
+                ),
+                fromSharedPlanning = true,
             )
             res.fold(
                 ifLeft = { e -> onError(e.error) },

@@ -38,6 +38,18 @@ const intlUpdateSharedPlanningMessages = {
     "body": "{0} ha actualizado el planning para el {1}. Mira que ha añadido",
   },
 };
+const intlAddedOnSharedPlanningMessages = {
+  "EN": {
+    "title": "Welcome to {0}!",
+    "body": "You have been added to the shared planning. " +
+        "See what's been cooking",
+  },
+  "ES": {
+    "title": "¡Bienvenido a {0}!",
+    "body": "Te han añadido al planning compartido. " +
+        "Mira qué se cuece",
+  },
+};
 const mealData = {
   "meal": "",
   "op": "",
@@ -509,6 +521,50 @@ exports.onUpdateSharedPlanning = functions.firestore
 
         await Promise.all(notificationPromises).then((result) => {
           console.log("✅ Successfully sent notifications");
+          return {success: true};
+        }).catch((reason) => {
+          console.log("❌ Error while sending the notification: %s",
+              reason.toString());
+          return {success: false};
+        });
+      }
+    });
+
+exports.onIncludeUserOnSharedPlanning = functions.firestore
+    .document("GROUPS/{groupId}")
+    .onUpdate(async (change, context) => {
+      const newValue = change.after.data();
+      const newUsers = newValue.users;
+
+      const previousValue = change.before.data();
+      const previousUsers = previousValue.users;
+
+      if (newUsers !== previousUsers &&
+          newUsers.length > previousUsers.length) {
+        const groupCollection = database.collection("GROUPS");
+        const usersCollection = database.collection("USERS");
+
+        const group = (await groupCollection.doc(context.params.groupId).get())
+            .data();
+        const groupName = group.name;
+
+        const newUid = newUsers.filter((x) => !previousUsers.includes(x));
+        const userData = (await usersCollection.doc(newUid).get())
+            .data();
+
+        const payload = {
+          token: userData.messagingToken,
+          notification: {
+            title: userData.language == "ES" ?
+                intlAddedOnSharedPlanningMessages.ES.title.format(groupName):
+                intlAddedOnSharedPlanningMessages.EN.title.format(groupName),
+            body: userData.language == "ES" ?
+                intlAddedOnSharedPlanningMessages.ES.body :
+                intlAddedOnSharedPlanningMessages.EN.body,
+          },
+        };
+        await admin.messaging().send(payload).then((result) => {
+          console.log("✅ Successfully sent notification");
           return {success: true};
         }).catch((reason) => {
           console.log("❌ Error while sending the notification: %s",

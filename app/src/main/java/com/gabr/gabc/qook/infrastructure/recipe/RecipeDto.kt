@@ -21,7 +21,6 @@ data class RecipeDto constructor(
     @PropertyName(Globals.OBJ_RECIPE_DESCRIPTION) val description: List<String> = listOf(),
     @PropertyName(Globals.OBJ_RECIPE_INGREDIENTS) val ingredients: List<String> = listOf(),
     @PropertyName(Globals.OBJ_RECIPE_TAG_IDS) val tagIds: List<String> = listOf(),
-    @PropertyName("canAccess") val canAccess: List<String> = listOf()
 )
 
 fun RecipeDto.toDomain(): Recipe {

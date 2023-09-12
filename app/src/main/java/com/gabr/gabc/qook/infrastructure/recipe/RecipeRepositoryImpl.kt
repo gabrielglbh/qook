@@ -30,7 +30,10 @@ class RecipeRepositoryImpl @Inject constructor(
     private val tagRepository: TagRepository,
     private val res: StringResourcesProvider
 ) : RecipeRepository {
-    override suspend fun createRecipe(recipe: Recipe): Either<RecipeFailure, Recipe> {
+    override suspend fun createRecipe(
+        recipe: Recipe,
+        fromSharedPlanning: Boolean
+    ): Either<RecipeFailure, Recipe> {
         try {
             auth.currentUser?.let {
                 val check = db.collection(Globals.DB_USER).document(it.uid)
@@ -44,7 +47,11 @@ class RecipeRepositoryImpl @Inject constructor(
 
                 val recipeId = docRef.path.split("/").last()
 
-                docRef.set(recipe.toDto().copy(tagIds = listOf())).await()
+                var recipeDto = recipe.toDto()
+                if (fromSharedPlanning) {
+                    recipeDto = recipeDto.copy(tagIds = listOf())
+                }
+                docRef.set(recipeDto).await()
 
                 if (recipe.photo.host != Globals.FIREBASE_HOST && recipe.photo != Uri.EMPTY) {
                     storage.uploadImage(
