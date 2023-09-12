@@ -41,13 +41,25 @@ class ShoppingListViewModel @Inject constructor(
             this@ShoppingListViewModel.planning.addAll(planning)
         }
         viewModelScope.launch {
-            val result = ingredientsRepository.getIngredientsOfShoppingList(groupId)
-            result.fold(
-                ifLeft = {},
-                ifRight = { i ->
-                    setIngredients(i)
-                }
-            )
+            if (groupId == null) {
+                val result = ingredientsRepository.getIngredientsOfShoppingList()
+                result.fold(
+                    ifLeft = {},
+                    ifRight = { i ->
+                        setIngredients(i)
+                    }
+                )
+            } else {
+                ingredientsRepository.getIngredientsOfShoppingListFromSharedPlanning(groupId)
+                    .collect { res ->
+                        res.fold(
+                            ifLeft = {},
+                            ifRight = { i ->
+                                setIngredients(i)
+                            }
+                        )
+                    }
+            }
         }
     }
 
@@ -59,13 +71,26 @@ class ShoppingListViewModel @Inject constructor(
             val auxPlanning = planning
 
             if (auxPlanning.isEmpty()) {
-                val res = planningRepository.getPlanning(groupId.value)
-                res.fold(
-                    ifLeft = {},
-                    ifRight = { p ->
-                        auxPlanning.addAll(p)
-                    }
-                )
+                if (groupId.value == null) {
+                    val res = planningRepository.getPlanning()
+                    res.fold(
+                        ifLeft = {},
+                        ifRight = { p ->
+                            auxPlanning.addAll(p)
+                        }
+                    )
+                } else {
+                    planningRepository.getPlanningFromSharedPlanning(groupId.value!!)
+                        .collect { res ->
+                            res.fold(
+                                ifLeft = {},
+                                ifRight = { p ->
+                                    auxPlanning.addAll(p)
+                                }
+                            )
+                        }
+                }
+
             }
 
             auxPlanning.forEach { day ->

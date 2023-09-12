@@ -2,8 +2,6 @@ package com.gabr.gabc.qook.domain.sharedPlanning
 
 import android.net.Uri
 import android.os.Parcelable
-import com.gabr.gabc.qook.domain.ingredients.Ingredients
-import com.gabr.gabc.qook.domain.planning.DayPlanning
 import com.gabr.gabc.qook.domain.user.User
 import com.gabr.gabc.qook.infrastructure.sharedPlanning.SharedPlanningDto
 import kotlinx.parcelize.Parcelize
@@ -14,13 +12,11 @@ data class SharedPlanning(
     val name: String,
     val photo: Uri,
     val resetDay: Int,
-    val planning: List<DayPlanning>,
-    val shoppingList: Ingredients,
     val users: List<User>,
 ) : Parcelable {
     companion object {
         val EMPTY =
-            SharedPlanning("", "", Uri.EMPTY, 0, listOf(), Ingredients(mapOf()), listOf())
+            SharedPlanning("", "", Uri.EMPTY, 0, listOf())
     }
 }
 

@@ -43,9 +43,9 @@ class PlanningViewModel @Inject constructor(
     fun loadPlanning(planning: List<DayPlanning>?, groupId: String?, onError: (String) -> Unit) {
         this.groupId.value = groupId
         viewModelScope.launch {
-            isLoading.value = true
             if (groupId == null) {
                 if (planning == null) {
+                    isLoading.value = true
                     val res = planningRepository.getPlanning()
                     res.fold(
                         ifLeft = { e -> onError(e.error) },
@@ -54,6 +54,7 @@ class PlanningViewModel @Inject constructor(
                             this@PlanningViewModel.planning.addAll(p)
                         }
                     )
+                    isLoading.value = false
                 } else {
                     this@PlanningViewModel.planning.clear()
                     this@PlanningViewModel.planning.addAll(planning)
@@ -64,12 +65,18 @@ class PlanningViewModel @Inject constructor(
                     ifLeft = { e -> onError(e.error) },
                     ifRight = { sp ->
                         sharedPlanning.value = sp
-                        this@PlanningViewModel.planning.clear()
-                        this@PlanningViewModel.planning.addAll(sharedPlanning.value.planning)
+                        planningRepository.getPlanningFromSharedPlanning(sp.id).collect { res ->
+                            res.fold(
+                                ifLeft = { e -> onError(e.error) },
+                                ifRight = { p ->
+                                    this@PlanningViewModel.planning.clear()
+                                    this@PlanningViewModel.planning.addAll(p)
+                                },
+                            )
+                        }
                     },
                 )
             }
-            isLoading.value = false
         }
     }
 
@@ -99,10 +106,6 @@ class PlanningViewModel @Inject constructor(
                             hasUpdated.value = true
                             planning.clear()
                             planning.addAll(DayPlanning.EMPTY_PLANNING)
-                            sharedPlanning.value.copy(
-                                planning = DayPlanning.EMPTY_PLANNING,
-                                shoppingList = Ingredients(mapOf())
-                            )
                         }
                     )
                 }
@@ -131,9 +134,7 @@ class PlanningViewModel @Inject constructor(
                     )
                     iResult.fold(
                         ifLeft = { e -> onError(e.error) },
-                        ifRight = {
-                            updatePlanningLocally(dayPlanning)
-                        }
+                        ifRight = {}
                     )
                 }
             )
@@ -156,11 +157,9 @@ class PlanningViewModel @Inject constructor(
     }
 
     fun updatePlanningLocally(dayPlanning: DayPlanning) {
-        val auxPlanning = mutableListOf<DayPlanning>().apply { addAll(planning) }
         val aux = planning.map { it.id }
         val dayPlanningToUpdateIndex = aux.indexOf(dayPlanning.id)
         planning[dayPlanningToUpdateIndex] = dayPlanning
-        sharedPlanning.value = sharedPlanning.value.copy(planning = auxPlanning)
         hasUpdated.value = true
     }
 

@@ -21,16 +21,15 @@ class PlanningsViewModel @Inject constructor(
 
     fun loadGroups(onError: (String) -> Unit) {
         viewModelScope.launch {
-            isLoading.value = true
-            val res = sharedPlanningRepository.getSharedPlannings()
-            res.fold(
-                ifLeft = { e -> onError(e.error) },
-                ifRight = { p ->
-                    groups.clear()
-                    groups.addAll(p)
-                }
-            )
-            isLoading.value = false
+            sharedPlanningRepository.getSharedPlannings().collect { res ->
+                res.fold(
+                    ifLeft = { e -> onError(e.error) },
+                    ifRight = { p ->
+                        groups.clear()
+                        groups.addAll(p)
+                    }
+                )
+            }
         }
     }
 }

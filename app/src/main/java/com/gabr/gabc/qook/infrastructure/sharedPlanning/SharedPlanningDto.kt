@@ -1,7 +1,6 @@
 package com.gabr.gabc.qook.infrastructure.sharedPlanning
 
 import android.net.Uri
-import com.gabr.gabc.qook.domain.ingredients.Ingredients
 import com.gabr.gabc.qook.domain.sharedPlanning.SharedPlanning
 import com.gabr.gabc.qook.presentation.shared.Globals
 import com.google.firebase.firestore.DocumentId
@@ -21,8 +20,6 @@ fun SharedPlanningDto.toDomain(): SharedPlanning {
         name,
         Uri.EMPTY,
         resetDay,
-        listOf(),
-        Ingredients(mapOf()),
         listOf(),
     )
 }

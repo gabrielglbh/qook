@@ -6,7 +6,6 @@ import arrow.core.Either.Left
 import arrow.core.Either.Right
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.ingredients.IngredientsRepository
-import com.gabr.gabc.qook.domain.planning.PlanningRepository
 import com.gabr.gabc.qook.domain.sharedPlanning.SharedPlanning
 import com.gabr.gabc.qook.domain.sharedPlanning.SharedPlanningFailure
 import com.gabr.gabc.qook.domain.sharedPlanning.SharedPlanningRepository
@@ -21,13 +20,17 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.ktx.toObject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class SharedPlanningRepositoryImpl @Inject constructor(
     private val auth: FirebaseAuth,
     private val db: FirebaseFirestore,
-    private val planningRepository: PlanningRepository,
     private val ingredientsRepository: IngredientsRepository,
     private val userRepository: UserRepository,
     private val res: StringResourcesProvider,
@@ -129,36 +132,54 @@ class SharedPlanningRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getSharedPlannings(): Either<SharedPlanningFailure, List<SharedPlanning>> {
-        try {
+    override fun getSharedPlannings() =
+        callbackFlow {
             auth.currentUser?.let {
-                val groups = mutableListOf<SharedPlanning>()
-                val res = db.collection(Globals.DB_GROUPS)
+                val listener = db.collection(Globals.DB_GROUPS)
                     .whereArrayContains(Globals.OBJ_SHARED_PLANNING_USERS, it.uid)
-                    .get().await()
-
-                res.forEach { doc ->
-                    val dto = doc.toObject<SharedPlanningDto>()
-                    var group = dto.toDomain()
-
-                    if (dto.hasPhoto) {
-                        val resStorage =
-                            storage.getDownloadUrl("${Globals.STORAGE_GROUPS}${dto.id}/${Globals.STORAGE_AVATAR}")
-                        resStorage.fold(
-                            ifLeft = {},
-                            ifRight = { uri -> group = group.copy(photo = uri) }
+                    .addSnapshotListener { value, _ ->
+                        if (value == null) trySend(
+                            Left(
+                                SharedPlanningFailure.SharedPlanningRetrievalFailed(
+                                    res.getString(R.string.err_plannings_retrieval)
+                                )
+                            )
                         )
-                    }
-                    groups.add(group)
-                }
+                        else {
+                            CoroutineScope(Dispatchers.IO).launch {
+                                val sharedPlannings = mutableListOf<SharedPlanning>()
+                                value.documents.forEach { doc ->
+                                    val dto = doc.toObject<SharedPlanningDto>()
+                                    dto?.let {
+                                        var group = dto.toDomain()
 
-                return Right(groups)
+                                        if (dto.hasPhoto) {
+                                            val resStorage =
+                                                storage.getDownloadUrl("${Globals.STORAGE_GROUPS}${dto.id}/${Globals.STORAGE_AVATAR}")
+                                            resStorage.fold(
+                                                ifLeft = {},
+                                                ifRight = { uri -> group = group.copy(photo = uri) }
+                                            )
+                                        }
+                                        sharedPlannings.add(group)
+                                    }
+                                }
+                                trySend(Right(sharedPlannings))
+                            }
+                        }
+                    }
+                awaitClose {
+                    listener.remove()
+                }
             }
-            return Left(SharedPlanningFailure.NotAuthenticated(res.getString(R.string.error_user_not_auth)))
-        } catch (err: FirebaseFirestoreException) {
-            return Left(SharedPlanningFailure.SharedPlanningRetrievalFailed(res.getString(R.string.err_plannings_retrieval)))
+            trySend(
+                Left(
+                    SharedPlanningFailure.NotAuthenticated(
+                        res.getString(R.string.error_user_not_auth)
+                    )
+                )
+            )
         }
-    }
 
     override suspend fun getSharedPlanning(id: String): Either<SharedPlanningFailure, SharedPlanning> {
         try {
@@ -170,20 +191,6 @@ class SharedPlanningRepositoryImpl @Inject constructor(
                     var group = d.toDomain()
                     val users = mutableListOf<User>()
 
-                    suspend fun recurrentPlanning() {
-                        val planningRes = planningRepository.getPlanning(id)
-                        planningRes.fold(
-                            ifLeft = {},
-                            ifRight = { p ->
-                                if (p.isEmpty()) {
-                                    recurrentPlanning()
-                                } else {
-                                    group = group.copy(planning = p)
-                                }
-                            }
-                        )
-                    }
-                    
                     if (d.hasPhoto) {
                         val resStorage =
                             storage.getDownloadUrl("${Globals.STORAGE_GROUPS}$id/${Globals.STORAGE_AVATAR}")
@@ -192,14 +199,6 @@ class SharedPlanningRepositoryImpl @Inject constructor(
                             ifRight = { uri -> group = group.copy(photo = uri) }
                         )
                     }
-                    val ingredientRes = ingredientsRepository.getIngredientsOfShoppingList(id)
-                    ingredientRes.fold(
-                        ifLeft = {},
-                        ifRight = { ingredients ->
-                            group = group.copy(shoppingList = ingredients)
-                        }
-                    )
-                    recurrentPlanning()
                     d.users.forEach { uid ->
                         val userRes = userRepository.getUserFromId(uid)
                         userRes.fold(

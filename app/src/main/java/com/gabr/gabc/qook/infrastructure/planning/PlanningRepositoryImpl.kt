@@ -16,6 +16,11 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.ktx.toObject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -55,23 +60,15 @@ class PlanningRepositoryImpl @Inject constructor(
         )
     }
 
-    override suspend fun getPlanning(groupId: String?): Either<PlanningFailure, List<DayPlanning>> {
+    override suspend fun getPlanning(): Either<PlanningFailure, List<DayPlanning>> {
         try {
             auth.currentUser?.let {
                 val planning = mutableListOf<DayPlanning>()
-                val res = if (groupId == null) {
-                    db.collection(Globals.DB_USER).document(it.uid)
-                        .collection(Globals.DB_PLANNING)
-                        .orderBy(Globals.OBJ_PLANNING_DAY_INDEX)
-                        .get()
-                        .await()
-                } else {
-                    db.collection(Globals.DB_GROUPS).document(groupId)
-                        .collection(Globals.DB_PLANNING)
-                        .orderBy(Globals.OBJ_PLANNING_DAY_INDEX)
-                        .get()
-                        .await()
-                }
+                val res = db.collection(Globals.DB_USER).document(it.uid)
+                    .collection(Globals.DB_PLANNING)
+                    .orderBy(Globals.OBJ_PLANNING_DAY_INDEX)
+                    .get()
+                    .await()
 
                 res.forEach { doc ->
                     planning.add(getRecipesFrom(doc.toObject()))
@@ -84,6 +81,43 @@ class PlanningRepositoryImpl @Inject constructor(
             return Left(PlanningFailure.PlanningRetrievalFailed(res.getString(R.string.err_plannings_retrieval)))
         }
     }
+
+    override fun getPlanningFromSharedPlanning(groupId: String) =
+        callbackFlow {
+            auth.currentUser?.let {
+                val listener = db.collection(Globals.DB_GROUPS).document(groupId)
+                    .collection(Globals.DB_PLANNING)
+                    .orderBy(Globals.OBJ_PLANNING_DAY_INDEX)
+                    .addSnapshotListener { value, _ ->
+                        if (value == null) trySend(
+                            Left(
+                                PlanningFailure.PlanningRetrievalFailed(
+                                    res.getString(R.string.err_plannings_retrieval)
+                                )
+                            )
+                        )
+                        else {
+                            CoroutineScope(Dispatchers.Main).launch {
+                                val planning = mutableListOf<DayPlanning>()
+                                value.forEach { doc ->
+                                    planning.add(getRecipesFrom(doc.toObject()))
+                                }
+                                trySend(Right(planning))
+                            }
+                        }
+                    }
+                awaitClose {
+                    listener.remove()
+                }
+            }
+            trySend(
+                Left(
+                    PlanningFailure.NotAuthenticated(
+                        res.getString(R.string.error_user_not_auth)
+                    )
+                )
+            )
+        }
 
     override suspend fun updateRecipeFromPlanning(
         dayPlanning: DayPlanning,

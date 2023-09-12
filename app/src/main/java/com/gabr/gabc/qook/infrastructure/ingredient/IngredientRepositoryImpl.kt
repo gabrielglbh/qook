@@ -15,6 +15,11 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.ktx.toObject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -23,20 +28,13 @@ class IngredientRepositoryImpl @Inject constructor(
     private val db: FirebaseFirestore,
     private val res: StringResourcesProvider,
 ) : IngredientsRepository {
-    override suspend fun getIngredientsOfShoppingList(groupId: String?): Either<IngredientsFailure, Ingredients> {
+    override suspend fun getIngredientsOfShoppingList(): Either<IngredientsFailure, Ingredients> {
         try {
             auth.currentUser?.let {
-                val result = if (groupId == null) {
-                    db.collection(Globals.DB_USER).document(it.uid)
-                        .collection(Globals.DB_SHOPPING_LIST).document(Globals.DB_INGREDIENTS)
-                        .get()
-                        .await()
-                } else {
-                    db.collection(Globals.DB_GROUPS).document(groupId)
-                        .collection(Globals.DB_SHOPPING_LIST).document(Globals.DB_INGREDIENTS)
-                        .get()
-                        .await()
-                }
+                val result = db.collection(Globals.DB_USER).document(it.uid)
+                    .collection(Globals.DB_SHOPPING_LIST).document(Globals.DB_INGREDIENTS)
+                    .get()
+                    .await()
                 result.toObject<IngredientsDto>()?.let { ingredientsDto ->
                     return Right(ingredientsDto.toDomain())
                 }
@@ -47,6 +45,40 @@ class IngredientRepositoryImpl @Inject constructor(
             return Left(IngredientsFailure.IngredientsRetrievalFailed(res.getString(R.string.err_ingredients_retrieval)))
         }
     }
+
+    override fun getIngredientsOfShoppingListFromSharedPlanning(groupId: String) =
+        callbackFlow {
+            auth.currentUser?.let {
+                val listener = db.collection(Globals.DB_GROUPS).document(groupId)
+                    .collection(Globals.DB_SHOPPING_LIST).document(Globals.DB_INGREDIENTS)
+                    .addSnapshotListener { value, _ ->
+                        if (value == null) trySend(
+                            Left(
+                                IngredientsFailure.IngredientsRetrievalFailed(
+                                    res.getString(R.string.err_ingredients_retrieval)
+                                )
+                            )
+                        )
+                        else {
+                            CoroutineScope(Dispatchers.IO).launch {
+                                value.toObject<IngredientsDto>()?.let { dto ->
+                                    trySend(Right(dto.toDomain()))
+                                }
+                            }
+                        }
+                    }
+                awaitClose {
+                    listener.remove()
+                }
+            }
+            trySend(
+                Left(
+                    IngredientsFailure.NotAuthenticated(
+                        res.getString(R.string.error_user_not_auth)
+                    )
+                )
+            )
+        }
 
     override suspend fun removeIngredient(
         ingredient: Pair<String, Boolean>,

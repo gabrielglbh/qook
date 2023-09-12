@@ -1,6 +1,7 @@
 package com.gabr.gabc.qook.domain.sharedPlanning
 
 import arrow.core.Either
+import kotlinx.coroutines.flow.Flow
 
 interface SharedPlanningRepository {
     suspend fun createSharedPlanning(sharedPlanning: SharedPlanning): Either<SharedPlanningFailure, SharedPlanning>
@@ -16,6 +17,6 @@ interface SharedPlanningRepository {
     ): Either<SharedPlanningFailure, Unit>
 
     suspend fun deleteSharedPlanning(sharedPlanning: SharedPlanning): Either<SharedPlanningFailure, Unit>
-    suspend fun getSharedPlannings(): Either<SharedPlanningFailure, List<SharedPlanning>>
+    fun getSharedPlannings(): Flow<Either<SharedPlanningFailure, List<SharedPlanning>>>
     suspend fun getSharedPlanning(id: String): Either<SharedPlanningFailure, SharedPlanning>
 }

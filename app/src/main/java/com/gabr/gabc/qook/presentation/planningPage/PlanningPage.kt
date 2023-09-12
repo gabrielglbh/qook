@@ -22,7 +22,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.Group
 import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.outlined.RestartAlt
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Share
@@ -237,19 +236,8 @@ class PlanningPage : ComponentActivity() {
                             finish()
                         },
                         actions = if (isSharedPlanning) {
-                            listOf(
-                                {
-                                    IconButton(onClick = {
-                                        viewModel.loadPlanning(null, groupId) { e ->
-                                            scope.launch {
-                                                snackbarHostState.showSnackbar(e)
-                                            }
-                                        }
-                                    }) {
-                                        Icon(Icons.Outlined.Refresh, "")
-                                    }
-                                },
-                                {
+                            if (group != SharedPlanning.EMPTY) {
+                                listOf {
                                     IconButton(onClick = {
                                         val intent =
                                             Intent(
@@ -262,7 +250,9 @@ class PlanningPage : ComponentActivity() {
                                         Icon(Icons.Outlined.Settings, "")
                                     }
                                 }
-                            )
+                            } else {
+                                null
+                            }
                         } else {
                             listOf {
                                 IconButton(onClick = {
@@ -299,7 +289,11 @@ class PlanningPage : ComponentActivity() {
                                 modifier = Modifier.padding(horizontal = 8.dp)
                             )
                         } else {
-                            SharedPlanningHeaders()
+                            if (group != SharedPlanning.EMPTY) {
+                                SharedPlanningHeaders()
+                            } else {
+                                QLoadingScreen(color = MaterialTheme.colorScheme.background)
+                            }
                         }
                         Spacer(modifier = Modifier.size(8.dp))
                         QPlanning(
