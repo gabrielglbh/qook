@@ -103,9 +103,11 @@ class PlanningViewModel @Inject constructor(
                     iResult.fold(
                         ifLeft = { e -> onError(e.error) },
                         ifRight = {
-                            hasUpdated.value = true
-                            planning.clear()
-                            planning.addAll(DayPlanning.EMPTY_PLANNING)
+                            if (groupId.value == null) {
+                                hasUpdated.value = true
+                                planning.clear()
+                                planning.addAll(DayPlanning.EMPTY_PLANNING)
+                            }
                         }
                     )
                 }
@@ -134,7 +136,11 @@ class PlanningViewModel @Inject constructor(
                     )
                     iResult.fold(
                         ifLeft = { e -> onError(e.error) },
-                        ifRight = {}
+                        ifRight = {
+                            if (groupId.value == null) {
+                                updatePlanningLocally(dayPlanning)
+                            }
+                        }
                     )
                 }
             )
