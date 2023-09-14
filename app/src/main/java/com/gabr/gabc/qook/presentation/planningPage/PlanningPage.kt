@@ -58,13 +58,11 @@ import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.FROM_PLANNING
 import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.HAS_REMOVED_SHARED_PLANNING
 import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.HAS_UPDATED_DAY_PLANNING
 import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.HAS_UPDATED_DAY_PLANNING_WITH_RECIPE
-import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.HAS_UPDATED_SHARED_PLANNING
 import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.IS_LUNCH
 import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.PLANNING
 import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.RECIPE
 import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.RECIPES_LIST
 import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.RECIPE_OP
-import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.SHARED_PLANNING
 import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.SHARED_PLANNING_ID
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.shared.components.QContentCard
@@ -91,19 +89,6 @@ class PlanningPage : ComponentActivity() {
                 }
 
                 val viewModel: PlanningViewModel by viewModels()
-
-                val updatedSharedPlanning =
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        extras?.getParcelable(
-                            HAS_UPDATED_SHARED_PLANNING,
-                            SharedPlanning::class.java
-                        )
-                    } else {
-                        extras?.getParcelable(HAS_UPDATED_SHARED_PLANNING)
-                    }
-                updatedSharedPlanning?.let {
-                    viewModel.updateSharedPlanningMetadataLocally(it)
-                }
 
                 val updatedPlanning = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     extras?.getParcelable(HAS_UPDATED_DAY_PLANNING, DayPlanning::class.java)
@@ -239,13 +224,12 @@ class PlanningPage : ComponentActivity() {
                             if (group != SharedPlanning.EMPTY) {
                                 listOf {
                                     IconButton(onClick = {
-                                        val intent =
-                                            Intent(
-                                                this@PlanningPage,
-                                                PlanningSettingsPage::class.java
-                                            )
-                                        intent.putExtra(SHARED_PLANNING, group)
-                                        resultLauncher.launch(intent)
+                                        val intent = Intent(
+                                            this@PlanningPage,
+                                            PlanningSettingsPage::class.java
+                                        )
+                                        intent.putExtra(SHARED_PLANNING_ID, groupId)
+                                        startActivity(intent)
                                     }) {
                                         Icon(Icons.Outlined.Settings, "")
                                     }
@@ -291,6 +275,14 @@ class PlanningPage : ComponentActivity() {
                         } else {
                             if (group != SharedPlanning.EMPTY) {
                                 SharedPlanningHeaders()
+
+                                LaunchedEffect(key1 = Unit, block = {
+                                    viewModel.loadPlanningFromSharedPlanning {
+                                        scope.launch {
+                                            snackbarHostState.showSnackbar(it)
+                                        }
+                                    }
+                                })
                             } else {
                                 QLoadingScreen(color = MaterialTheme.colorScheme.background)
                             }

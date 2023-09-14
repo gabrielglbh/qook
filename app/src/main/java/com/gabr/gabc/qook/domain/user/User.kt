@@ -15,12 +15,13 @@ data class User(
     val language: String,
     val adminOf: List<String>,
     val messagingToken: String,
+    val hasPhoto: Boolean,
 ) : Parcelable {
     companion object {
-        val EMPTY = User("", "", "", 0, Uri.EMPTY, "", listOf(), "")
+        val EMPTY = User("", "", "", 0, Uri.EMPTY, "", listOf(), "", false)
     }
 }
 
 fun User.toDto(): UserDto {
-    return UserDto(id, name, email, resetDay, language, adminOf, messagingToken)
+    return UserDto(id, name, email, resetDay, language, adminOf, messagingToken, hasPhoto)
 }

@@ -72,20 +72,22 @@ class AddRecipeViewModel @Inject constructor(
             withContext(Dispatchers.Main) { isLoading.value = true }
             val recipe = recipeState.value.recipe
             val isUpdating = recipeState.value.originalRecipe != Recipe.EMPTY
-            val recipeUpdated = recipe.copy(
-                photo = if (recipe.photo == Uri.EMPTY) {
-                    Uri.EMPTY
-                } else if (recipe.photo.host != Globals.FIREBASE_HOST) {
-                    Uri.fromFile(
-                        resizeImageToFile(
-                            recipe.photo,
-                            provider.contentResolver(),
-                            name = Calendar.getInstance().timeInMillis.toString()
-                        )
+            val updatedUri = if (recipe.photo == Uri.EMPTY) {
+                Uri.EMPTY
+            } else if (recipe.photo.host != Globals.FIREBASE_HOST) {
+                Uri.fromFile(
+                    resizeImageToFile(
+                        recipe.photo,
+                        provider.contentResolver(),
+                        name = Calendar.getInstance().timeInMillis.toString()
                     )
-                } else {
-                    recipe.photo
-                },
+                )
+            } else {
+                recipe.photo
+            }
+
+            val recipeUpdated = recipe.copy(
+                photo = updatedUri,
                 creationDate = if (isUpdating) {
                     recipe.creationDate
                 } else {
@@ -103,13 +105,13 @@ class AddRecipeViewModel @Inject constructor(
                 val result = recipeRepository.updateRecipe(recipe = recipeUpdated)
                 result.fold(
                     ifLeft = { fail -> ifError(fail.error) },
-                    ifRight = { recipeWithId -> ifSuccess(recipeWithId) }
+                    ifRight = { recipeWithId -> ifSuccess(recipeWithId.copy(photo = updatedUri)) }
                 )
             } else {
                 val result = recipeRepository.createRecipe(recipe = recipeUpdated)
                 result.fold(
                     ifLeft = { fail -> ifError(fail.error) },
-                    ifRight = { recipeWithId -> ifSuccess(recipeWithId) }
+                    ifRight = { recipeWithId -> ifSuccess(recipeWithId.copy(photo = updatedUri)) }
                 )
             }
 

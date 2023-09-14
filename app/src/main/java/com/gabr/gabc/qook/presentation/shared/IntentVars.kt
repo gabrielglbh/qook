@@ -23,19 +23,9 @@ class IntentVars {
         const val HAS_UPDATED_DAY_PLANNING = "HAS_UPDATED_PLANNING"
 
         /**
-         * SharedPlanning to be passed down to PlanningSettingsPage from PlanningPage to update locally
-         * */
-        const val HAS_UPDATED_SHARED_PLANNING = "HAS_UPDATED_SHARED_PLANNING"
-
-        /**
          * String defining the Shared Planning ID
          * */
         const val SHARED_PLANNING_ID = "SHARED_PLANNING_ID"
-
-        /**
-         * SharedPlanning to be passed down to PlanningSettingsPage
-         * */
-        const val SHARED_PLANNING = "SHARED_PLANNING"
 
         /**
          * User to be passed down to the ProfilePage from Home

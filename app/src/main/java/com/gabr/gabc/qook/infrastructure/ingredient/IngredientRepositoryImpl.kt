@@ -52,14 +52,16 @@ class IngredientRepositoryImpl @Inject constructor(
                 val listener = db.collection(Globals.DB_GROUPS).document(groupId)
                     .collection(Globals.DB_SHOPPING_LIST).document(Globals.DB_INGREDIENTS)
                     .addSnapshotListener { value, _ ->
-                        if (value == null) trySend(
-                            Left(
-                                IngredientsFailure.IngredientsRetrievalFailed(
-                                    res.getString(R.string.err_ingredients_retrieval)
+                        if (value == null) {
+                            trySend(
+                                Left(
+                                    IngredientsFailure.IngredientsRetrievalFailed(
+                                        res.getString(R.string.err_ingredients_retrieval)
+                                    )
                                 )
                             )
-                        )
-                        else {
+                            close()
+                        } else {
                             CoroutineScope(Dispatchers.IO).launch {
                                 value.toObject<IngredientsDto>()?.let { dto ->
                                     trySend(Right(dto.toDomain()))
@@ -78,6 +80,7 @@ class IngredientRepositoryImpl @Inject constructor(
                     )
                 )
             )
+            close()
         }
 
     override suspend fun removeIngredient(

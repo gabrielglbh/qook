@@ -24,46 +24,47 @@ class PlanningSettingsViewModel @Inject constructor(
     var isLoading = mutableStateOf(false)
         private set
 
-    fun loadSharedPlanning(sharedPlanning: SharedPlanning) {
-        this.sharedPlanning.value = sharedPlanning
+    fun loadSharedPlanning(groupId: String) {
+        viewModelScope.launch {
+            sharedPlanningRepository.getSharedPlanning(groupId).collect { res ->
+                res.fold(
+                    ifLeft = {},
+                    ifRight = { sp ->
+                        sharedPlanning.value = sp
+                    },
+                )
+            }
+        }
     }
 
     fun updateSharedPlanning(sharedPlanning: SharedPlanning) {
         viewModelScope.launch {
-            val res =
-                sharedPlanningRepository.updateSharedPlanning(sharedPlanning, sharedPlanning.id)
-            res.fold(
-                ifLeft = {},
-                ifRight = {
-                    loadSharedPlanning(sharedPlanning)
-                }
-            )
+            sharedPlanningRepository.updateSharedPlanning(sharedPlanning, sharedPlanning.id)
         }
     }
 
     fun updateGroupPhoto(uri: Uri) {
         val group = sharedPlanning.value
         viewModelScope.launch {
-            val updatedGroup = group.copy(
-                photo = if (uri == Uri.EMPTY) {
-                    Uri.EMPTY
-                } else if (uri.host != Globals.FIREBASE_HOST) {
-                    Uri.fromFile(
-                        ResizeImageUtil.resizeImageToFile(
-                            uri,
-                            provider.contentResolver(),
-                            name = Calendar.getInstance().timeInMillis.toString()
-                        )
+            val updatedUri = if (uri == Uri.EMPTY) {
+                Uri.EMPTY
+            } else if (uri.host != Globals.FIREBASE_HOST) {
+                Uri.fromFile(
+                    ResizeImageUtil.resizeImageToFile(
+                        uri,
+                        provider.contentResolver(),
+                        name = Calendar.getInstance().timeInMillis.toString()
                     )
-                } else {
-                    uri
-                }
-            )
+                )
+            } else {
+                uri
+            }
+            val updatedGroup = group.copy(photo = updatedUri)
             val res = sharedPlanningRepository.updateSharedPlanning(updatedGroup, group.id)
             res.fold(
                 ifLeft = {},
                 ifRight = {
-                    loadSharedPlanning(updatedGroup)
+                    sharedPlanning.value = sharedPlanning.value.copy(photo = updatedUri)
                 }
             )
         }

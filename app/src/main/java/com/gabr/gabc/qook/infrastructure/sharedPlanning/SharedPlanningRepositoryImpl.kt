@@ -5,7 +5,6 @@ import arrow.core.Either
 import arrow.core.Either.Left
 import arrow.core.Either.Right
 import com.gabr.gabc.qook.R
-import com.gabr.gabc.qook.domain.ingredients.IngredientsRepository
 import com.gabr.gabc.qook.domain.sharedPlanning.SharedPlanning
 import com.gabr.gabc.qook.domain.sharedPlanning.SharedPlanningFailure
 import com.gabr.gabc.qook.domain.sharedPlanning.SharedPlanningRepository
@@ -31,7 +30,6 @@ import javax.inject.Inject
 class SharedPlanningRepositoryImpl @Inject constructor(
     private val auth: FirebaseAuth,
     private val db: FirebaseFirestore,
-    private val ingredientsRepository: IngredientsRepository,
     private val userRepository: UserRepository,
     private val res: StringResourcesProvider,
     private val storage: StorageRepository
@@ -138,14 +136,16 @@ class SharedPlanningRepositoryImpl @Inject constructor(
                 val listener = db.collection(Globals.DB_GROUPS)
                     .whereArrayContains(Globals.OBJ_SHARED_PLANNING_USERS, it.uid)
                     .addSnapshotListener { value, _ ->
-                        if (value == null) trySend(
-                            Left(
-                                SharedPlanningFailure.SharedPlanningRetrievalFailed(
-                                    res.getString(R.string.err_plannings_retrieval)
+                        if (value == null) {
+                            trySend(
+                                Left(
+                                    SharedPlanningFailure.SharedPlanningRetrievalFailed(
+                                        res.getString(R.string.err_plannings_retrieval)
+                                    )
                                 )
                             )
-                        )
-                        else {
+                            close()
+                        } else {
                             CoroutineScope(Dispatchers.IO).launch {
                                 val sharedPlannings = mutableListOf<SharedPlanning>()
                                 value.documents.forEach { doc ->
@@ -179,42 +179,57 @@ class SharedPlanningRepositoryImpl @Inject constructor(
                     )
                 )
             )
+            close()
         }
 
-    override suspend fun getSharedPlanning(id: String): Either<SharedPlanningFailure, SharedPlanning> {
-        try {
-            auth.currentUser?.let {
-                val res = db.collection(Globals.DB_GROUPS).document(id).get().await()
-
-                val dto = res.toObject<SharedPlanningDto>()
-                dto?.let { d ->
-                    var group = d.toDomain()
-                    val users = mutableListOf<User>()
-
-                    if (d.hasPhoto) {
-                        val resStorage =
-                            storage.getDownloadUrl("${Globals.STORAGE_GROUPS}$id/${Globals.STORAGE_AVATAR}")
-                        resStorage.fold(
-                            ifLeft = {},
-                            ifRight = { uri -> group = group.copy(photo = uri) }
+    override fun getSharedPlanning(id: String) = callbackFlow {
+        auth.currentUser?.let {
+            val listener =
+                db.collection(Globals.DB_GROUPS).document(id).addSnapshotListener { value, _ ->
+                    if (value == null) {
+                        trySend(
+                            Left(
+                                SharedPlanningFailure.SharedPlanningRetrievalFailed(
+                                    res.getString(
+                                        R.string.err_plannings_retrieval
+                                    )
+                                )
+                            )
                         )
-                    }
-                    d.users.forEach { uid ->
-                        val userRes = userRepository.getUserFromId(uid)
-                        userRes.fold(
-                            ifLeft = {},
-                            ifRight = { user ->
-                                users.add(user)
+                        close()
+                    } else {
+                        val dto = value.toObject<SharedPlanningDto>()
+                        dto?.let { d ->
+                            CoroutineScope(Dispatchers.Main).launch {
+                                var group = d.toDomain()
+                                val users = mutableListOf<User>()
+
+                                if (d.hasPhoto) {
+                                    val resStorage =
+                                        storage.getDownloadUrl("${Globals.STORAGE_GROUPS}$id/${Globals.STORAGE_AVATAR}")
+                                    resStorage.fold(
+                                        ifLeft = {},
+                                        ifRight = { uri -> group = group.copy(photo = uri) }
+                                    )
+                                }
+                                d.users.forEach { uid ->
+                                    val userRes = userRepository.getUserFromId(uid)
+                                    userRes.fold(
+                                        ifLeft = {},
+                                        ifRight = { user -> users.add(user) },
+                                    )
+                                }
+
+                                trySend(Right(group.copy(users = users)))
                             }
-                        )
+                        }
                     }
-                    group = group.copy(users = users)
-                    return Right(group)
                 }
+            awaitClose {
+                listener.remove()
             }
-            return Left(SharedPlanningFailure.NotAuthenticated(res.getString(R.string.error_user_not_auth)))
-        } catch (err: FirebaseFirestoreException) {
-            return Left(SharedPlanningFailure.SharedPlanningRetrievalFailed(res.getString(R.string.err_plannings_retrieval)))
         }
+        trySend(Left(SharedPlanningFailure.NotAuthenticated(res.getString(R.string.error_user_not_auth))))
+        close()
     }
 }

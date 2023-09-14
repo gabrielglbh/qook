@@ -60,23 +60,30 @@ class PlanningViewModel @Inject constructor(
                     this@PlanningViewModel.planning.addAll(planning)
                 }
             } else {
-                val res = sharedPlanningRepository.getSharedPlanning(groupId)
-                res.fold(
-                    ifLeft = { e -> onError(e.error) },
-                    ifRight = { sp ->
-                        sharedPlanning.value = sp
-                        planningRepository.getPlanningFromSharedPlanning(sp.id).collect { res ->
-                            res.fold(
-                                ifLeft = { e -> onError(e.error) },
-                                ifRight = { p ->
-                                    this@PlanningViewModel.planning.clear()
-                                    this@PlanningViewModel.planning.addAll(p)
-                                },
-                            )
-                        }
-                    },
-                )
+                sharedPlanningRepository.getSharedPlanning(groupId).collect { res ->
+                    res.fold(
+                        ifLeft = { e -> onError(e.error) },
+                        ifRight = { sp ->
+                            sharedPlanning.value = sp
+                        },
+                    )
+                }
             }
+        }
+    }
+
+    fun loadPlanningFromSharedPlanning(onError: (String) -> Unit) {
+        viewModelScope.launch {
+            planningRepository.getPlanningFromSharedPlanning(groupId.value!!)
+                .collect { res ->
+                    res.fold(
+                        ifLeft = { e -> onError(e.error) },
+                        ifRight = { p ->
+                            this@PlanningViewModel.planning.clear()
+                            this@PlanningViewModel.planning.addAll(p)
+                        },
+                    )
+                }
         }
     }
 

@@ -1,5 +1,6 @@
 package com.gabr.gabc.qook.infrastructure.user
 
+import android.net.Uri
 import arrow.core.Either
 import arrow.core.Either.Left
 import arrow.core.Either.Right
@@ -139,6 +140,14 @@ class UserRepositoryImpl @Inject constructor(
             db.collection(Globals.DB_USER).document(it.uid).update(
                 user.toDto().toMap()
             ).await()
+
+            if (user.photo.host != Globals.FIREBASE_HOST && user.photo != Uri.EMPTY) {
+                storage.uploadImage(
+                    user.photo,
+                    "${Globals.STORAGE_USERS}${user.id}/${Globals.STORAGE_AVATAR}"
+                )
+            }
+
             return Right(Unit)
         }
         return Left(UserFailure.NotAuthenticated(res.getString(R.string.error_user_not_auth)))
@@ -154,12 +163,14 @@ class UserRepositoryImpl @Inject constructor(
                 else {
                     ref.toObject<UserDto>()?.let { dto ->
                         var user = dto.toDomain()
-                        val result =
-                            storage.getDownloadUrl("${Globals.STORAGE_USERS}${it.uid}/${Globals.STORAGE_AVATAR}")
-                        result.fold(
-                            ifLeft = {},
-                            ifRight = { uri -> user = user.copy(photo = uri) }
-                        )
+                        if (user.hasPhoto) {
+                            val result =
+                                storage.getDownloadUrl("${Globals.STORAGE_USERS}${it.uid}/${Globals.STORAGE_AVATAR}")
+                            result.fold(
+                                ifLeft = {},
+                                ifRight = { uri -> user = user.copy(photo = uri) }
+                            )
+                        }
                         return Right(user)
                     }
                     return Left(
@@ -196,12 +207,14 @@ class UserRepositoryImpl @Inject constructor(
                 else {
                     ref.toObject<UserDto>()?.let { dto ->
                         var user = dto.toDomain()
-                        val result =
-                            storage.getDownloadUrl("${Globals.STORAGE_USERS}$uid/${Globals.STORAGE_AVATAR}")
-                        result.fold(
-                            ifLeft = {},
-                            ifRight = { uri -> user = user.copy(photo = uri) }
-                        )
+                        if (user.hasPhoto) {
+                            val result =
+                                storage.getDownloadUrl("${Globals.STORAGE_USERS}$uid/${Globals.STORAGE_AVATAR}")
+                            result.fold(
+                                ifLeft = {},
+                                ifRight = { uri -> user = user.copy(photo = uri) }
+                            )
+                        }
                         return Right(user)
                     }
                     return Left(

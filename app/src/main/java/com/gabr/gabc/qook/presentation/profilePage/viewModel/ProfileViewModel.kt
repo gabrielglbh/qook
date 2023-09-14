@@ -3,10 +3,8 @@ package com.gabr.gabc.qook.presentation.profilePage.viewModel
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gabr.gabc.qook.domain.storage.StorageRepository
 import com.gabr.gabc.qook.domain.user.User
 import com.gabr.gabc.qook.domain.user.UserRepository
-import com.gabr.gabc.qook.presentation.shared.Globals
 import com.gabr.gabc.qook.presentation.shared.ResizeImageUtil.Companion.resizeImageToFile
 import com.gabr.gabc.qook.presentation.shared.providers.ContentResolverProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,7 +18,6 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val repository: UserRepository,
-    private val storageRepository: StorageRepository,
     private val provider: ContentResolverProvider
 ) :
     ViewModel() {
@@ -68,22 +65,11 @@ class ProfileViewModel @Inject constructor(
 
     fun updateAvatar(uri: Uri, onError: ((String) -> Unit)? = null) {
         viewModelScope.launch {
-            val result =
-                storageRepository.uploadImage(
-                    Uri.fromFile(resizeImageToFile(uri, provider.contentResolver())),
-                    "${Globals.STORAGE_USERS}${_userState.value.user.id}/${Globals.STORAGE_AVATAR}"
-                )
-            result.fold(
-                ifLeft = {
-                    onError?.let { f -> f(it.error) }
-                },
-                ifRight = { uri ->
-                    val value = _userState.value
-                    _userState.value = value.copy(
-                        user = value.user.copy(photo = uri)
-                    )
-                }
-            )
+            val photo = Uri.fromFile(resizeImageToFile(uri, provider.contentResolver()))
+
+            updateUser(_userState.value.user.copy(photo = photo, hasPhoto = true)) {
+                onError?.let { f -> f(it) }
+            }
         }
     }
 

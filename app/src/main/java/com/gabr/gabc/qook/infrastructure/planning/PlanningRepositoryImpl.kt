@@ -89,14 +89,16 @@ class PlanningRepositoryImpl @Inject constructor(
                     .collection(Globals.DB_PLANNING)
                     .orderBy(Globals.OBJ_PLANNING_DAY_INDEX)
                     .addSnapshotListener { value, _ ->
-                        if (value == null) trySend(
-                            Left(
-                                PlanningFailure.PlanningRetrievalFailed(
-                                    res.getString(R.string.err_plannings_retrieval)
+                        if (value == null) {
+                            trySend(
+                                Left(
+                                    PlanningFailure.PlanningRetrievalFailed(
+                                        res.getString(R.string.err_plannings_retrieval)
+                                    )
                                 )
                             )
-                        )
-                        else {
+                            close()
+                        } else {
                             CoroutineScope(Dispatchers.Main).launch {
                                 val planning = mutableListOf<DayPlanning>()
                                 value.forEach { doc ->
@@ -117,6 +119,7 @@ class PlanningRepositoryImpl @Inject constructor(
                     )
                 )
             )
+            close()
         }
 
     override suspend fun updateRecipeFromPlanning(

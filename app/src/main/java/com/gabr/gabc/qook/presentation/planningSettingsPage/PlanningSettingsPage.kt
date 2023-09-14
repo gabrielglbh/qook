@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -30,7 +31,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,11 +40,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
-import com.gabr.gabc.qook.domain.sharedPlanning.SharedPlanning
 import com.gabr.gabc.qook.presentation.planningSettingsPage.viewModel.PlanningSettingsViewModel
 import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.HAS_REMOVED_SHARED_PLANNING
-import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.HAS_UPDATED_SHARED_PLANNING
-import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.SHARED_PLANNING
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.SHARED_PLANNING_ID
 import com.gabr.gabc.qook.presentation.shared.PermissionsRequester
 import com.gabr.gabc.qook.presentation.shared.QDateUtils
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
@@ -77,6 +75,9 @@ class PlanningSettingsPage : ComponentActivity() {
         requestMultiplePermissions =
             PermissionsRequester.requestMultiplePermissionsCaller(this, pickMedia)
 
+        val groupId = intent.getStringExtra(SHARED_PLANNING_ID)
+        groupId?.let { viewModel.loadSharedPlanning(it) }
+
         setContent {
             AppTheme {
                 PlanningSettingsView()
@@ -88,33 +89,12 @@ class PlanningSettingsPage : ComponentActivity() {
     fun PlanningSettingsView() {
         val viewModel: PlanningSettingsViewModel by viewModels()
 
-        LaunchedEffect(key1 = Unit, block = {
-            val loadedSharedPlanning = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                intent.getParcelableExtra(
-                    SHARED_PLANNING,
-                    SharedPlanning::class.java
-                )
-            } else {
-                intent.getParcelableExtra(SHARED_PLANNING)
-            }
-
-            loadedSharedPlanning?.let {
-                viewModel.loadSharedPlanning(it)
-            }
-        })
-
         Box {
             Scaffold(
                 topBar = {
                     QActionBar(
                         title = R.string.planning_settings_title,
                         onBack = {
-                            val resultIntent = Intent()
-                            resultIntent.putExtra(
-                                HAS_UPDATED_SHARED_PLANNING,
-                                viewModel.sharedPlanning.value
-                            )
-                            setResult(RESULT_OK, resultIntent)
                             finish()
                         },
                     )
@@ -254,7 +234,9 @@ class PlanningSettingsPage : ComponentActivity() {
                 }
             }
             QContentCard(
-                modifier = Modifier.padding(12.dp),
+                modifier = Modifier
+                    .padding(12.dp)
+                    .fillMaxWidth(),
                 arrangement = Arrangement.Top,
                 alignment = Alignment.Start,
                 backgroundContent = { m ->
@@ -268,6 +250,7 @@ class PlanningSettingsPage : ComponentActivity() {
                 )
                 group.users.forEach { user ->
                     QSelectableItem(
+                        modifier = Modifier.padding(bottom = 4.dp),
                         uri = user.photo,
                         text = user.name,
                     ) {

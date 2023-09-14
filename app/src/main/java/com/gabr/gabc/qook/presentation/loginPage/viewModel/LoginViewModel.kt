@@ -86,6 +86,7 @@ class LoginViewModel @Inject constructor(
                                     language = Locale.getDefault().language.uppercase(),
                                     messagingToken = "",
                                     adminOf = listOf(),
+                                    hasPhoto = false,
                                 )
                             )
                         userCreationInDB.fold(
