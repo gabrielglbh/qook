@@ -177,4 +177,7 @@
     <string name="exit_shared_planning_button">Salir</string>
     <string name="plannings_exit_group_title">¿Estás seguro de que quieres salir del planning compartido?</string>
     <string name="shared_planning_exit_user">No podrás actualizar el planning compartido ni descargar sus recetas</string>
+
+    <string name="share_recipe_description">¡Mira esta receta!</string>
+    <string name="share_recipe">Compartir receta</string>
 </resources>

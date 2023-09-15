@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Qook</string>
     <string name="deepLinkJoinGroup" translatable="false">https://qook-app.web.app/shared-planning/</string>
+    <string name="deepLinkViewRecipe" translatable="false">https://qook-app.web.app/recipe/%1$s</string>
 
     <string name="login_email">Email</string>
     <string name="login_password">Password</string>
@@ -177,4 +178,7 @@
     <string name="exit_shared_planning_button">Exit</string>
     <string name="plannings_exit_group_title">Are you sure you want to exit this shared planning?</string>
     <string name="shared_planning_exit_user">You will not be able to modify the planning nor download any recipe from it</string>
+
+    <string name="share_recipe_description">Check out this recipe!</string>
+    <string name="share_recipe">Share recipe</string>
 </resources>

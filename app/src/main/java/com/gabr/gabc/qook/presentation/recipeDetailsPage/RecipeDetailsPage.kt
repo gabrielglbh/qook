@@ -86,7 +86,7 @@ class RecipeDetailsPage : ComponentActivity() {
         }
 
         viewModel.canUpdate(intent.getBooleanExtra(ALLOW_TO_UPDATE, true))
-        viewModel.updateRecipe(recipeFromList!!)
+        recipeFromList?.let { viewModel.updateRecipe(it) }
 
         val op = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             intent.getParcelableExtra(RECIPE_OP, User::class.java)
@@ -96,9 +96,33 @@ class RecipeDetailsPage : ComponentActivity() {
 
         viewModel.updateOp(op)
 
+        // TODO: .well-known/assetlinks.json must be updated with keystore SHA-256
+        handleAppLinkIntent(intent)
+
         setContent {
             AppTheme {
                 RecipeDetailsView()
+            }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleAppLinkIntent(intent)
+    }
+
+    private fun handleAppLinkIntent(intent: Intent) {
+        val viewModel: RecipeDetailsViewModel by viewModels()
+        val appLinkAction = intent.action
+        val appLinkData = intent.data
+        if (Intent.ACTION_VIEW == appLinkAction) {
+            appLinkData?.let { uri ->
+                uri.lastPathSegment?.let { segment ->
+                    val ids = segment.split('-')
+                    viewModel.loadRecipe(ids[0], ids[1]) {
+                        finish()
+                    }
+                }
             }
         }
     }
@@ -107,6 +131,8 @@ class RecipeDetailsPage : ComponentActivity() {
     fun RecipeDetailsView() {
         val viewModel: RecipeDetailsViewModel by viewModels()
         val op = viewModel.op.value
+        val currentUid = viewModel.currentUserUid.value
+        val recipe = viewModel.recipe.value
 
         val scope = rememberCoroutineScope()
         val snackbarHostState = remember { SnackbarHostState() }
@@ -114,6 +140,14 @@ class RecipeDetailsPage : ComponentActivity() {
 
         val errOpenLink = stringResource(R.string.err_recipe_details_open_link)
         val onSaveRecipe = stringResource(R.string.recipe_details_add_recipe_success)
+
+        val link =
+            currentUid?.let {
+                stringResource(
+                    R.string.deepLinkViewRecipe,
+                    "${recipe.id}-${op ?: it}"
+                )
+            }
 
         if (showConfirmationDialog.value)
             QDialog(
@@ -221,6 +255,21 @@ class RecipeDetailsPage : ComponentActivity() {
                             recipe = viewModel.recipe.value,
                             modifier = Modifier.padding(start = 12.dp, end = 12.dp, bottom = 12.dp),
                             op = op,
+                            shareRecipe = {
+                                val intent = Intent().setAction(Intent.ACTION_SEND)
+                                intent.type = "text/plain"
+                                intent.putExtra(
+                                    Intent.EXTRA_TEXT,
+                                    "${getString(R.string.share_recipe_description)}\n" +
+                                            link
+                                )
+                                startActivity(
+                                    Intent.createChooser(
+                                        intent,
+                                        getString(R.string.share_recipe)
+                                    )
+                                )
+                            },
                             addToOwnRecipesButton = if (op != null && op.id != viewModel.currentUserUid.value) {
                                 {
                                     Button(

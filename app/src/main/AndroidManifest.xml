@@ -95,7 +95,18 @@
             android:name=".presentation.recipeDetailsPage.RecipeDetailsPage"
             android:exported="true"
             android:theme="@style/Theme.Qook"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="https" />
+                <data android:host="qook-app.web.app" />
+                <data android:pathPrefix="/recipe" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".presentation.shoppingListPage.ShoppingListPage"
             android:exported="true"

@@ -52,6 +52,27 @@ class RecipeDetailsViewModel @Inject constructor(
         canUpdate.value = value
     }
 
+    fun loadRecipe(id: String, uid: String, onError: (String) -> Unit) {
+        viewModelScope.launch {
+            isLoading.value = true
+            val res = recipeRepository.getRecipe(id, uid)
+            res.fold(
+                ifLeft = { e -> onError(e.error) },
+                ifRight = { rec ->
+                    recipe.value = rec
+                    val userRes = userRepository.getUserFromId(uid)
+                    userRes.fold(
+                        ifLeft = {},
+                        ifRight = { user ->
+                            op.value = user
+                        }
+                    )
+                }
+            )
+            isLoading.value = false
+        }
+    }
+
     fun removeRecipe(onError: (String) -> Unit, onSuccess: () -> Unit) {
         viewModelScope.launch {
             isLoading.value = true

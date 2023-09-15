@@ -22,9 +22,11 @@ import androidx.compose.material.icons.outlined.ContentPaste
 import androidx.compose.material.icons.outlined.ModeEdit
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Photo
+import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -54,6 +56,7 @@ fun QRecipeDetail(
     recipe: Recipe,
     modifier: Modifier,
     op: User? = null,
+    shareRecipe: (() -> Unit)? = null,
     addToOwnRecipesButton: @Composable (() -> Unit)? = null,
     onRecipeUrlClick: (() -> Unit)? = null
 ) {
@@ -71,11 +74,36 @@ fun QRecipeDetail(
             placeholder = Icons.Outlined.Photo,
         )
         Spacer(modifier = Modifier.size(12.dp))
-        Text(
-            recipe.name,
-            style = MaterialTheme.typography.titleLarge,
-            textAlign = TextAlign.Center
-        )
+        if (shareRecipe != null) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.padding(horizontal = 12.dp)
+            ) {
+                Text(
+                    recipe.name,
+                    style = MaterialTheme.typography.titleLarge,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 12.dp, start = 60.dp)
+                )
+                IconButton(
+                    onClick = {
+                        shareRecipe()
+                    }
+                ) {
+                    Icon(Icons.Outlined.Share, "")
+                }
+            }
+        } else {
+            Text(
+                recipe.name,
+                style = MaterialTheme.typography.titleLarge,
+                textAlign = TextAlign.Center
+            )
+        }
+
         Spacer(modifier = Modifier.size(8.dp))
         LazyRow(
             content = {
