@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.NotificationsActive
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -23,42 +24,36 @@ import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.user.User
 import com.gabr.gabc.qook.presentation.profilePage.viewModel.ProfileViewModel
+import com.gabr.gabc.qook.presentation.shared.QDateUtils.Companion.days
+import com.gabr.gabc.qook.presentation.shared.components.QChangeWeekBeginningBottomSheet
 import com.gabr.gabc.qook.presentation.shared.components.QContentCard
+import com.gabr.gabc.qook.presentation.shared.components.QSelectableItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Settings(
     viewModel: ProfileViewModel,
     user: User,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onOpenNotificationSettings: () -> Unit,
+    onQookInfo: () -> Unit,
 ) {
-    val days = listOf(
-        stringResource(R.string.monday),
-        stringResource(R.string.tuesday),
-        stringResource(R.string.wednesday),
-        stringResource(R.string.thursday),
-        stringResource(R.string.friday),
-        stringResource(R.string.saturday),
-        stringResource(R.string.sunday)
-    )
-
     var showWeekBeginningBottomSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
 
     if (showWeekBeginningBottomSheet) {
-        ChangeWeekBeginningBottomSheet(
+        QChangeWeekBeginningBottomSheet(
             selected = user.resetDay,
             modalBottomSheetState = sheetState,
             setShowDialog = {
                 showWeekBeginningBottomSheet = it
             },
-            list = days,
+            list = days.map { stringResource(it) },
             onClick = {
                 viewModel.updateUser(user.copy(resetDay = it)) {}
             }
         )
     }
-
 
     QContentCard(
         modifier = modifier.padding(12.dp),
@@ -73,16 +68,24 @@ fun Settings(
             style = MaterialTheme.typography.titleLarge,
             modifier = Modifier.padding(start = 16.dp, bottom = 12.dp)
         )
-        ProfileRow(
+        QSelectableItem(
             icon = Icons.Outlined.CalendarMonth,
             text = stringResource(R.string.profile_change_reset_timing),
-            trailingText = days[user.resetDay]
+            trailingText = stringResource(days[user.resetDay])
         ) {
             showWeekBeginningBottomSheet = true
         }
-        ProfileRow(
+        QSelectableItem(
+            icon = Icons.Outlined.NotificationsActive,
+            text = stringResource(R.string.settings_notifications),
+        ) {
+            onOpenNotificationSettings()
+        }
+        QSelectableItem(
             icon = Icons.Outlined.Info,
             text = stringResource(R.string.profile_about_qook),
-        ) {}
+        ) {
+            onQookInfo()
+        }
     }
 }

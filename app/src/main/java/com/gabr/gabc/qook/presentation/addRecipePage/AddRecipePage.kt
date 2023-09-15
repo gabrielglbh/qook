@@ -1,6 +1,5 @@
 package com.gabr.gabc.qook.presentation.addRecipePage
 
-import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.os.Build
@@ -14,7 +13,6 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -58,7 +56,12 @@ import com.gabr.gabc.qook.presentation.addRecipePage.components.RecipeTags
 import com.gabr.gabc.qook.presentation.addRecipePage.viewModel.AddRecipeViewModel
 import com.gabr.gabc.qook.presentation.addTagPage.AddTagPage
 import com.gabr.gabc.qook.presentation.addTagPage.AlteredMode
-import com.gabr.gabc.qook.presentation.recipeDetailsPage.RecipeDetailsPage
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.HAS_ALTERED_MODE
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.HAS_ALTERED_TAG
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.RECIPE_FROM_DETAILS
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.RECIPE_UPDATED
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.UPDATE_TAG
+import com.gabr.gabc.qook.presentation.shared.PermissionsRequester
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.shared.components.QLoadingScreen
 import com.gabr.gabc.qook.presentation.theme.AppTheme
@@ -67,42 +70,9 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class AddRecipePage : ComponentActivity() {
-    companion object {
-        const val UPDATE_TAG = "UPDATE_TAG"
-        const val RECIPE_UPDATED = "RECIPE_UPDATED"
-    }
-
     private lateinit var pickMedia: ActivityResultLauncher<PickVisualMediaRequest>
-    private val requestMultiplePermissions =
-        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-            permissions.forEach { actionMap ->
-                when (actionMap.key) {
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE -> {
-                        if (!actionMap.value) {
-                            shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                        }
-                    }
+    private lateinit var requestMultiplePermissions: ActivityResultLauncher<Array<String>>
 
-                    Manifest.permission.READ_EXTERNAL_STORAGE -> {
-                        if (actionMap.value) {
-                            pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                        } else {
-                            shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)
-                        }
-                    }
-
-                    Manifest.permission.READ_MEDIA_IMAGES -> {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                            if (actionMap.value) {
-                                pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                            } else {
-                                shouldShowRequestPermissionRationale(Manifest.permission.READ_MEDIA_IMAGES)
-                            }
-                        }
-                    }
-                }
-            }
-        }
     private val resultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
@@ -110,17 +80,14 @@ class AddRecipePage : ComponentActivity() {
                 val viewModel: AddRecipeViewModel by viewModels()
 
                 val updatedTag = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    extras?.getParcelableExtra(AddTagPage.HAS_ALTERED_TAG, Tag::class.java)
+                    extras?.getParcelableExtra(HAS_ALTERED_TAG, Tag::class.java)
                 } else {
-                    extras?.getParcelableExtra(AddTagPage.HAS_ALTERED_TAG)
+                    extras?.getParcelableExtra(HAS_ALTERED_TAG)
                 }
                 val mode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    extras?.getSerializableExtra(
-                        AddTagPage.HAS_ALTERED_MODE,
-                        AlteredMode::class.java
-                    )
+                    extras?.getSerializableExtra(HAS_ALTERED_MODE, AlteredMode::class.java)
                 } else {
-                    extras?.getSerializableExtra(AddTagPage.HAS_ALTERED_MODE)
+                    extras?.getSerializableExtra(HAS_ALTERED_MODE)
                 }
 
                 updatedTag?.let {
@@ -147,9 +114,9 @@ class AddRecipePage : ComponentActivity() {
         val viewModel: AddRecipeViewModel by viewModels()
 
         val recipeFromDetails = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent.getParcelableExtra(RecipeDetailsPage.RECIPE_FROM_DETAILS, Recipe::class.java)
+            intent.getParcelableExtra(RECIPE_FROM_DETAILS, Recipe::class.java)
         } else {
-            intent.getParcelableExtra(RecipeDetailsPage.RECIPE_FROM_DETAILS)
+            intent.getParcelableExtra(RECIPE_FROM_DETAILS)
         }
 
         recipeFromDetails?.let {
@@ -163,6 +130,9 @@ class AddRecipePage : ComponentActivity() {
                 }
             }
 
+        requestMultiplePermissions =
+            PermissionsRequester.requestMultiplePermissionsCaller(this, pickMedia)
+
         setContent {
             AppTheme {
                 AddRecipeView()
@@ -170,7 +140,6 @@ class AddRecipePage : ComponentActivity() {
         }
     }
 
-    @OptIn(ExperimentalLayoutApi::class)
     @Composable
     fun AddRecipeView() {
         val viewModel: AddRecipeViewModel by viewModels()
@@ -196,23 +165,23 @@ class AddRecipePage : ComponentActivity() {
             currentPage = RecipeStep.valueOf(dest.route!!)
             bar2Color =
                 if (currentPage in steps.slice(RecipeStep.INGREDIENTS.ordinal until steps.size)) {
-                    colorScheme.primaryContainer
+                    colorScheme.tertiary
                 } else {
                     colorScheme.outlineVariant
                 }
             bar3Color =
                 if (currentPage in steps.slice(RecipeStep.DESCRIPTION.ordinal until steps.size)) {
-                    colorScheme.primaryContainer
+                    colorScheme.tertiary
                 } else {
                     colorScheme.outlineVariant
                 }
             bar4Color = if (currentPage in steps.slice(RecipeStep.TAGS.ordinal until steps.size)) {
-                colorScheme.primaryContainer
+                colorScheme.tertiary
             } else {
                 colorScheme.outlineVariant
             }
             bar5Color = if (currentPage == RecipeStep.PREVIEW) {
-                colorScheme.primaryContainer
+                colorScheme.tertiary
             } else {
                 colorScheme.outlineVariant
             }
@@ -222,7 +191,7 @@ class AddRecipePage : ComponentActivity() {
             Scaffold(
                 topBar = {
                     QActionBar(
-                        title = if (state.originalRecipe == Recipe.EMPTY_RECIPE) {
+                        title = if (state.originalRecipe == Recipe.EMPTY) {
                             R.string.add_recipe_title
                         } else {
                             R.string.update_recipe_title
@@ -342,7 +311,7 @@ class AddRecipePage : ComponentActivity() {
                                                 }
                                             },
                                             ifSuccess = { uploadedRecipe ->
-                                                if (state.originalRecipe != Recipe.EMPTY_RECIPE || state.recipe != Recipe.EMPTY_RECIPE) {
+                                                if (state.originalRecipe != Recipe.EMPTY || state.recipe != Recipe.EMPTY) {
                                                     val resultIntent = Intent()
                                                     resultIntent.putExtra(
                                                         RECIPE_UPDATED,
@@ -380,7 +349,7 @@ class AddRecipePage : ComponentActivity() {
         ) {
             Bar(
                 modifier = Modifier.weight(1f),
-                color = MaterialTheme.colorScheme.primaryContainer
+                color = MaterialTheme.colorScheme.tertiary
             ) {
                 navController.navigate(RecipeStep.DATA.name)
             }

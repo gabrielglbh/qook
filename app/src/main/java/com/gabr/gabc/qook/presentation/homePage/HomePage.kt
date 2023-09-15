@@ -1,7 +1,6 @@
 package com.gabr.gabc.qook.presentation.homePage
 
 import android.Manifest
-import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -15,7 +14,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -29,6 +27,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.DoubleArrow
 import androidx.compose.material.icons.outlined.NightlightRound
@@ -67,13 +66,21 @@ import com.gabr.gabc.qook.presentation.addRecipePage.AddRecipePage
 import com.gabr.gabc.qook.presentation.homePage.viewModel.HomeViewModel
 import com.gabr.gabc.qook.presentation.homePage.viewModel.UserState
 import com.gabr.gabc.qook.presentation.planningPage.PlanningPage
+import com.gabr.gabc.qook.presentation.planningsPage.PlanningsPage
 import com.gabr.gabc.qook.presentation.profilePage.ProfilePage
 import com.gabr.gabc.qook.presentation.recipeDetailsPage.RecipeDetailsPage
 import com.gabr.gabc.qook.presentation.recipesPage.RecipesPage
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.ALLOW_TO_UPDATE
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.HAS_UPDATED_DAY_PLANNING
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.HAS_UPDATED_PROFILE
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.PLANNING
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.RECIPE
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.USER
 import com.gabr.gabc.qook.presentation.shared.QDateUtils
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.shared.components.QContentCard
 import com.gabr.gabc.qook.presentation.shared.components.QImage
+import com.gabr.gabc.qook.presentation.shared.components.QLoadingScreen
 import com.gabr.gabc.qook.presentation.shared.components.QShimmer
 import com.gabr.gabc.qook.presentation.shoppingListPage.ShoppingListPage
 import com.gabr.gabc.qook.presentation.theme.AppTheme
@@ -85,21 +92,16 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class HomePage : ComponentActivity() {
-    companion object {
-        const val HOME_USER = "HOME_USER"
-        const val HOME_PLANNING = "HOME_PLANNING"
-    }
-
     private val resultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
+            if (result.resultCode == RESULT_OK) {
                 val extras = result.data?.extras
                 val viewModel: HomeViewModel by viewModels()
 
                 val scope = CoroutineScope(Dispatchers.Main)
                 val snackbarHostState = SnackbarHostState()
 
-                if (extras?.getBoolean(ProfilePage.HAS_UPDATED_PROFILE) == true) {
+                if (extras?.getBoolean(HAS_UPDATED_PROFILE) == true) {
                     viewModel.getUser { errorMessage ->
                         scope.launch {
                             snackbarHostState.showSnackbar(errorMessage)
@@ -109,11 +111,11 @@ class HomePage : ComponentActivity() {
 
                 val updatedPlanning = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     extras?.getParcelableArray(
-                        PlanningPage.HAS_UPDATED_PLANNING,
+                        HAS_UPDATED_DAY_PLANNING,
                         DayPlanning::class.java
                     )
                 } else {
-                    extras?.getParcelableArray(PlanningPage.HAS_UPDATED_PLANNING)
+                    extras?.getParcelableArray(HAS_UPDATED_DAY_PLANNING)
                 }
 
                 updatedPlanning?.let { p -> viewModel.updatePlanningLocally(p.map { it as DayPlanning }) }
@@ -142,7 +144,6 @@ class HomePage : ComponentActivity() {
         }
     }
 
-    @OptIn(ExperimentalLayoutApi::class)
     @Preview
     @Composable
     fun HomeView() {
@@ -162,53 +163,56 @@ class HomePage : ComponentActivity() {
             viewModel.getPlanning()
         }
 
-        Scaffold(
-            topBar = {
-                QActionBar(
-                    actions = listOf {
-                        UserPhotoIcon(state.value.user)
-                    }
-                )
-            },
-            snackbarHost = {
-                SnackbarHost(snackbarHostState)
-            },
-            floatingActionButton = {
-                FloatingActionButton(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                    onClick = {
-                        startActivity(Intent(this@HomePage, AddRecipePage::class.java))
-                    }
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(4.dp)
+        Box {
+            Scaffold(
+                topBar = {
+                    QActionBar(
+                        actions = listOf {
+                            UserPhotoIcon(state.value.user)
+                        }
+                    )
+                },
+                snackbarHost = {
+                    SnackbarHost(snackbarHostState)
+                },
+                floatingActionButton = {
+                    FloatingActionButton(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                        onClick = {
+                            startActivity(Intent(this@HomePage, AddRecipePage::class.java))
+                        }
                     ) {
-                        Icon(Icons.Outlined.PostAdd, "")
-                        Spacer(modifier = Modifier.size(8.dp))
-                        Text(
-                            stringResource(R.string.home_add_recipe_bnb),
-                            style = MaterialTheme.typography.titleMedium
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(4.dp)
+                        ) {
+                            Icon(Icons.Outlined.PostAdd, "")
+                            Spacer(modifier = Modifier.size(8.dp))
+                            Text(
+                                stringResource(R.string.home_add_recipe_bnb),
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                        }
                     }
-                }
-            },
-            floatingActionButtonPosition = FabPosition.End
-        ) {
-            Box(
-                contentAlignment = Alignment.TopCenter,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(it)
-                    .consumeWindowInsets(it)
+                },
+                floatingActionButtonPosition = FabPosition.End
             ) {
-                Body(viewModel, state.value, viewModel.planning) {
-                    scope.launch {
-                        snackbarHostState.showSnackbar(emptyRecipesMsg)
+                Box(
+                    contentAlignment = Alignment.TopCenter,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(it)
+                        .consumeWindowInsets(it)
+                ) {
+                    Body(viewModel, state.value, viewModel.planning) {
+                        scope.launch {
+                            snackbarHostState.showSnackbar(emptyRecipesMsg)
+                        }
                     }
                 }
             }
+            if (viewModel.isLoading.value) QLoadingScreen()
         }
     }
 
@@ -218,7 +222,7 @@ class HomePage : ComponentActivity() {
             modifier = Modifier.size(48.dp),
             onClick = {
                 val intent = Intent(this@HomePage, ProfilePage::class.java)
-                intent.putExtra(HOME_USER, user)
+                intent.putExtra(USER, user)
                 resultLauncher.launch(intent)
             },
             shape = CircleShape,
@@ -263,7 +267,7 @@ class HomePage : ComponentActivity() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            QShimmer(controller = state.user != User.EMPTY_USER) {
+            QShimmer(controller = state.user != User.EMPTY) {
                 Text(
                     stringResource(R.string.home_welcome_message, state.user.name),
                     style = MaterialTheme.typography.headlineSmall,
@@ -273,7 +277,7 @@ class HomePage : ComponentActivity() {
             }
             Spacer(modifier = Modifier.size(24.dp))
             QContentCard(
-                modifier = Modifier.padding(16.dp),
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                 arrangement = Arrangement.Top,
                 alignment = Alignment.CenterHorizontally,
                 backgroundContent = { mod -> Icon(Icons.Outlined.Today, "", modifier = mod) }
@@ -284,8 +288,8 @@ class HomePage : ComponentActivity() {
                 )
                 Spacer(modifier = Modifier.size(6.dp))
                 QShimmer(controller = planning.isNotEmpty()) {
-                    if (planning.isNotEmpty() && planning[day].lunch == Recipe.EMPTY_RECIPE &&
-                        planning[day].dinner == Recipe.EMPTY_RECIPE
+                    if (planning.isNotEmpty() && planning[day].lunch.meal == Recipe.EMPTY &&
+                        planning[day].dinner.meal == Recipe.EMPTY
                     ) {
                         Text(
                             stringResource(R.string.home_planning_empty_today),
@@ -301,26 +305,49 @@ class HomePage : ComponentActivity() {
                         ) {
                             PlanningTodayItem(
                                 if (planning.isEmpty()) {
-                                    Recipe.EMPTY_RECIPE
+                                    Recipe.EMPTY
                                 } else {
-                                    planning[day].lunch
+                                    planning[day].lunch.meal
                                 }, true
                             )
                             PlanningTodayItem(
                                 if (planning.isEmpty()) {
-                                    Recipe.EMPTY_RECIPE
+                                    Recipe.EMPTY
                                 } else {
-                                    planning[day].dinner
+                                    planning[day].dinner.meal
                                 }, false
                             )
                         }
                     }
                 }
             }
+            QShimmer(controller = showActions) { modifier ->
+                QContentCard(
+                    modifier = modifier
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .fillMaxWidth(),
+                    arrangement = Arrangement.Top,
+                    alignment = Alignment.CenterHorizontally,
+                    onClick = {
+                        startActivity(Intent(this@HomePage, PlanningsPage::class.java))
+                    }
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            stringResource(R.string.shared_plannings_title),
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, "")
+                    }
+                }
+            }
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
                 modifier = Modifier
-                    .padding(8.dp)
+                    .padding(horizontal = 8.dp)
                     .weight(1f),
                 verticalArrangement = Arrangement.Top,
                 horizontalArrangement = Arrangement.Center,
@@ -352,7 +379,7 @@ class HomePage : ComponentActivity() {
                                                         this@HomePage,
                                                         RecipeDetailsPage::class.java
                                                     )
-                                                    intent.putExtra(RecipeDetailsPage.RECIPE, it)
+                                                    intent.putExtra(RECIPE, it)
                                                     startActivity(intent)
                                                 },
                                                 onEmptyRecipes = {
@@ -366,7 +393,7 @@ class HomePage : ComponentActivity() {
                                                 this@HomePage,
                                                 PlanningPage::class.java
                                             )
-                                            intent.putExtra(HOME_PLANNING, planning.toTypedArray())
+                                            intent.putExtra(PLANNING, planning.toTypedArray())
                                             resultLauncher.launch(intent)
                                         }
 
@@ -408,10 +435,10 @@ class HomePage : ComponentActivity() {
             color = Color.Transparent,
             shape = MaterialTheme.shapes.medium,
             onClick = {
-                if (recipe != Recipe.EMPTY_RECIPE) {
+                if (recipe != Recipe.EMPTY) {
                     val intent = Intent(this@HomePage, RecipeDetailsPage::class.java)
-                    intent.putExtra(RecipeDetailsPage.RECIPE, recipe)
-                    intent.putExtra(RecipeDetailsPage.ALLOW_TO_UPDATE, false)
+                    intent.putExtra(RECIPE, recipe)
+                    intent.putExtra(ALLOW_TO_UPDATE, false)
                     startActivity(intent)
                 }
             }

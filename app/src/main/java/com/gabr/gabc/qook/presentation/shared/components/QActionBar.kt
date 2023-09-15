@@ -9,8 +9,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowLeft
 import androidx.compose.material.icons.outlined.DataExploration
-import androidx.compose.material.icons.outlined.KeyboardArrowLeft
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -46,8 +46,7 @@ fun QActionBar(
             style = MaterialTheme.typography.headlineMedium,
             textAlign = TextAlign.Center,
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 48.dp)
+                .padding(horizontal = ((actions?.size ?: 1) * 52).dp)
         )
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -61,7 +60,7 @@ fun QActionBar(
                 if (onBack != null) IconButton(
                     onClick = { onBack() }
                 ) {
-                    Icon(Icons.Outlined.KeyboardArrowLeft, "")
+                    Icon(Icons.AutoMirrored.Outlined.KeyboardArrowLeft, "")
                 }
             }
             if (actions != null) Row(

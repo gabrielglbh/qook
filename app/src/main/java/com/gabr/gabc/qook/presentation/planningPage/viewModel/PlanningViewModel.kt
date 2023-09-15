@@ -1,5 +1,6 @@
 package com.gabr.gabc.qook.presentation.planningPage.viewModel
 
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,6 +10,8 @@ import com.gabr.gabc.qook.domain.planning.DayPlanning
 import com.gabr.gabc.qook.domain.planning.PlanningRepository
 import com.gabr.gabc.qook.domain.recipe.Recipe
 import com.gabr.gabc.qook.domain.recipe.RecipeRepository
+import com.gabr.gabc.qook.domain.sharedPlanning.SharedPlanning
+import com.gabr.gabc.qook.domain.sharedPlanning.SharedPlanningRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -18,10 +21,15 @@ class PlanningViewModel @Inject constructor(
     private val planningRepository: PlanningRepository,
     private val ingredientsRepository: IngredientsRepository,
     private val recipeRepository: RecipeRepository,
+    private val sharedPlanningRepository: SharedPlanningRepository,
 ) : ViewModel() {
-    var planning = mutableStateOf<List<DayPlanning>?>(null)
+    var sharedPlanning = mutableStateOf(SharedPlanning.EMPTY)
         private set
-    var recipes = mutableStateOf<List<Recipe>?>(null)
+    var planning = mutableStateListOf<DayPlanning>()
+        private set
+    var recipes = mutableStateListOf<Recipe>()
+        private set
+    var groupId = mutableStateOf<String?>(null)
         private set
     var isLoading = mutableStateOf(false)
         private set
@@ -32,21 +40,50 @@ class PlanningViewModel @Inject constructor(
         loadRecipes()
     }
 
-    fun setDataForLocalLoading(planning: List<DayPlanning>) {
-        this.planning.value = planning
+    fun loadPlanning(planning: List<DayPlanning>?, groupId: String?, onError: (String) -> Unit) {
+        this.groupId.value = groupId
+        viewModelScope.launch {
+            if (groupId == null) {
+                if (planning == null) {
+                    isLoading.value = true
+                    val res = planningRepository.getPlanning()
+                    res.fold(
+                        ifLeft = { e -> onError(e.error) },
+                        ifRight = { p ->
+                            this@PlanningViewModel.planning.clear()
+                            this@PlanningViewModel.planning.addAll(p)
+                        }
+                    )
+                    isLoading.value = false
+                } else {
+                    this@PlanningViewModel.planning.clear()
+                    this@PlanningViewModel.planning.addAll(planning)
+                }
+            } else {
+                sharedPlanningRepository.getSharedPlanning(groupId).collect { res ->
+                    res.fold(
+                        ifLeft = { e -> onError(e.error) },
+                        ifRight = { sp ->
+                            sharedPlanning.value = sp
+                        },
+                    )
+                }
+            }
+        }
     }
 
-    fun loadPlanning(onError: (String) -> Unit) {
+    fun loadPlanningFromSharedPlanning(onError: (String) -> Unit) {
         viewModelScope.launch {
-            isLoading.value = true
-            val res = planningRepository.getPlanning()
-            res.fold(
-                ifLeft = { e -> onError(e.error) },
-                ifRight = { p ->
-                    planning.value = p
+            planningRepository.getPlanningFromSharedPlanning(groupId.value!!)
+                .collect { res ->
+                    res.fold(
+                        ifLeft = { e -> onError(e.error) },
+                        ifRight = { p ->
+                            this@PlanningViewModel.planning.clear()
+                            this@PlanningViewModel.planning.addAll(p)
+                        },
+                    )
                 }
-            )
-            isLoading.value = false
         }
     }
 
@@ -55,8 +92,8 @@ class PlanningViewModel @Inject constructor(
             val res = recipeRepository.getRecipes()
             res.fold(
                 ifLeft = {},
-                ifRight = { r ->
-                    recipes.value = r
+                ifRight = { recipes ->
+                    this@PlanningViewModel.recipes.addAll(recipes)
                 }
             )
         }
@@ -65,16 +102,19 @@ class PlanningViewModel @Inject constructor(
     fun resetPlanning(onError: (String) -> Unit) {
         viewModelScope.launch {
             isLoading.value = true
-            val res = planningRepository.resetPlanning()
+            val res = planningRepository.resetPlanning(groupId.value)
             res.fold(
                 ifLeft = { e -> onError(e.error) },
                 ifRight = {
-                    val iResult = ingredientsRepository.resetIngredients()
+                    val iResult = ingredientsRepository.resetIngredients(groupId.value)
                     iResult.fold(
                         ifLeft = { e -> onError(e.error) },
                         ifRight = {
-                            hasUpdated.value = true
-                            planning.value = DayPlanning.EMPTY_PLANNING
+                            if (groupId.value == null) {
+                                hasUpdated.value = true
+                                planning.clear()
+                                planning.addAll(DayPlanning.EMPTY_PLANNING)
+                            }
                         }
                     )
                 }
@@ -88,19 +128,25 @@ class PlanningViewModel @Inject constructor(
             isLoading.value = true
 
             val ingredients = mutableMapOf<String, Boolean>()
-            val pastDayPlanning = planning.value?.find { dp -> dp.id == dayPlanning.id }
-            pastDayPlanning?.lunch?.ingredients?.forEach { i -> ingredients[i] = false }
-            pastDayPlanning?.dinner?.ingredients?.forEach { i -> ingredients[i] = false }
+            val pastDayPlanning = planning.find { dp -> dp.id == dayPlanning.id }
+            pastDayPlanning?.lunch?.meal?.ingredients?.forEach { i -> ingredients[i] = false }
+            pastDayPlanning?.dinner?.meal?.ingredients?.forEach { i -> ingredients[i] = false }
 
-            val res = planningRepository.updateRecipeFromPlanning(dayPlanning)
+            val res =
+                planningRepository.updateRecipeFromPlanning(dayPlanning, groupId = groupId.value)
             res.fold(
                 ifLeft = { e -> onError(e.error) },
                 ifRight = {
-                    val iResult = ingredientsRepository.removeIngredients(Ingredients(ingredients))
+                    val iResult = ingredientsRepository.removeIngredients(
+                        Ingredients(ingredients),
+                        groupId.value
+                    )
                     iResult.fold(
                         ifLeft = { e -> onError(e.error) },
                         ifRight = {
-                            updatePlanningLocally(dayPlanning)
+                            if (groupId.value == null) {
+                                updatePlanningLocally(dayPlanning)
+                            }
                         }
                     )
                 }
@@ -109,12 +155,32 @@ class PlanningViewModel @Inject constructor(
         }
     }
 
+    fun addUserToGroup(id: String, onError: (String) -> Unit) {
+        viewModelScope.launch {
+            isLoading.value = true
+            val res = sharedPlanningRepository.addUserToSharedPlanning(id)
+            res.fold(
+                ifLeft = { e -> onError(e.error) },
+                ifRight = {
+                    loadPlanning(null, id) { e -> onError(e) }
+                },
+            )
+            isLoading.value = false
+        }
+    }
+
     fun updatePlanningLocally(dayPlanning: DayPlanning) {
-        val auxPlanning = mutableListOf<DayPlanning>().apply { addAll(planning.value ?: listOf()) }
-        val aux = auxPlanning.map { it.id }
+        val aux = planning.map { it.id }
         val dayPlanningToUpdateIndex = aux.indexOf(dayPlanning.id)
-        auxPlanning[dayPlanningToUpdateIndex] = dayPlanning
-        planning.value = auxPlanning
+        planning[dayPlanningToUpdateIndex] = dayPlanning
         hasUpdated.value = true
+    }
+
+    fun updateSharedPlanningMetadataLocally(sharedPlanning: SharedPlanning) {
+        this.sharedPlanning.value = this.sharedPlanning.value.copy(
+            name = sharedPlanning.name,
+            photo = sharedPlanning.photo,
+            resetDay = sharedPlanning.resetDay,
+        )
     }
 }

@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.dp
 fun QIngredient(
     ingredient: String,
     strikeThrough: Boolean = false,
-    color: Color = MaterialTheme.colorScheme.onBackground,
     leadingIcon: @Composable (() -> Unit)? = null,
     onClick: (() -> Unit)? = null,
     onClear: (() -> Unit)? = null
@@ -38,10 +37,7 @@ fun QIngredient(
             modifier = Modifier.padding(4.dp)
         ) {
             if (leadingIcon == null) {
-                Text(
-                    "•",
-                    color = color,
-                )
+                Text("•")
             } else {
                 leadingIcon()
             }
@@ -49,7 +45,6 @@ fun QIngredient(
                 ingredient,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
-                color = color,
                 modifier = Modifier
                     .weight(1f)
                     .padding(horizontal = 8.dp),

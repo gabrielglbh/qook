@@ -1,4 +1,34 @@
 {
+  "hosting": {
+    "public": "landing-page",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      },
+      {
+        "source": "**/assetlinks.json",
+        "destination": "/.well-known/assetlinks.json",
+        "type": 301
+      }
+    ],
+    "headers": [
+      {
+        "source": "**/.well-known/**",
+        "headers": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ]
+      }
+    ]
+  },
   "functions": [
     {
       "source": "functions",

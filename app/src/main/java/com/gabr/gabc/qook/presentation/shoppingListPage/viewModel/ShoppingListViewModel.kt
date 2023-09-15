@@ -22,12 +22,10 @@ class ShoppingListViewModel @Inject constructor(
         private set
     var planning = mutableStateListOf<DayPlanning>()
         private set
+    var groupId = mutableStateOf<String?>(null)
+        private set
     var isLoading = mutableStateOf(false)
         private set
-
-    init {
-        loadShoppingList()
-    }
 
     private fun setIngredients(i: Ingredients) {
         ingredients.clear()
@@ -36,15 +34,32 @@ class ShoppingListViewModel @Inject constructor(
         }
     }
 
-    private fun loadShoppingList() {
+    fun loadShoppingList(list: List<DayPlanning>?, groupId: String? = null) {
+        this.groupId.value = groupId
+
+        list?.let { planning ->
+            this@ShoppingListViewModel.planning.addAll(planning)
+        }
         viewModelScope.launch {
-            val result = ingredientsRepository.getIngredientsOfShoppingList()
-            result.fold(
-                ifLeft = {},
-                ifRight = { i ->
-                    setIngredients(i)
-                }
-            )
+            if (groupId == null) {
+                val result = ingredientsRepository.getIngredientsOfShoppingList()
+                result.fold(
+                    ifLeft = {},
+                    ifRight = { i ->
+                        setIngredients(i)
+                    }
+                )
+            } else {
+                ingredientsRepository.getIngredientsOfShoppingListFromSharedPlanning(groupId)
+                    .collect { res ->
+                        res.fold(
+                            ifLeft = {},
+                            ifRight = { i ->
+                                setIngredients(i)
+                            }
+                        )
+                    }
+            }
         }
     }
 
@@ -56,20 +71,33 @@ class ShoppingListViewModel @Inject constructor(
             val auxPlanning = planning
 
             if (auxPlanning.isEmpty()) {
-                val res = planningRepository.getPlanning()
-                res.fold(
-                    ifLeft = {},
-                    ifRight = { p ->
-                        auxPlanning.addAll(p)
-                    }
-                )
+                if (groupId.value == null) {
+                    val res = planningRepository.getPlanning()
+                    res.fold(
+                        ifLeft = {},
+                        ifRight = { p ->
+                            auxPlanning.addAll(p)
+                        }
+                    )
+                } else {
+                    planningRepository.getPlanningFromSharedPlanning(groupId.value!!)
+                        .collect { res ->
+                            res.fold(
+                                ifLeft = {},
+                                ifRight = { p ->
+                                    auxPlanning.addAll(p)
+                                }
+                            )
+                        }
+                }
+
             }
 
             auxPlanning.forEach { day ->
-                day.lunch.ingredients.forEach { i ->
+                day.lunch.meal.ingredients.forEach { i ->
                     ingredientsMapped[i] = false
                 }
-                day.dinner.ingredients.forEach { i ->
+                day.dinner.meal.ingredients.forEach { i ->
                     ingredientsMapped[i] = false
                 }
             }
@@ -78,7 +106,10 @@ class ShoppingListViewModel @Inject constructor(
                 ingredientsMapped[key] = value
             }
 
-            val result = ingredientsRepository.updateIngredients(Ingredients(ingredientsMapped))
+            val result = ingredientsRepository.updateIngredients(
+                Ingredients(ingredientsMapped),
+                groupId.value
+            )
             result.fold(
                 ifLeft = {},
                 ifRight = {
@@ -92,7 +123,8 @@ class ShoppingListViewModel @Inject constructor(
 
     fun addIngredientToList(ingredient: String) {
         viewModelScope.launch {
-            val result = ingredientsRepository.updateIngredient(Pair(ingredient, false))
+            val result =
+                ingredientsRepository.updateIngredient(Pair(ingredient, false), groupId.value)
             result.fold(
                 ifLeft = {},
                 ifRight = {
@@ -104,7 +136,7 @@ class ShoppingListViewModel @Inject constructor(
 
     fun removeIngredientFromList(ingredient: Pair<String, Boolean>) {
         viewModelScope.launch {
-            val result = ingredientsRepository.removeIngredient(ingredient)
+            val result = ingredientsRepository.removeIngredient(ingredient, groupId.value)
             result.fold(
                 ifLeft = {},
                 ifRight = {
@@ -117,7 +149,7 @@ class ShoppingListViewModel @Inject constructor(
     fun updateIngredient(ingredient: Pair<String, Boolean>) {
         viewModelScope.launch {
             val result = ingredientsRepository.updateIngredient(
-                ingredient.copy(second = !ingredient.second)
+                ingredient.copy(second = !ingredient.second), groupId.value
             )
             result.fold(
                 ifLeft = {},
@@ -126,9 +158,5 @@ class ShoppingListViewModel @Inject constructor(
                 }
             )
         }
-    }
-
-    fun setPlanningMaybeForReload(planning: List<DayPlanning>) {
-        this.planning.addAll(planning)
     }
 }

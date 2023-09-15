@@ -9,17 +9,20 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
 
 @Preview(showBackground = true)
 @Composable
-fun QLoadingScreen() {
+fun QLoadingScreen(
+    color: Color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f)
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f))
+            .background(color)
             .clickable(enabled = false) {},
         contentAlignment = Alignment.Center
     ) {

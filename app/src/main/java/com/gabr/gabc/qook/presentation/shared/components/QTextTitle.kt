@@ -4,6 +4,7 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -16,15 +17,21 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun QTextTitle(
-    @StringRes title: Int,
+    @StringRes title: Int? = null,
+    rawTitle: String? = null,
     @StringRes subtitle: Int
 ) {
+    if ((title == null && rawTitle == null) || (title != null && rawTitle != null)) {
+        throw Exception("Must provide only one of title or rawTitle")
+    }
+
     Column(
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(horizontal = 8.dp)
     ) {
         Text(
-            stringResource(title),
+            rawTitle ?: stringResource(title!!),
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center
         )

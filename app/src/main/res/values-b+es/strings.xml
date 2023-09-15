@@ -116,6 +116,7 @@
     <string name="recipe_details_remove_recipe">Eliminar receta</string>
     <string name="recipe_details_delete_warning">¿Estás seguro de que quieres eliminar %1$s?</string>
     <string name="recipe_details_remove_recipe_button">Eliminar</string>
+    <string name="recipe_details_op">Añadida por %1$s</string>
     <string name="err_recipe_details_open_link">No se ha podido abrir el link externo, prueba con uno nuevo</string>
 
     <string name="err_plannings_retrieval">No se ha podido recoger el planning, prueba otra vez</string>
@@ -125,7 +126,7 @@
     <string name="planning_dinner">Cena</string>
     <string name="add_recipe_to_planning">Añadir receta al planning semanal</string>
     <string name="planning_confirmation_msg">¿Seguro que quieres añadir %1$s al planning para el %2$s?</string>
-    <string name="planning_description">Planifica tu semana con comidas y cenas con tus recetas</string>
+    <string name="planning_description">Planifica tu semana con comidas y cenas con tus recetas. Para eliminar o actualizar una receta planeada, sosten el dedo en ella y elige una de las opciones que se te presenten.</string>
     <string name="planning_no_recipe_added">No se ha añadido receta todavía</string>
     <string name="reset_planning">Reestablecer planning</string>
     <string name="reset_planning_description">Todo el planning será vaciado para hacer uno nuevo desde el principio</string>
@@ -143,4 +144,37 @@
     <string name="default_notification_channel_id">QOOK_DEFAULT</string>
 
     <string name="err_home_empty_recipes">No tienes recetas. Crea una para utilizar esta función</string>
+
+    <string name="shared_plannings_info">Selecciona o crea plannings compartidos con tus amigos</string>
+    <string name="shared_plannings_title">Plannings compartidos</string>
+    <string name="shared_plannings_empty">No tienes plannings compartidos. Crea una pulsando \'+\' o únete a una a través de un enlace</string>
+    <string name="shared_planning_create_title">Crea un planning compartido</string>
+    <string name="shared_planning_create_info">Proporciona el nombre del planning compartido y comparte el código generado con tus amigos</string>
+    <string name="shared_planning_create_shared_planning">Crea el planning compartido</string>
+    <string name="shared_planning_info_display">Gestiona el planning compartido y la lista de la compra desde aquí añadiéndole recetas. Para eliminar o actualizar una receta planeada, sosten el dedo en ella y elige una de las opciones que se te presenten.</string>
+    <string name="shared_planning_group_code">Comparte el grupo</string>
+    <string name="shared_planning_message_on_code_sharing">¡Únete a mi planning compartido en Qook!</string>
+    <string name="shared_planning_title">Planning compartido</string>
+
+    <string name="plannings_options_title">¿Qué quieres hacer con esta receta?</string>
+    <string name="plannings_options_description">¿Quieres eliminar %1$s del planning o reemplazarla?</string>
+    <string name="plannings_replace">Reemplazar</string>
+    <string name="plannings_remove">Eliminar</string>
+    <string name="planning_settings_title">Configuración</string>
+    <string name="ok">Ok</string>
+    <string name="planning_group_info">Información del grupo</string>
+    <string name="plannings_remove_shared_planning">Eliminar el planning compartido</string>
+    <string name="plannings_delete_group_title">¿Estás seguro de que quieres eliminar el planning compartido?</string>
+    <string name="plannings_delete_group_description">Todo el planning y la lista de la compra se eliminarán. Los usuariosno podrán acceder al grupo nunca más. Esta acción no se puede deshacer.</string>
+    <string name="plannings_add_to_my_recipes">Añadir a mis recetas</string>
+    <string name="err_recipes_dup">¡Ya tienes esta receta guardada!</string>
+    <string name="plannings_group_users">Usuarios</string>
+    <string name="recipe_details_add_recipe_success">La receta se ha guardado correctamente</string>
+    <string name="settings_notifications">Administrar notificaciones</string>
+    <string name="shared_planning_remove_user">¿Quieres eliminar a %1$s del planning compartido? %1$s no podrá actualizar el planning compartido ni descargar sus recetas</string>
+    <string name="shared_planning_settings_manage_user">Administrar usuario</string>
+    <string name="exit_shared_planning">Salir del planning compartido</string>
+    <string name="exit_shared_planning_button">Salir</string>
+    <string name="plannings_exit_group_title">¿Estás seguro de que quieres salir del planning compartido?</string>
+    <string name="shared_planning_exit_user">No podrás actualizar el planning compartido ni descargar sus recetas</string>
 </resources>

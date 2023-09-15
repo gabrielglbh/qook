@@ -2,6 +2,7 @@ package com.gabr.gabc.qook.presentation.profilePage
 
 import android.Manifest
 import android.content.Intent
+import android.net.Uri
 import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
 import android.os.Bundle
@@ -14,7 +15,6 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -41,11 +41,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.user.User
-import com.gabr.gabc.qook.presentation.homePage.HomePage
 import com.gabr.gabc.qook.presentation.loginPage.LoginPage
 import com.gabr.gabc.qook.presentation.profilePage.components.Account
 import com.gabr.gabc.qook.presentation.profilePage.components.Settings
 import com.gabr.gabc.qook.presentation.profilePage.viewModel.ProfileViewModel
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.HAS_UPDATED_PROFILE
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.USER
+import com.gabr.gabc.qook.presentation.shared.PermissionsRequester
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.shared.components.QAutoSizeText
 import com.gabr.gabc.qook.presentation.shared.components.QImageContainer
@@ -56,53 +58,20 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ProfilePage : ComponentActivity() {
-    companion object {
-        const val HAS_UPDATED_PROFILE = "HAS_UPDATED_PROFILE"
-    }
-
     private var hasChangedProfilePicture = false
     private var hasChangedName = false
 
     private lateinit var pickMedia: ActivityResultLauncher<PickVisualMediaRequest>
-    private val requestMultiplePermissions =
-        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-            permissions.forEach { actionMap ->
-                when (actionMap.key) {
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE -> {
-                        if (!actionMap.value) {
-                            shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                        }
-                    }
-
-                    Manifest.permission.READ_EXTERNAL_STORAGE -> {
-                        if (actionMap.value) {
-                            pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                        } else {
-                            shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)
-                        }
-                    }
-
-                    Manifest.permission.READ_MEDIA_IMAGES -> {
-                        if (VERSION.SDK_INT >= VERSION_CODES.TIRAMISU) {
-                            if (actionMap.value) {
-                                pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                            } else {
-                                shouldShowRequestPermissionRationale(Manifest.permission.READ_MEDIA_IMAGES)
-                            }
-                        }
-                    }
-                }
-            }
-        }
+    private lateinit var requestMultiplePermissions: ActivityResultLauncher<Array<String>>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val viewModel: ProfileViewModel by viewModels()
         val user = if (VERSION.SDK_INT >= VERSION_CODES.TIRAMISU) {
-            intent.getParcelableExtra(HomePage.HOME_USER, User::class.java)
+            intent.getParcelableExtra(USER, User::class.java)
         } else {
-            intent.getParcelableExtra(HomePage.HOME_USER)
+            intent.getParcelableExtra(USER)
         }
 
         viewModel.setDataForLocalLoading(user)
@@ -115,6 +84,9 @@ class ProfilePage : ComponentActivity() {
                 }
             }
 
+        requestMultiplePermissions =
+            PermissionsRequester.requestMultiplePermissionsCaller(this, pickMedia)
+
         setContent {
             AppTheme {
                 ProfileView()
@@ -122,7 +94,6 @@ class ProfilePage : ComponentActivity() {
         }
     }
 
-    @OptIn(ExperimentalLayoutApi::class)
     @Composable
     fun ProfileView() {
         val viewModel: ProfileViewModel by viewModels()
@@ -131,7 +102,7 @@ class ProfilePage : ComponentActivity() {
         val scope = rememberCoroutineScope()
         val snackbarHostState = remember { SnackbarHostState() }
 
-        val isUserEmpty = state.user == User.EMPTY_USER
+        val isUserEmpty = state.user == User.EMPTY
 
         val passwordChangeSuccessfulMessage =
             stringResource(R.string.profile_password_change_successful)
@@ -227,7 +198,27 @@ class ProfilePage : ComponentActivity() {
                         }
                         Spacer(modifier = Modifier.size(12.dp))
                         QShimmer(controller = !isUserEmpty) { modifier ->
-                            Settings(viewModel, state.user, modifier)
+                            Settings(viewModel, state.user, modifier,
+                                onOpenNotificationSettings = {
+                                    val intent = Intent()
+                                    intent.action = "android.settings.APP_NOTIFICATION_SETTINGS"
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                    intent.putExtra("app_package", packageName)
+                                    intent.putExtra("app_uid", applicationInfo.uid)
+                                    intent.putExtra(
+                                        "android.provider.extra.APP_PACKAGE",
+                                        packageName
+                                    )
+                                    startActivity(intent)
+                                },
+                                onQookInfo = {
+                                    startActivity(
+                                        Intent(
+                                            Intent.ACTION_VIEW,
+                                            Uri.parse("https://github.com/gabrielglbh/qook")
+                                        )
+                                    )
+                                })
                         }
                         QShimmer(controller = !isUserEmpty) { modifier ->
                             Account(viewModel, state.user, modifier,

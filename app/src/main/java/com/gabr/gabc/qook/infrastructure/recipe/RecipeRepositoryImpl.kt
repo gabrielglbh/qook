@@ -30,6 +30,53 @@ class RecipeRepositoryImpl @Inject constructor(
     private val tagRepository: TagRepository,
     private val res: StringResourcesProvider
 ) : RecipeRepository {
+    override suspend fun createRecipe(
+        recipe: Recipe,
+        fromSharedPlanning: Boolean
+    ): Either<RecipeFailure, Recipe> {
+        try {
+            auth.currentUser?.let {
+                val check = db.collection(Globals.DB_USER).document(it.uid)
+                    .collection(Globals.DB_RECIPES)
+                    .whereEqualTo(Globals.OBJ_RECIPE_NAME, recipe.name)
+                    .limit(1).get().await()
+                if (!check.isEmpty) return Left(RecipeFailure.RecipeDuplicated(res.getString(R.string.err_recipes_dup)))
+
+                val docRef = db.collection(Globals.DB_USER).document(it.uid)
+                    .collection(Globals.DB_RECIPES).document()
+
+                val recipeId = docRef.path.split("/").last()
+
+                var recipeDto = recipe.toDto()
+                if (fromSharedPlanning) {
+                    recipeDto = recipeDto.copy(tagIds = listOf())
+                }
+                docRef.set(recipeDto).await()
+
+                if (recipe.photo.host != Globals.FIREBASE_HOST && recipe.photo != Uri.EMPTY) {
+                    storage.uploadImage(
+                        recipe.photo,
+                        "${Globals.STORAGE_USERS}${it.uid}/${Globals.STORAGE_RECIPES}$recipeId.jpg"
+                    )
+                }
+
+                return Right(recipe)
+            }
+            return Left(RecipeFailure.NotAuthenticated(res.getString(R.string.error_user_not_auth)))
+        } catch (err: FirebaseFirestoreException) {
+            return Left(
+                RecipeFailure.RecipeCreationFailed(
+                    "${err.code}: " +
+                            res.getString(R.string.err_recipe_creation)
+                )
+            )
+        } catch (err: StorageException) {
+            return Left(
+                RecipeFailure.RecipeDoesNotExist(res.getString(R.string.err_recipe_creation))
+            )
+        }
+    }
+
     override suspend fun getRecipes(
         orderBy: String,
         query: String?,
@@ -59,7 +106,7 @@ class RecipeRepositoryImpl @Inject constructor(
 
                 val recipes = mutableListOf<Recipe>()
                 querySnapshot.documents.forEach { doc ->
-                    val result = getRecipe(doc.id)
+                    val result = getRecipe(doc.id, it.uid)
                     result.fold(
                         ifLeft = {},
                         ifRight = { recipe -> recipes.add(recipe) }
@@ -78,23 +125,21 @@ class RecipeRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun updateRecipe(recipe: Recipe, id: String?): Either<RecipeFailure, Recipe> {
+    override suspend fun updateRecipe(recipe: Recipe): Either<RecipeFailure, Recipe> {
         try {
             auth.currentUser?.let {
-                val docCollection = db.collection(Globals.DB_USER).document(it.uid)
-                    .collection(Globals.DB_RECIPES)
-                val docRef = if (id == null) {
-                    docCollection.document()
-                } else {
-                    docCollection.document(id)
-                }
+                val docRef = db.collection(Globals.DB_USER).document(it.uid)
+                    .collection(Globals.DB_RECIPES).document(recipe.id)
 
                 val recipeId = docRef.path.split("/").last()
 
                 docRef.set(recipe.toDto()).await()
 
                 if (recipe.photo.host != Globals.FIREBASE_HOST && recipe.photo != Uri.EMPTY) {
-                    storage.uploadImage(recipe.photo, "${Globals.STORAGE_RECIPES}$recipeId.jpg")
+                    storage.uploadImage(
+                        recipe.photo,
+                        "${Globals.STORAGE_USERS}${it.uid}/${Globals.STORAGE_RECIPES}$recipeId.jpg"
+                    )
                 }
 
                 return Right(recipe)
@@ -104,12 +149,12 @@ class RecipeRepositoryImpl @Inject constructor(
             return Left(
                 RecipeFailure.RecipeCreationFailed(
                     "${err.code}: " +
-                            res.getString(R.string.err_recipe_creation)
+                            res.getString(R.string.err_recipes_update)
                 )
             )
         } catch (err: StorageException) {
             return Left(
-                RecipeFailure.RecipeDoesNotExist(res.getString(R.string.err_recipe_creation))
+                RecipeFailure.RecipeDoesNotExist(res.getString(R.string.err_recipes_update))
             )
         }
     }
@@ -122,7 +167,7 @@ class RecipeRepositoryImpl @Inject constructor(
                     .delete().await()
 
                 if (recipe.photo != Uri.EMPTY) {
-                    storage.deleteImage("${Globals.STORAGE_RECIPES}${recipe.id}.jpg")
+                    storage.deleteImage("${Globals.STORAGE_USERS}${it.uid}/${Globals.STORAGE_RECIPES}${recipe.id}.jpg")
                 }
 
                 return Right(Unit)
@@ -138,23 +183,27 @@ class RecipeRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getRecipe(id: String): Either<RecipeFailure, Recipe> {
+    override suspend fun getRecipe(
+        recipeId: String,
+        userId: String
+    ): Either<RecipeFailure, Recipe> {
         try {
             auth.currentUser?.let {
-                val query = db.collection(Globals.DB_USER).document(it.uid)
-                    .collection(Globals.DB_RECIPES).document(id).get().await()
+                val query = db.collection(Globals.DB_USER).document(userId)
+                    .collection(Globals.DB_RECIPES).document(recipeId).get().await()
                 query.toObject<RecipeDto>()?.let { recipeDto ->
                     var recipe = recipeDto.toDomain()
 
                     if (recipeDto.hasPhoto) {
-                        val res = storage.getDownloadUrl("${Globals.STORAGE_RECIPES}${id}.jpg")
+                        val res =
+                            storage.getDownloadUrl("${Globals.STORAGE_USERS}${userId}/${Globals.STORAGE_RECIPES}$recipeId.jpg")
                         res.fold(
                             ifLeft = {},
                             ifRight = { uri -> recipe = recipe.copy(photo = uri) }
                         )
                     }
 
-                    val tagsRes = tagRepository.getTags(id)
+                    val tagsRes = tagRepository.getTags(recipeDto, userId)
                     tagsRes.fold(
                         ifLeft = {},
                         ifRight = { tags -> recipe = recipe.copy(tags = tags) }

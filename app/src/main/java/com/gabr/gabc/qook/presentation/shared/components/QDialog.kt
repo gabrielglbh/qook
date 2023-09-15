@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -32,6 +33,8 @@ fun QDialog(
     content: @Composable () -> Unit,
     onSubmit: () -> Unit,
     @StringRes buttonTitle: Int = R.string.profile_save,
+    onSubmitSecondary: (() -> Unit)? = null,
+    @StringRes buttonSecondaryTitle: Int? = null,
     disclaimer: (@Composable () -> Unit)? = null
 ) {
     Dialog(onDismissRequest = { onDismissRequest(false) }) {
@@ -65,18 +68,35 @@ fun QDialog(
                     disclaimer?.let { it() }
                     content()
                     Spacer(modifier = Modifier.height(20.dp))
-                    Box(modifier = Modifier.padding(horizontal = 32.dp)) {
-                        Button(
-                            onClick = {
-                                onSubmit()
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            QAutoSizeText(
-                                stringResource(buttonTitle),
-                                color = MaterialTheme.colorScheme.onPrimary
-                            )
-                        }
+                    Button(
+                        onClick = {
+                            onSubmit()
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp)
+                    ) {
+                        QAutoSizeText(
+                            stringResource(buttonTitle),
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    if (onSubmitSecondary != null && buttonSecondaryTitle != null) Button(
+                        onClick = {
+                            onSubmitSecondary()
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.tertiary
+                        )
+                    ) {
+                        QAutoSizeText(
+                            stringResource(buttonSecondaryTitle),
+                            color = MaterialTheme.colorScheme.onTertiary
+                        )
                     }
                 }
             }

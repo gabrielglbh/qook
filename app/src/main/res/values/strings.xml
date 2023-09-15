@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">Qook</string>
+    <string name="deepLinkJoinGroup" translatable="false">https://qook-app.web.app/shared-planning/</string>
 
     <string name="login_email">Email</string>
     <string name="login_password">Password</string>
@@ -115,6 +116,7 @@
     <string name="recipe_details_remove_recipe">Remove recipe</string>
     <string name="recipe_details_delete_warning">Are you sure you want to remove %1$s?</string>
     <string name="recipe_details_remove_recipe_button">Remove</string>
+    <string name="recipe_details_op">Added by %1$s</string>
     <string name="err_recipe_details_open_link">Could not open external link, provide a new one</string>
 
     <string name="err_plannings_retrieval">Could not retrieve planning, try again</string>
@@ -124,7 +126,7 @@
     <string name="planning_dinner">Dinner</string>
     <string name="add_recipe_to_planning">Add recipe to weekly planning</string>
     <string name="planning_confirmation_msg">Are you sure you want to add %1$s to the planning for %2$s?</string>
-    <string name="planning_description">Plan your week with lunch and dinners with your recipes</string>
+    <string name="planning_description">Plan your week with lunch and dinners with your recipes. To remove or update a recipe already planned, long press on it and choose from the options to modify it.</string>
     <string name="planning_no_recipe_added">No recipe added yet</string>
     <string name="reset_planning">Reset planning</string>
     <string name="reset_planning_description">All planning will be emptied to make a new planning from scratch</string>
@@ -142,4 +144,37 @@
     <string name="default_notification_channel_id">QOOK_DEFAULT</string>
 
     <string name="err_home_empty_recipes">You have no recipes. Create one to use this function</string>
+
+    <string name="shared_plannings_info">Select or create shared plannings with your friends</string>
+    <string name="shared_plannings_title">Shared plannings</string>
+    <string name="shared_plannings_empty">You have no shared plannings. Create one tapping \'+\' or join one via link</string>
+    <string name="shared_planning_create_title">Create shared planning</string>
+    <string name="shared_planning_create_info">Provide the name of the shared planning and share the generated code to your friends</string>
+    <string name="shared_planning_create_shared_planning">Create shared planning</string>
+    <string name="shared_planning_info_display">Manage the shared planning and the shopping list from here by adding recipes to it. To remove or update a recipe already planned, long press on it and choose from the options to modify it.</string>
+    <string name="shared_planning_group_code">Share the group</string>
+    <string name="shared_planning_message_on_code_sharing">Join my share planning in Qook!</string>
+    <string name="shared_planning_title">Shared Planning</string>
+
+    <string name="plannings_options_title">What do you want to do with the recipe?</string>
+    <string name="plannings_options_description">Do you want to remove %1$s from the planning or replace it?</string>
+    <string name="plannings_replace">Replace</string>
+    <string name="plannings_remove">Remove</string>
+    <string name="planning_settings_title">Configuration</string>
+    <string name="ok">OK</string>
+    <string name="planning_group_info">Group info</string>
+    <string name="plannings_remove_shared_planning">Remove shared planning</string>
+    <string name="plannings_delete_group_title">Are you sure you want to delete this shared planning?</string>
+    <string name="plannings_delete_group_description">The whole planning and shopping list will be removed. Users will have no access to this group anymore. This action cannot be undone.</string>
+    <string name="plannings_add_to_my_recipes">Add it to my recipes</string>
+    <string name="err_recipes_dup">You already have this recipe saved!</string>
+    <string name="plannings_group_users">Users</string>
+    <string name="recipe_details_add_recipe_success">The recipe was correctly saved</string>
+    <string name="settings_notifications">Manage notifications</string>
+    <string name="shared_planning_remove_user">Do you want to remove %1$s from the shared planning? %1$s will not be able to modify the planning nor download any recipe from it</string>
+    <string name="shared_planning_settings_manage_user">Manage user</string>
+    <string name="exit_shared_planning">Exit shared planning</string>
+    <string name="exit_shared_planning_button">Exit</string>
+    <string name="plannings_exit_group_title">Are you sure you want to exit this shared planning?</string>
+    <string name="shared_planning_exit_user">You will not be able to modify the planning nor download any recipe from it</string>
 </resources>

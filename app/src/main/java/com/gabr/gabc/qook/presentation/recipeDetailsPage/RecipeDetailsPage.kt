@@ -12,12 +12,13 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.ModeEdit
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -29,13 +30,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.recipe.Recipe
+import com.gabr.gabc.qook.domain.user.User
 import com.gabr.gabc.qook.presentation.addRecipePage.AddRecipePage
 import com.gabr.gabc.qook.presentation.recipeDetailsPage.viewModel.RecipeDetailsViewModel
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.ALLOW_TO_UPDATE
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.HAS_DELETED_RECIPE
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.HAS_UPDATED_RECIPE
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.RECIPE
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.RECIPE_FROM_DETAILS
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.RECIPE_OP
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.shared.components.QDialog
 import com.gabr.gabc.qook.presentation.shared.components.QLoadingScreen
@@ -46,14 +55,6 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class RecipeDetailsPage : ComponentActivity() {
-    companion object {
-        const val HAS_UPDATED_RECIPE = "HAS_UPDATED_RECIPE"
-        const val HAS_DELETED_RECIPE = "HAS_DELETED_RECIPE"
-        const val RECIPE_FROM_DETAILS = "RECIPE_FROM_DETAILS"
-        const val ALLOW_TO_UPDATE = "ALLOW_TO_UPDATE"
-        const val RECIPE = "RECIPE"
-    }
-
     private val resultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
@@ -61,9 +62,9 @@ class RecipeDetailsPage : ComponentActivity() {
 
                 val viewModel: RecipeDetailsViewModel by viewModels()
                 val updatedRecipe = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    extras?.getParcelable(AddRecipePage.RECIPE_UPDATED, Recipe::class.java)
+                    extras?.getParcelable(HAS_UPDATED_RECIPE, Recipe::class.java)
                 } else {
-                    extras?.getParcelable(AddRecipePage.RECIPE_UPDATED)
+                    extras?.getParcelable(HAS_UPDATED_RECIPE)
                 }
 
                 updatedRecipe?.let {
@@ -87,6 +88,14 @@ class RecipeDetailsPage : ComponentActivity() {
         viewModel.canUpdate(intent.getBooleanExtra(ALLOW_TO_UPDATE, true))
         viewModel.updateRecipe(recipeFromList!!)
 
+        val op = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.getParcelableExtra(RECIPE_OP, User::class.java)
+        } else {
+            intent.getParcelableExtra(RECIPE_OP)
+        }
+
+        viewModel.updateOp(op)
+
         setContent {
             AppTheme {
                 RecipeDetailsView()
@@ -94,16 +103,17 @@ class RecipeDetailsPage : ComponentActivity() {
         }
     }
 
-    @OptIn(ExperimentalLayoutApi::class)
     @Composable
     fun RecipeDetailsView() {
         val viewModel: RecipeDetailsViewModel by viewModels()
+        val op = viewModel.op.value
 
         val scope = rememberCoroutineScope()
         val snackbarHostState = remember { SnackbarHostState() }
         val showConfirmationDialog = remember { mutableStateOf(false) }
 
         val errOpenLink = stringResource(R.string.err_recipe_details_open_link)
+        val onSaveRecipe = stringResource(R.string.recipe_details_add_recipe_success)
 
         if (showConfirmationDialog.value)
             QDialog(
@@ -140,7 +150,9 @@ class RecipeDetailsPage : ComponentActivity() {
                 },
             )
 
-        Box {
+        Box(
+            contentAlignment = Alignment.BottomCenter
+        ) {
             Scaffold(
                 topBar = {
                     QActionBar(
@@ -208,6 +220,34 @@ class RecipeDetailsPage : ComponentActivity() {
                         QRecipeDetail(
                             recipe = viewModel.recipe.value,
                             modifier = Modifier.padding(start = 12.dp, end = 12.dp, bottom = 12.dp),
+                            op = op,
+                            addToOwnRecipesButton = if (op != null && op.id != viewModel.currentUserUid.value) {
+                                {
+                                    Button(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(start = 12.dp, end = 12.dp, bottom = 16.dp),
+                                        onClick = {
+                                            viewModel.addToMyOwnRecipes(
+                                                onError = { error ->
+                                                    scope.launch {
+                                                        snackbarHostState.showSnackbar(error)
+                                                    }
+                                                },
+                                                onSave = {
+                                                    scope.launch {
+                                                        snackbarHostState.showSnackbar(onSaveRecipe)
+                                                    }
+                                                }
+                                            )
+                                        }
+                                    ) {
+                                        Text(stringResource(R.string.plannings_add_to_my_recipes))
+                                    }
+                                }
+                            } else {
+                                null
+                            },
                             onRecipeUrlClick = {
                                 try {
                                     startActivity(
@@ -223,7 +263,6 @@ class RecipeDetailsPage : ComponentActivity() {
                                 }
                             }
                         )
-
                     }
                 }
             }

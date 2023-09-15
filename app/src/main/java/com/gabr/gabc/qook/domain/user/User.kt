@@ -7,18 +7,20 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class User(
+    val id: String,
     val name: String,
     val email: String,
     val resetDay: Int = 0,
     val photo: Uri = Uri.EMPTY,
     val language: String,
     val messagingToken: String,
+    val hasPhoto: Boolean,
 ) : Parcelable {
     companion object {
-        val EMPTY_USER = User("", "", 0, Uri.EMPTY, "", "")
+        val EMPTY = User("", "", "", 0, Uri.EMPTY, "", "", false)
     }
 }
 
 fun User.toDto(): UserDto {
-    return UserDto(name, email, resetDay, language, messagingToken)
+    return UserDto(id, name, email, resetDay, language, messagingToken, hasPhoto)
 }

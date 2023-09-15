@@ -8,7 +8,6 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -30,6 +29,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,7 +43,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.planning.DayPlanning
-import com.gabr.gabc.qook.presentation.homePage.HomePage
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.PLANNING
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.SHARED_PLANNING_ID
 import com.gabr.gabc.qook.presentation.shared.Validators
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.shared.components.QDialog
@@ -53,21 +54,13 @@ import com.gabr.gabc.qook.presentation.shared.components.QShimmer
 import com.gabr.gabc.qook.presentation.shared.components.QTextForm
 import com.gabr.gabc.qook.presentation.shoppingListPage.viewModel.ShoppingListViewModel
 import com.gabr.gabc.qook.presentation.theme.AppTheme
+import com.gabr.gabc.qook.presentation.theme.seed
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class ShoppingListPage : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        val viewModel: ShoppingListViewModel by viewModels()
-        val planning = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent.getParcelableArrayExtra(HomePage.HOME_PLANNING, DayPlanning::class.java)
-        } else {
-            intent.getParcelableArrayExtra(HomePage.HOME_PLANNING)
-        }
-
-        planning?.let { p -> viewModel.setPlanningMaybeForReload(p.map { it as DayPlanning }) }
 
         setContent {
             AppTheme {
@@ -76,11 +69,21 @@ class ShoppingListPage : ComponentActivity() {
         }
     }
 
-    @OptIn(ExperimentalLayoutApi::class)
     @Composable
     fun ShoppingListView() {
         val viewModel: ShoppingListViewModel by viewModels()
         var showReloadDialog by remember { mutableStateOf(false) }
+
+        LaunchedEffect(key1 = Unit, block = {
+            val planning = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                intent.getParcelableArrayExtra(PLANNING, DayPlanning::class.java)
+            } else {
+                intent.getParcelableArrayExtra(PLANNING)
+            }
+            val groupId = intent.getStringExtra(SHARED_PLANNING_ID)
+
+            viewModel.loadShoppingList(planning?.map { it as DayPlanning }, groupId)
+        })
 
         if (showReloadDialog)
             QDialog(
@@ -194,7 +197,7 @@ class ShoppingListPage : ComponentActivity() {
                         .weight(1f)
                         .padding(top = 8.dp)
                 ) {
-                    items(viewModel.ingredients.toList()) { ingredient ->
+                    items(viewModel.ingredients.toSortedMap().toList()) { ingredient ->
                         Surface(
                             onClick = {
                                 updateIngredient(ingredient)
@@ -213,10 +216,7 @@ class ShoppingListPage : ComponentActivity() {
                                             modifier = Modifier.size(24.dp),
                                             shape = CircleShape,
                                             border = if (ingredient.second) {
-                                                BorderStroke(
-                                                    2.dp,
-                                                    MaterialTheme.colorScheme.primaryContainer
-                                                )
+                                                BorderStroke(2.dp, seed)
                                             } else {
                                                 BorderStroke(
                                                     2.dp,
@@ -228,7 +228,7 @@ class ShoppingListPage : ComponentActivity() {
                                                 Icon(
                                                     Icons.Default.Check,
                                                     contentDescription = "",
-                                                    tint = MaterialTheme.colorScheme.primaryContainer,
+                                                    tint = seed,
                                                     modifier = Modifier.size(12.dp)
                                                 )
                                             }

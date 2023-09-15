@@ -9,7 +9,6 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -35,8 +34,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.tag.Tag
-import com.gabr.gabc.qook.presentation.addRecipePage.AddRecipePage
 import com.gabr.gabc.qook.presentation.addTagPage.viewModel.AddTagViewModel
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.HAS_ALTERED_MODE
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.HAS_ALTERED_TAG
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.UPDATE_TAG
 import com.gabr.gabc.qook.presentation.shared.Validators
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.shared.components.QColorPicker
@@ -50,19 +51,14 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class AddTagPage : ComponentActivity() {
-    companion object {
-        const val HAS_ALTERED_TAG = "HAS_ALTERED_TAG"
-        const val HAS_ALTERED_MODE = "HAS_ALTERED_MODE"
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val viewModel: AddTagViewModel by viewModels()
         val isUpdate = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent.getParcelableExtra(AddRecipePage.UPDATE_TAG, Tag::class.java)
+            intent.getParcelableExtra(UPDATE_TAG, Tag::class.java)
         } else {
-            intent.getParcelableExtra(AddRecipePage.UPDATE_TAG)
+            intent.getParcelableExtra(UPDATE_TAG)
         }
         isUpdate?.let { tag ->
             viewModel.updateForm(
@@ -80,7 +76,6 @@ class AddTagPage : ComponentActivity() {
         }
     }
 
-    @OptIn(ExperimentalLayoutApi::class)
     @Composable
     fun AddTagView() {
         val viewModel: AddTagViewModel by viewModels()

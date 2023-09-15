@@ -1,4 +1,4 @@
-package com.gabr.gabc.qook.presentation.profilePage.components
+package com.gabr.gabc.qook.presentation.shared.components
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Face
@@ -7,13 +7,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.vector.ImageVector
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.presentation.shared.Validators
-import com.gabr.gabc.qook.presentation.shared.components.QDialog
-import com.gabr.gabc.qook.presentation.shared.components.QTextForm
 
 @Composable
-fun ChangeNameDialog(setShowDialog: (Boolean) -> Unit, onClick: (String) -> Unit) {
+fun QChangeNameDialog(icon: ImageVector = Icons.Outlined.Face, setShowDialog: (Boolean) -> Unit, onClick: (String) -> Unit) {
     var textField by remember { mutableStateOf("") }
     var errorName by remember { mutableStateOf(false) }
 
@@ -28,7 +27,7 @@ fun ChangeNameDialog(setShowDialog: (Boolean) -> Unit, onClick: (String) -> Unit
 
     QDialog(
         onDismissRequest = { setShowDialog(false) },
-        leadingIcon = Icons.Outlined.Face,
+        leadingIcon = icon,
         title = R.string.profile_change_name,
         content = {
             QTextForm(

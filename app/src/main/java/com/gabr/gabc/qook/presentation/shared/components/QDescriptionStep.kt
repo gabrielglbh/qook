@@ -21,7 +21,6 @@ import androidx.compose.ui.unit.dp
 fun QDescriptionStep(
     step: String,
     stepIndex: Int,
-    color: Color = MaterialTheme.colorScheme.onBackground,
     onClick: (() -> Unit)? = null,
     onClear: (() -> Unit)? = null
 ) {
@@ -35,13 +34,9 @@ fun QDescriptionStep(
             verticalAlignment = Alignment.Top,
             modifier = Modifier.padding(4.dp)
         ) {
-            Text(
-                "${stepIndex + 1}.",
-                color = color,
-            )
+            Text("${stepIndex + 1}.")
             Text(
                 step,
-                color = color,
                 modifier = Modifier
                     .weight(1f)
                     .padding(horizontal = 8.dp),

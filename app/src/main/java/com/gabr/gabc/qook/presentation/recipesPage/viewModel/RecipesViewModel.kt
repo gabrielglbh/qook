@@ -62,31 +62,35 @@ class RecipesViewModel @Inject constructor(
         errorTags: (String) -> Unit,
         errorRecipes: (String) -> Unit
     ) {
-        if (recipes == null) {
-            getRecipes { e -> errorRecipes(e) }
-        } else {
-            _recipesState.value = _recipesState.value.copy(
-                recipes = recipes,
-                searchedRecipes = recipes,
-            )
-        }
-        getTags { e -> errorTags(e) }
-    }
-
-    fun getRecipes(onError: (String) -> Unit) {
         viewModelScope.launch {
-            isLoadingRecipes.value = true
-            val result = recipeRepository.getRecipes()
+            if (recipes.isNullOrEmpty()) {
+                isLoadingRecipes.value = true
+                val result = recipeRepository.getRecipes()
+                result.fold(
+                    ifLeft = { e -> errorRecipes(e.error) },
+                    ifRight = { recipes ->
+                        _recipesState.value = _recipesState.value.copy(
+                            recipes = recipes,
+                            searchedRecipes = recipes
+                        )
+                    }
+                )
+                isLoadingRecipes.value = false
+            } else {
+                _recipesState.value = _recipesState.value.copy(
+                    recipes = recipes,
+                    searchedRecipes = recipes,
+                )
+            }
+            val result = tagRepository.getTags()
             result.fold(
-                ifLeft = { e -> onError(e.error) },
-                ifRight = { recipes ->
+                ifLeft = { e -> errorTags(e.error) },
+                ifRight = { tags ->
                     _recipesState.value = _recipesState.value.copy(
-                        recipes = recipes,
-                        searchedRecipes = recipes
+                        tags = tags
                     )
                 }
             )
-            isLoadingRecipes.value = false
         }
     }
 
@@ -126,20 +130,6 @@ class RecipesViewModel @Inject constructor(
         _planningState.value = value
     }
 
-    fun getTags(onError: (String) -> Unit) {
-        viewModelScope.launch {
-            val result = tagRepository.getTags()
-            result.fold(
-                ifLeft = { e -> onError(e.error) },
-                ifRight = { tags ->
-                    _recipesState.value = _recipesState.value.copy(
-                        tags = tags
-                    )
-                }
-            )
-        }
-    }
-
     fun updatePlanningWith(
         recipe: Recipe,
         onError: (String) -> Unit,
@@ -148,25 +138,31 @@ class RecipesViewModel @Inject constructor(
         viewModelScope.launch {
             isLoadingRecipes.value = true
 
+            val dp = _planningState.value.dayPlanning
+            val groupId = _planningState.value.groupId
             val ingredients = mutableMapOf<String, Boolean>()
             recipe.ingredients.forEach { i -> ingredients[i] = false }
 
             _planningState.value.isLunch?.let { isLunch ->
                 val dayPlanning = if (isLunch) {
-                    _planningState.value.dayPlanning.copy(lunch = recipe)
+                    dp.copy(lunch = dp.lunch.copy(meal = recipe))
                 } else {
-                    _planningState.value.dayPlanning.copy(dinner = recipe)
+                    dp.copy(dinner = dp.dinner.copy(meal = recipe))
                 }
 
-                val result = planningRepository.updateRecipeFromPlanning(dayPlanning)
+                val result =
+                    planningRepository.updateRecipeFromPlanning(dayPlanning, isLunch, groupId)
                 result.fold(
                     ifLeft = { e -> onError(e.error) },
-                    ifRight = {
+                    ifRight = { updatedDayPlanning ->
                         val iResult =
-                            ingredientsRepository.updateIngredients(Ingredients(ingredients))
+                            ingredientsRepository.updateIngredients(
+                                Ingredients(ingredients),
+                                groupId
+                            )
                         iResult.fold(
                             ifLeft = { e -> onError(e.error) },
-                            ifRight = { onSuccess(recipe, dayPlanning) }
+                            ifRight = { onSuccess(recipe, updatedDayPlanning) }
                         )
                     }
                 )
