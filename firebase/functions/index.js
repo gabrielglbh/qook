@@ -358,6 +358,26 @@ exports.scheduleRestartPlanningCron = functions.pubsub
       }
     });
 
+exports.scheduleWipeOutEmptySharedPlannings = functions.pubsub
+    .schedule("0 0 */14 * 0")
+    .timeZone("Europe/Madrid")
+    .onRun(async (context) => {
+      const groupCollection = database.collection("GROUPS");
+
+      try {
+        const groupsSnapshot = await groupCollection.where("users", "==", [])
+            .get();
+
+        for (const snapshot of groupsSnapshot.docs) {
+          if (snapshot.exists) {
+            await groupCollection.doc(snapshot.ref.id).delete();
+          }
+        }
+      } catch (error) {
+        console.log("❌ Error cleaning up groups %s", error);
+      }
+    });
+
 exports.scheduleRestartSharedPlanningCron = functions.pubsub
     .schedule("0 8 * * *")
     .timeZone("Europe/Madrid")

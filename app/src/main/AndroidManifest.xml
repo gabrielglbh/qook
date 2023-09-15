@@ -34,7 +34,6 @@
         <activity
             android:name=".presentation.addTagPage.AddTagPage"
             android:exported="true"
-            android:noHistory="true"
             android:theme="@style/Theme.Qook" />
         <activity
             android:name=".presentation.addRecipePage.AddRecipePage"
