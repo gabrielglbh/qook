@@ -229,7 +229,7 @@ class PlanningPage : ComponentActivity() {
                                             PlanningSettingsPage::class.java
                                         )
                                         intent.putExtra(SHARED_PLANNING_ID, groupId)
-                                        startActivity(intent)
+                                        resultLauncher.launch(intent)
                                     }) {
                                         Icon(Icons.Outlined.Settings, "")
                                     }

@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ExitToApp
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Group
@@ -40,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.qook.R
+import com.gabr.gabc.qook.domain.user.User
 import com.gabr.gabc.qook.presentation.planningSettingsPage.viewModel.PlanningSettingsViewModel
 import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.HAS_REMOVED_SHARED_PLANNING
 import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.SHARED_PLANNING_ID
@@ -119,10 +121,14 @@ class PlanningSettingsPage : ComponentActivity() {
     fun Settings() {
         val viewModel: PlanningSettingsViewModel by viewModels()
         val group = viewModel.sharedPlanning.value
+        val currentUid = viewModel.currentUid.value
+        val isAdmin = currentUid == group.admin
 
         var showNameDialog by remember { mutableStateOf(false) }
         var showWeekBeginningBottomSheet by remember { mutableStateOf(false) }
         var showRemoveSharedPlanningDialog by remember { mutableStateOf(false) }
+        var showExitSharedPlanningDialog by remember { mutableStateOf(false) }
+        var toBeRemovedUser by remember { mutableStateOf(User.EMPTY) }
         val sheetState = rememberModalBottomSheetState()
 
         if (showNameDialog)
@@ -150,6 +156,27 @@ class PlanningSettingsPage : ComponentActivity() {
             )
         }
 
+        if (showExitSharedPlanningDialog) {
+            QDialog(
+                onDismissRequest = { showExitSharedPlanningDialog = false },
+                leadingIcon = Icons.AutoMirrored.Outlined.ExitToApp,
+                title = R.string.plannings_exit_group_title,
+                buttonTitle = R.string.exit_shared_planning_button,
+                content = {
+                    Text(stringResource(R.string.shared_planning_exit_user))
+                },
+                onSubmit = {
+                    viewModel.exitSharedPlanning {
+                        val resultIntent = Intent()
+                        resultIntent.putExtra(HAS_REMOVED_SHARED_PLANNING, true)
+                        setResult(RESULT_OK, resultIntent)
+                        finish()
+                    }
+                    showExitSharedPlanningDialog = false
+                },
+            )
+        }
+
         if (showRemoveSharedPlanningDialog) {
             QDialog(
                 onDismissRequest = { showRemoveSharedPlanningDialog = false },
@@ -170,6 +197,22 @@ class PlanningSettingsPage : ComponentActivity() {
                         finish()
                     }
                     showRemoveSharedPlanningDialog = false
+                },
+            )
+        }
+
+        if (toBeRemovedUser != User.EMPTY) {
+            QDialog(
+                onDismissRequest = { toBeRemovedUser = User.EMPTY },
+                leadingIcon = Icons.Outlined.Delete,
+                title = R.string.shared_planning_settings_manage_user,
+                buttonTitle = R.string.plannings_remove,
+                content = {
+                    Text(stringResource(R.string.shared_planning_remove_user, toBeRemovedUser.name))
+                },
+                onSubmit = {
+                    viewModel.deleteUserFromSharedPlanning(toBeRemovedUser.id)
+                    toBeRemovedUser = User.EMPTY
                 },
             )
         }
@@ -226,6 +269,12 @@ class PlanningSettingsPage : ComponentActivity() {
                     showWeekBeginningBottomSheet = true
                 }
                 QSelectableItem(
+                    icon = Icons.AutoMirrored.Outlined.ExitToApp,
+                    text = stringResource(R.string.exit_shared_planning),
+                ) {
+                    showExitSharedPlanningDialog = true
+                }
+                if (isAdmin) QSelectableItem(
                     icon = Icons.Outlined.Delete,
                     text = stringResource(R.string.plannings_remove_shared_planning),
                     textColor = MaterialTheme.colorScheme.error,
@@ -253,9 +302,14 @@ class PlanningSettingsPage : ComponentActivity() {
                         modifier = Modifier.padding(bottom = 4.dp),
                         uri = user.photo,
                         text = user.name,
-                    ) {
-                        // TODO: Do something?
-                    }
+                        onClick = if (isAdmin) {
+                            {
+                                toBeRemovedUser = user
+                            }
+                        } else {
+                            null
+                        }
+                    )
                 }
             }
         }

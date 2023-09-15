@@ -27,7 +27,7 @@ fun QSelectableItem(
     textColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     trailingText: String? = null,
     text: String,
-    onClick: () -> Unit,
+    onClick: (() -> Unit)? = null,
 ) {
     if (uri != null && icon != null) {
         throw Exception("Cannot render an Icon and a Image together")
@@ -36,7 +36,8 @@ fun QSelectableItem(
     Surface(
         color = Color.Transparent,
         modifier = modifier.fillMaxWidth(),
-        onClick = onClick,
+        enabled = onClick != null,
+        onClick = { onClick?.let { it() } },
         shape = MaterialTheme.shapes.small
     ) {
         Row(

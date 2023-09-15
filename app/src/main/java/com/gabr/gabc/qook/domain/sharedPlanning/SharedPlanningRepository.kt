@@ -11,9 +11,9 @@ interface SharedPlanningRepository {
     ): Either<SharedPlanningFailure, Unit>
 
     suspend fun addUserToSharedPlanning(id: String): Either<SharedPlanningFailure, Unit>
-    suspend fun removeUserToSharedPlanning(
+    suspend fun removeUserFromSharedPlanning(
         id: String,
-        uid: String
+        uid: String? = null
     ): Either<SharedPlanningFailure, Unit>
 
     suspend fun deleteSharedPlanning(sharedPlanning: SharedPlanning): Either<SharedPlanningFailure, Unit>

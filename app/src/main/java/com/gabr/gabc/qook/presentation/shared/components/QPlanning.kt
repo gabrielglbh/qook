@@ -45,67 +45,109 @@ fun QPlanning(
     onRecipeTapped: (Recipe, String) -> Unit,
     onClearDayPlanning: (DayPlanning, Boolean) -> Unit,
 ) {
+    val today by remember { mutableStateOf(QDateUtils.getDayOfWeekIndex()) }
+
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier.verticalScroll(rememberScrollState())
     ) {
-        planning.forEach { dp ->
-            Column(
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.Start,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(4.dp),
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceAround,
-                    modifier = Modifier.padding(horizontal = 12.dp),
+        planning.forEachIndexed { i, dp ->
+            if (i == today) {
+                QContentCard(
+                    arrangement = Arrangement.Center,
+                    alignment = Alignment.Start,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(4.dp),
                 ) {
-                    Text(
-                        stringResource(QDateUtils.getWeekDayStringRes(dp.dayIndex)),
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.weight(1f)
-                    )
-                    IconButton(onClick = {
-                        onClearFullDayPlanning(dp)
-                    }) {
-                        Icon(Icons.Outlined.ClearAll, "")
-                    }
-                }
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.padding(end = 12.dp)
-                ) {
-                    PlanningDayRecipe(
+                    DayPlanningMetadata(
                         dp,
-                        dp.lunch.meal,
                         users,
                         true,
                         onAddRecipeToDayPlanning,
                         onRecipeTapped,
                         onClearDayPlanning,
+                        onClearFullDayPlanning,
                     )
-                    PlanningDayRecipe(
+                }
+            } else {
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.Start,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(4.dp),
+                ) {
+                    DayPlanningMetadata(
                         dp,
-                        dp.dinner.meal,
                         users,
                         false,
                         onAddRecipeToDayPlanning,
                         onRecipeTapped,
                         onClearDayPlanning,
+                        onClearFullDayPlanning,
                     )
                 }
-                HorizontalDivider(
-                    color = MaterialTheme.colorScheme.outlineVariant,
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
-                )
             }
         }
     }
+}
 
+@Composable
+fun DayPlanningMetadata(
+    dp: DayPlanning,
+    users: List<User> = listOf(),
+    isToday: Boolean,
+    onAddRecipeToDayPlanning: (DayPlanning, Boolean) -> Unit,
+    onRecipeTapped: (Recipe, String) -> Unit,
+    onClearDayPlanning: (DayPlanning, Boolean) -> Unit,
+    onClearFullDayPlanning: (DayPlanning) -> Unit,
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceAround,
+        modifier = Modifier.padding(horizontal = 12.dp),
+    ) {
+        Text(
+            stringResource(QDateUtils.getWeekDayStringRes(dp.dayIndex)),
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.weight(1f)
+        )
+        IconButton(onClick = {
+            onClearFullDayPlanning(dp)
+        }) {
+            Icon(Icons.Outlined.ClearAll, "")
+        }
+    }
+    Column(
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(end = 12.dp)
+    ) {
+        PlanningDayRecipe(
+            dp,
+            dp.lunch.meal,
+            users,
+            true,
+            onAddRecipeToDayPlanning,
+            onRecipeTapped,
+            onClearDayPlanning,
+        )
+        PlanningDayRecipe(
+            dp,
+            dp.dinner.meal,
+            users,
+            false,
+            onAddRecipeToDayPlanning,
+            onRecipeTapped,
+            onClearDayPlanning,
+        )
+    }
+    if (!isToday) HorizontalDivider(
+        color = MaterialTheme.colorScheme.outlineVariant,
+        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+    )
 }
 
 @Composable

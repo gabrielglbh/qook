@@ -171,4 +171,10 @@
     <string name="plannings_group_users">Usuarios</string>
     <string name="recipe_details_add_recipe_success">La receta se ha guardado correctamente</string>
     <string name="settings_notifications">Administrar notificaciones</string>
+    <string name="shared_planning_remove_user">¿Quieres eliminar a %1$s del planning compartido? %1$s no podrá actualizar el planning compartido ni descargar sus recetas</string>
+    <string name="shared_planning_settings_manage_user">Administrar usuario</string>
+    <string name="exit_shared_planning">Salir del planning compartido</string>
+    <string name="exit_shared_planning_button">Salir</string>
+    <string name="plannings_exit_group_title">¿Estás seguro de que quieres salir del planning compartido?</string>
+    <string name="shared_planning_exit_user">No podrás actualizar el planning compartido ni descargar sus recetas</string>
 </resources>

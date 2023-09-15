@@ -3,7 +3,7 @@ package com.gabr.gabc.qook.presentation.shared
 class IntentVars {
     companion object {
         /**
-         * Boolean to exit group in PlanningPage if removed
+         * Boolean to exit group in PlanningPage if removed or exit
          * */
         const val HAS_REMOVED_SHARED_PLANNING = "HAS_REMOVED_SHARED_PLANNING"
 

@@ -11,6 +11,7 @@ data class SharedPlanningDto constructor(
     @PropertyName("name") val name: String = "",
     @PropertyName("resetDay") val resetDay: Int = 0,
     @PropertyName("hasPhoto") val hasPhoto: Boolean = false,
+    @PropertyName(Globals.OBJ_SHARED_PLANNING_ADMIN) val admin: String = "",
     @PropertyName(Globals.OBJ_SHARED_PLANNING_USERS) val users: List<String> = listOf(),
 )
 
@@ -20,6 +21,7 @@ fun SharedPlanningDto.toDomain(): SharedPlanning {
         name,
         Uri.EMPTY,
         resetDay,
+        admin,
         listOf(),
     )
 }
@@ -29,6 +31,7 @@ fun SharedPlanningDto.toMap(): Map<String, Any?> {
         Pair("name", name),
         Pair("resetDay", resetDay),
         Pair("hasPhoto", hasPhoto),
+        Pair(Globals.OBJ_SHARED_PLANNING_ADMIN, admin),
         Pair(Globals.OBJ_SHARED_PLANNING_USERS, users),
     )
 }

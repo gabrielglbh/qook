@@ -10,13 +10,12 @@ data class UserDto(
     @PropertyName("email") val email: String = "",
     @PropertyName("resetDay") val resetDay: Int = 1,
     @PropertyName("language") val language: String = "",
-    @PropertyName("adminOf") val adminOf: List<String> = listOf(),
     @PropertyName("messagingToken") val messagingToken: String = "",
     @PropertyName("hasPhoto") val hasPhoto: Boolean = false,
 )
 
 fun UserDto.toDomain(): User {
-    return User(id, name, email, resetDay, Uri.EMPTY, language, adminOf, messagingToken, hasPhoto)
+    return User(id, name, email, resetDay, Uri.EMPTY, language, messagingToken, hasPhoto)
 }
 
 fun UserDto.toMap(): Map<String, Any?> {
@@ -26,7 +25,6 @@ fun UserDto.toMap(): Map<String, Any?> {
         Pair("email", email),
         Pair("resetDay", resetDay),
         Pair("language", language),
-        Pair("adminOf", adminOf),
         Pair("messagingToken", messagingToken),
         Pair("hasPhoto", hasPhoto),
     )

@@ -40,7 +40,7 @@ class SharedPlanningRepositoryImpl @Inject constructor(
                 val ref = db.collection(Globals.DB_GROUPS).document()
                 val planningId = ref.path.split("/").last()
 
-                ref.set(sharedPlanning.toDto().copy(users = listOf(it.uid))).await()
+                ref.set(sharedPlanning.toDto().copy(users = listOf(it.uid), admin = it.uid)).await()
 
                 if (sharedPlanning.photo.host != Globals.FIREBASE_HOST && sharedPlanning.photo != Uri.EMPTY) {
                     storage.uploadImage(
@@ -96,14 +96,40 @@ class SharedPlanningRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun removeUserToSharedPlanning(
+    override suspend fun removeUserFromSharedPlanning(
         id: String,
-        uid: String
+        uid: String?
     ): Either<SharedPlanningFailure, Unit> {
         try {
             auth.currentUser?.let {
-                db.collection(Globals.DB_GROUPS).document(id)
-                    .update(Globals.OBJ_SHARED_PLANNING_USERS, FieldValue.arrayRemove(uid)).await()
+                val userId = uid ?: it.uid
+                val groupDoc = db.collection(Globals.DB_GROUPS).document(id)
+
+                db.runTransaction { tr ->
+                    val snapshot = tr.get(groupDoc)
+                    val admin = snapshot.get(Globals.OBJ_SHARED_PLANNING_ADMIN) as String
+                    val users = mutableListOf<String>().apply {
+                        addAll(snapshot.get(Globals.OBJ_SHARED_PLANNING_USERS) as List<String>)
+                    }
+
+                    tr.update(
+                        groupDoc,
+                        Globals.OBJ_SHARED_PLANNING_USERS,
+                        FieldValue.arrayRemove(userId)
+                    )
+
+                    users.remove(userId)
+
+                    if (admin == userId && users.isNotEmpty()) {
+                        val random = (0..users.size).random()
+                        tr.update(
+                            groupDoc,
+                            mapOf(
+                                Pair(Globals.OBJ_SHARED_PLANNING_ADMIN, users[random])
+                            )
+                        )
+                    }
+                }.await()
 
                 return Right(Unit)
             }

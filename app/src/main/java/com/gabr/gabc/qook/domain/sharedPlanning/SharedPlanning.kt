@@ -12,11 +12,12 @@ data class SharedPlanning(
     val name: String,
     val photo: Uri,
     val resetDay: Int,
+    val admin: String,
     val users: List<User>,
 ) : Parcelable {
     companion object {
         val EMPTY =
-            SharedPlanning("", "", Uri.EMPTY, 0, listOf())
+            SharedPlanning("", "", Uri.EMPTY, 0, "", listOf())
     }
 }
 
@@ -26,6 +27,7 @@ fun SharedPlanning.toDto(): SharedPlanningDto {
         name,
         resetDay,
         photo != Uri.EMPTY,
+        admin,
         users.map { it.id }
     )
 }

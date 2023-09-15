@@ -85,7 +85,6 @@ class LoginViewModel @Inject constructor(
                                     email = state.email,
                                     language = Locale.getDefault().language.uppercase(),
                                     messagingToken = "",
-                                    adminOf = listOf(),
                                     hasPhoto = false,
                                 )
                             )
