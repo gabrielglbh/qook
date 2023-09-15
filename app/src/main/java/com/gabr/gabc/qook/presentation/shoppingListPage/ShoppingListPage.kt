@@ -54,6 +54,7 @@ import com.gabr.gabc.qook.presentation.shared.components.QShimmer
 import com.gabr.gabc.qook.presentation.shared.components.QTextForm
 import com.gabr.gabc.qook.presentation.shoppingListPage.viewModel.ShoppingListViewModel
 import com.gabr.gabc.qook.presentation.theme.AppTheme
+import com.gabr.gabc.qook.presentation.theme.seed
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -215,10 +216,7 @@ class ShoppingListPage : ComponentActivity() {
                                             modifier = Modifier.size(24.dp),
                                             shape = CircleShape,
                                             border = if (ingredient.second) {
-                                                BorderStroke(
-                                                    2.dp,
-                                                    MaterialTheme.colorScheme.primaryContainer
-                                                )
+                                                BorderStroke(2.dp, seed)
                                             } else {
                                                 BorderStroke(
                                                     2.dp,
@@ -230,7 +228,7 @@ class ShoppingListPage : ComponentActivity() {
                                                 Icon(
                                                     Icons.Default.Check,
                                                     contentDescription = "",
-                                                    tint = MaterialTheme.colorScheme.primaryContainer,
+                                                    tint = seed,
                                                     modifier = Modifier.size(12.dp)
                                                 )
                                             }

@@ -302,7 +302,7 @@ class PlanningSettingsPage : ComponentActivity() {
                         modifier = Modifier.padding(bottom = 4.dp),
                         uri = user.photo,
                         text = user.name,
-                        onClick = if (isAdmin) {
+                        onClick = if (isAdmin && currentUid != user.id) {
                             {
                                 toBeRemovedUser = user
                             }
