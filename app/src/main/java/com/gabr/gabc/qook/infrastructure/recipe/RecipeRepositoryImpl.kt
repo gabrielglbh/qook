@@ -17,7 +17,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.Query
-import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.storage.StorageException
 import kotlinx.coroutines.tasks.await
@@ -84,21 +83,20 @@ class RecipeRepositoryImpl @Inject constructor(
     ): Either<RecipeFailure, List<Recipe>> {
         try {
             auth.currentUser?.let {
-                lateinit var querySnapshot: QuerySnapshot
-                if (tagId != null) {
-                    querySnapshot = db.collection(Globals.DB_USER).document(it.uid)
+                val querySnapshot = if (tagId != null) {
+                    db.collection(Globals.DB_USER).document(it.uid)
                         .collection(Globals.DB_RECIPES)
                         .whereArrayContains(Globals.OBJ_RECIPE_TAG_IDS, tagId)
                         .orderBy(orderBy, Query.Direction.DESCENDING)
                         .get().await()
                 } else if (query != null && query.trim().isNotEmpty()) {
-                    querySnapshot = db.collection(Globals.DB_USER).document(it.uid)
+                    db.collection(Globals.DB_USER).document(it.uid)
                         .collection(Globals.DB_RECIPES)
                         .whereArrayContains(Globals.OBJ_RECIPE_KEYWORDS, query.lowercase())
                         .orderBy(orderBy, Query.Direction.DESCENDING)
                         .get().await()
                 } else {
-                    querySnapshot = db.collection(Globals.DB_USER).document(it.uid)
+                    db.collection(Globals.DB_USER).document(it.uid)
                         .collection(Globals.DB_RECIPES)
                         .orderBy(orderBy, Query.Direction.DESCENDING)
                         .get().await()
@@ -106,11 +104,24 @@ class RecipeRepositoryImpl @Inject constructor(
 
                 val recipes = mutableListOf<Recipe>()
                 querySnapshot.documents.forEach { doc ->
-                    val result = getRecipe(doc.id, it.uid)
-                    result.fold(
-                        ifLeft = {},
-                        ifRight = { recipe -> recipes.add(recipe) }
-                    )
+                    doc.toObject<RecipeDto>()?.let { recipeDto ->
+                        var recipe = recipeDto.toDomain()
+                        if (recipeDto.hasPhoto) {
+                            val res =
+                                storage.getDownloadUrl("${Globals.STORAGE_USERS}${it.uid}/${Globals.STORAGE_RECIPES}${recipeDto.id}.jpg")
+                            res.fold(
+                                ifLeft = {},
+                                ifRight = { uri -> recipe = recipe.copy(photo = uri) }
+                            )
+                        }
+
+                        val tagsRes = tagRepository.getTags(recipeDto, it.uid)
+                        tagsRes.fold(
+                            ifLeft = {},
+                            ifRight = { tags -> recipe = recipe.copy(tags = tags) }
+                        )
+                        recipes.add(recipe)
+                    }
                 }
                 return Right(recipes)
             }

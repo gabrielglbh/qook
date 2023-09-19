@@ -47,5 +47,7 @@ class Globals {
 
         const val OBJ_SHARED_PLANNING_USERS = "users"
         const val OBJ_SHARED_PLANNING_ADMIN = "admin"
+
+        const val RECIPES_LIMIT = 7L
     }
 }

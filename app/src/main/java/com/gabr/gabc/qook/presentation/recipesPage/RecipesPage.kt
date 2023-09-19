@@ -167,6 +167,30 @@ class RecipesPage : ComponentActivity() {
         var selectedFilterTag by remember { mutableStateOf<Tag?>(null) }
         var selectedRecipeForPlanning by remember { mutableStateOf(Recipe.EMPTY) }
 
+        /*val lazyState = rememberLazyListState()
+        val loadMoreRecipes = remember {
+            derivedStateOf {
+                val layoutInfo = lazyState.layoutInfo
+                val lastVisibleItemIndex =
+                    (layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0) + 1
+                lastVisibleItemIndex % Globals.RECIPES_LIMIT.toInt() == 0
+            }
+        }
+
+        LaunchedEffect(loadMoreRecipes) {
+            snapshotFlow { loadMoreRecipes.value }.distinctUntilChanged().collect {
+                Log.d("DANGER", "searchedRecipesIsNotEmpty: ${state.searchedRecipes.isNotEmpty()}")
+                Log.d("DANGER", "recipesIsNotEmpty: ${state.recipes.isNotEmpty()}")
+                if (state.searchedRecipes.isNotEmpty()) {
+                    viewModel.loadMoreRecipes { err ->
+                        scope.launch {
+                            snackbarHostState.showSnackbar(err)
+                        }
+                    }
+                }
+            }
+        }*/
+
         fun clearSearch() {
             viewModel.updateSearchState(searchState.copy(query = ""))
             viewModel.clearSearch()

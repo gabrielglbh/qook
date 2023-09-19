@@ -5,6 +5,7 @@ plugins {
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
     id("kotlin-parcelize")
+    id("com.google.firebase.firebase-perf")
 }
 
 android {
@@ -87,6 +88,7 @@ dependencies {
     implementation("com.google.firebase:firebase-storage-ktx")
     implementation("com.google.firebase:firebase-analytics-ktx")
     implementation("com.google.firebase:firebase-messaging-ktx")
+    implementation("com.google.firebase:firebase-perf-ktx")
     implementation("com.google.firebase:firebase-messaging-directboot:23.2.1")
 
     // Coroutines
