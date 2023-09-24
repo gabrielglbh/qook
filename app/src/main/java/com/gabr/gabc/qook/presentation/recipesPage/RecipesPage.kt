@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.Clear
@@ -38,11 +39,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
@@ -56,6 +59,7 @@ import com.gabr.gabc.qook.domain.tag.Tag
 import com.gabr.gabc.qook.presentation.addRecipePage.AddRecipePage
 import com.gabr.gabc.qook.presentation.recipeDetailsPage.RecipeDetailsPage
 import com.gabr.gabc.qook.presentation.recipesPage.viewModel.RecipesViewModel
+import com.gabr.gabc.qook.presentation.shared.Globals
 import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.FROM_PLANNING
 import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.HAS_DELETED_RECIPE
 import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.HAS_UPDATED_DAY_PLANNING
@@ -77,6 +81,7 @@ import com.gabr.gabc.qook.presentation.shared.components.QTag
 import com.gabr.gabc.qook.presentation.shared.components.QTextForm
 import com.gabr.gabc.qook.presentation.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -167,29 +172,27 @@ class RecipesPage : ComponentActivity() {
         var selectedFilterTag by remember { mutableStateOf<Tag?>(null) }
         var selectedRecipeForPlanning by remember { mutableStateOf(Recipe.EMPTY) }
 
-        /*val lazyState = rememberLazyListState()
+        val lazyState = rememberLazyListState()
         val loadMoreRecipes = remember {
             derivedStateOf {
                 val layoutInfo = lazyState.layoutInfo
                 val lastVisibleItemIndex =
                     (layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0) + 1
-                lastVisibleItemIndex % Globals.RECIPES_LIMIT.toInt() == 0
+                val isLastItemMultiple = lastVisibleItemIndex % Globals.RECIPES_LIMIT.toInt() == 0
+                val isLastItemNotAlreadyProvided = lastVisibleItemIndex > state.searchedRecipes.size
+                isLastItemMultiple && isLastItemNotAlreadyProvided
             }
         }
 
         LaunchedEffect(loadMoreRecipes) {
             snapshotFlow { loadMoreRecipes.value }.distinctUntilChanged().collect {
-                Log.d("DANGER", "searchedRecipesIsNotEmpty: ${state.searchedRecipes.isNotEmpty()}")
-                Log.d("DANGER", "recipesIsNotEmpty: ${state.recipes.isNotEmpty()}")
-                if (state.searchedRecipes.isNotEmpty()) {
-                    viewModel.loadMoreRecipes { err ->
-                        scope.launch {
-                            snackbarHostState.showSnackbar(err)
-                        }
-                    }
+                val newViewModelInstance: RecipesViewModel by viewModels()
+                val recipes = newViewModelInstance.recipesState.value.searchedRecipes
+                if (recipes.isNotEmpty() && it) {
+                    viewModel.loadMoreRecipes()
                 }
             }
-        }*/
+        }
 
         fun clearSearch() {
             viewModel.updateSearchState(searchState.copy(query = ""))
@@ -363,7 +366,8 @@ class RecipesPage : ComponentActivity() {
                             }
                             QShimmer(controller = state.searchedRecipes.isNotEmpty()) { modifier ->
                                 LazyColumn(
-                                    modifier = modifier
+                                    modifier = modifier,
+                                    state = lazyState,
                                 ) {
                                     itemsIndexed(state.searchedRecipes) { x, recipe ->
                                         Column {

@@ -8,6 +8,7 @@ interface RecipeRepository {
         orderBy: String = Globals.OBJ_RECIPE_CREATION,
         query: String? = null,
         tagId: String? = null,
+        lastRecipeId: String = "",
     ): Either<RecipeFailure, List<Recipe>>
 
     suspend fun createRecipe(

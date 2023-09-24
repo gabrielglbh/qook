@@ -14,6 +14,7 @@ import com.gabr.gabc.qook.domain.tag.TagRepository
 import com.gabr.gabc.qook.presentation.shared.Globals
 import com.gabr.gabc.qook.presentation.shared.providers.StringResourcesProvider
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.Query
@@ -79,28 +80,39 @@ class RecipeRepositoryImpl @Inject constructor(
     override suspend fun getRecipes(
         orderBy: String,
         query: String?,
-        tagId: String?
+        tagId: String?,
+        lastRecipeId: String,
     ): Either<RecipeFailure, List<Recipe>> {
         try {
             auth.currentUser?.let {
-                val querySnapshot = if (tagId != null) {
+                var lastDocSnapshot: DocumentSnapshot? = null
+                if (lastRecipeId.isNotEmpty()) {
+                    lastDocSnapshot = db.collection(Globals.DB_USER).document(it.uid)
+                        .collection(Globals.DB_RECIPES).document(lastRecipeId).get().await()
+                }
+
+                val queryDb = if (tagId != null) {
                     db.collection(Globals.DB_USER).document(it.uid)
                         .collection(Globals.DB_RECIPES)
                         .whereArrayContains(Globals.OBJ_RECIPE_TAG_IDS, tagId)
                         .orderBy(orderBy, Query.Direction.DESCENDING)
-                        .get().await()
                 } else if (query != null && query.trim().isNotEmpty()) {
                     db.collection(Globals.DB_USER).document(it.uid)
                         .collection(Globals.DB_RECIPES)
                         .whereArrayContains(Globals.OBJ_RECIPE_KEYWORDS, query.lowercase())
                         .orderBy(orderBy, Query.Direction.DESCENDING)
-                        .get().await()
                 } else {
                     db.collection(Globals.DB_USER).document(it.uid)
                         .collection(Globals.DB_RECIPES)
                         .orderBy(orderBy, Query.Direction.DESCENDING)
-                        .get().await()
                 }
+
+                // TODO: Not retrieving the recipes paginated
+                if (lastDocSnapshot != null) {
+                    queryDb.startAfter(lastDocSnapshot)
+                }
+
+                val querySnapshot = queryDb.limit(Globals.RECIPES_LIMIT).get().await()
 
                 val recipes = mutableListOf<Recipe>()
                 querySnapshot.documents.forEach { doc ->

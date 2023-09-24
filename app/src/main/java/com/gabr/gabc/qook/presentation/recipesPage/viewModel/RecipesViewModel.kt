@@ -94,13 +94,48 @@ class RecipesViewModel @Inject constructor(
         }
     }
 
+    fun loadMoreRecipes() {
+        val allRecipes = _recipesState.value.recipes
+        val searchedRecipes = _recipesState.value.searchedRecipes
+        viewModelScope.launch {
+            val result = recipeRepository.getRecipes(
+                orderBy = searchState.value.orderBy,
+                query = searchState.value.query,
+                tagId = searchState.value.tag?.id,
+                lastRecipeId = searchedRecipes.last().id,
+            )
+            result.fold(
+                ifLeft = { },
+                ifRight = { recipes ->
+                    val mutableRecipes =
+                        mutableListOf<Recipe>().apply { addAll(allRecipes) }
+                    val mutableSearchedRecipes =
+                        mutableListOf<Recipe>().apply { addAll(searchedRecipes) }
+                    mutableRecipes.addAll(recipes)
+                    mutableSearchedRecipes.addAll(recipes)
+
+                    if (searchState.value.query.isEmpty() && searchState.value.tag == null) {
+                        _recipesState.value = _recipesState.value.copy(
+                            recipes = mutableRecipes,
+                            searchedRecipes = mutableSearchedRecipes
+                        )
+                    } else {
+                        _recipesState.value = _recipesState.value.copy(
+                            searchedRecipes = mutableSearchedRecipes
+                        )
+                    }
+                }
+            )
+        }
+    }
+
     fun onSearch() {
         viewModelScope.launch {
             isLoadingRecipes.value = true
             val result = recipeRepository.getRecipes(
                 orderBy = searchState.value.orderBy,
                 query = searchState.value.query,
-                tagId = searchState.value.tag?.id
+                tagId = searchState.value.tag?.id,
             )
             result.fold(
                 ifLeft = {
