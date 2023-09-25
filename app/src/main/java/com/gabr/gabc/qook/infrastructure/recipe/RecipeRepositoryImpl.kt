@@ -91,7 +91,7 @@ class RecipeRepositoryImpl @Inject constructor(
                         .collection(Globals.DB_RECIPES).document(lastRecipeId).get().await()
                 }
 
-                val queryDb = if (tagId != null) {
+                var queryDb = if (tagId != null) {
                     db.collection(Globals.DB_USER).document(it.uid)
                         .collection(Globals.DB_RECIPES)
                         .whereArrayContains(Globals.OBJ_RECIPE_TAG_IDS, tagId)
@@ -107,9 +107,8 @@ class RecipeRepositoryImpl @Inject constructor(
                         .orderBy(orderBy, Query.Direction.DESCENDING)
                 }
 
-                // TODO: Not retrieving the recipes paginated
                 if (lastDocSnapshot != null) {
-                    queryDb.startAfter(lastDocSnapshot)
+                    queryDb = queryDb.startAfter(lastDocSnapshot)
                 }
 
                 val querySnapshot = queryDb.limit(Globals.RECIPES_LIMIT).get().await()

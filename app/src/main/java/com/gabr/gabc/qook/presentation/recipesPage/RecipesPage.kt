@@ -31,6 +31,7 @@ import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -348,6 +349,12 @@ class RecipesPage : ComponentActivity() {
                                 }
                             )
                         }
+                        Spacer(modifier = Modifier.size(8.dp))
+                        if (viewModel.isLoadingMoreRecipes.value) LinearProgressIndicator(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 8.dp)
+                        )
                         Spacer(modifier = Modifier.size(8.dp))
                         Box(
                             modifier = Modifier.weight(1f),

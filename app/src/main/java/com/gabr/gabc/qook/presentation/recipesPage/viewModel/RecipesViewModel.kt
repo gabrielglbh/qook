@@ -35,6 +35,8 @@ class RecipesViewModel @Inject constructor(
 
     var isLoadingRecipes = mutableStateOf(false)
         private set
+    var isLoadingMoreRecipes = mutableStateOf(false)
+        private set
 
     private fun alterListForUpdate(recipe: Recipe, list: List<Recipe>): List<Recipe> {
         val aux = mutableListOf<Recipe>().apply { addAll(list) }
@@ -98,6 +100,7 @@ class RecipesViewModel @Inject constructor(
         val allRecipes = _recipesState.value.recipes
         val searchedRecipes = _recipesState.value.searchedRecipes
         viewModelScope.launch {
+            isLoadingMoreRecipes.value = true
             val result = recipeRepository.getRecipes(
                 orderBy = searchState.value.orderBy,
                 query = searchState.value.query,
@@ -126,6 +129,7 @@ class RecipesViewModel @Inject constructor(
                     }
                 }
             )
+            isLoadingMoreRecipes.value = false
         }
     }
 
