@@ -39,6 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -349,39 +350,54 @@ class AddRecipePage : ComponentActivity() {
         ) {
             Bar(
                 modifier = Modifier.weight(1f),
-                color = MaterialTheme.colorScheme.tertiary
+                color = MaterialTheme.colorScheme.tertiary,
+                icon = RecipeStep.DATA.icon,
             ) {
                 navController.navigate(RecipeStep.DATA.name)
             }
             Spacer(modifier = Modifier.size(8.dp))
-            Bar(modifier = Modifier.weight(1f), color = colorBar2) {
+            Bar(
+                modifier = Modifier.weight(1f), color = colorBar2,
+                icon = RecipeStep.INGREDIENTS.icon,
+            ) {
                 navController.navigate(RecipeStep.INGREDIENTS.name)
             }
             Spacer(modifier = Modifier.size(8.dp))
-            Bar(modifier = Modifier.weight(1f), color = colorBar3) {
+            Bar(
+                modifier = Modifier.weight(1f), color = colorBar3,
+                icon = RecipeStep.DESCRIPTION.icon,
+            ) {
                 navController.navigate(RecipeStep.DESCRIPTION.name)
             }
             Spacer(modifier = Modifier.size(8.dp))
-            Bar(modifier = Modifier.weight(1f), color = colorBar4) {
+            Bar(
+                modifier = Modifier.weight(1f), color = colorBar4,
+                icon = RecipeStep.TAGS.icon,
+            ) {
                 navController.navigate(RecipeStep.TAGS.name)
             }
             Spacer(modifier = Modifier.size(8.dp))
-            Bar(modifier = Modifier.weight(1f), color = colorBar5) {
+            Bar(
+                modifier = Modifier.weight(1f), color = colorBar5,
+                icon = RecipeStep.PREVIEW.icon,
+            ) {
                 navController.navigate(RecipeStep.PREVIEW.name)
             }
         }
     }
 
     @Composable
-    fun Bar(modifier: Modifier, color: Color, onClick: () -> Unit) {
+    fun Bar(modifier: Modifier, color: Color, icon: ImageVector, onClick: () -> Unit) {
         Surface(
             shape = MaterialTheme.shapes.medium,
             color = color,
             modifier = modifier
-                .height(8.dp),
+                .height(20.dp),
             onClick = {
                 onClick()
             }
-        ) {}
+        ) {
+            Icon(icon, "", modifier = Modifier.padding(vertical = 2.dp))
+        }
     }
 }
