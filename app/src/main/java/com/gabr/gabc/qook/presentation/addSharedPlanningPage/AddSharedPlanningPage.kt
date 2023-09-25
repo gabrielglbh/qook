@@ -209,7 +209,6 @@ class AddSharedPlanningPage : ComponentActivity() {
                                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
                                             startActivity(intent)
                                             finish()
-                                            // TODO: Check flux
                                         }
                                     )
                                 } else {
