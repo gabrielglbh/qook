@@ -5,7 +5,7 @@ Manage recipes and plan your lunches in a weekly basis with this easy-to-use and
 App made with native Kotlin with Jetpack Compose for Android. Using coroutines, Hilt and Dagger, flows and view model; all with a clean architecture following the DDD standards.
 
 <p align="center">
-  <a href="https://play.google.com/store/apps/details?id=com.gabr.garc.qook">
+  <a href="https://play.google.com/store/apps/details?id=com.gabr.gabc.qook">
     <img src="https://cdn.rawgit.com/steverichey/google-play-badge-svg/master/img/en_get.svg" width="30%">
   </a>  
 </p>
