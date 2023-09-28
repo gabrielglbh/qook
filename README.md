@@ -17,7 +17,7 @@ App made with native Kotlin with Jetpack Compose for Android. Using coroutines, 
   <img src="documentation/planning.png" width="20%">
   <img src="documentation/recipes.png" width="20%">
   <img src="documentation/details.png" width="20%">
-  <img src="documentation/aadd_recipe.png" width="20%">
+  <img src="documentation/add_recipe.png" width="20%">
 </p>
 
 ## Description
