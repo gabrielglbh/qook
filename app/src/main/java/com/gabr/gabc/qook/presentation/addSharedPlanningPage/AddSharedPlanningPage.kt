@@ -1,8 +1,7 @@
 package com.gabr.gabc.qook.presentation.addSharedPlanningPage
 
-import android.Manifest
 import android.content.Intent
-import android.os.Build
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -53,6 +52,7 @@ import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.shared.components.QChangeWeekBeginningBottomSheet
 import com.gabr.gabc.qook.presentation.shared.components.QImageContainer
 import com.gabr.gabc.qook.presentation.shared.components.QLoadingScreen
+import com.gabr.gabc.qook.presentation.shared.components.QPhotoDialog
 import com.gabr.gabc.qook.presentation.shared.components.QSelectableItem
 import com.gabr.gabc.qook.presentation.shared.components.QTextForm
 import com.gabr.gabc.qook.presentation.shared.components.QTextTitle
@@ -63,21 +63,34 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class AddSharedPlanningPage : ComponentActivity() {
     private lateinit var pickMedia: ActivityResultLauncher<PickVisualMediaRequest>
+    private lateinit var photoMedia: ActivityResultLauncher<Uri>
     private lateinit var requestMultiplePermissions: ActivityResultLauncher<Array<String>>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val viewModel: AddSharedPlanningViewModel by viewModels()
+
+        val photoUri = PermissionsRequester.getPhotoUri(this)
         pickMedia =
             registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
                 if (uri != null) {
                     viewModel.updateSharedPlanning(photo = uri)
                 }
             }
+        photoMedia = registerForActivityResult(ActivityResultContracts.TakePicture()) {
+            if (it) {
+                viewModel.updateSharedPlanning(photo = photoUri)
+            }
+        }
 
         requestMultiplePermissions =
-            PermissionsRequester.requestMultiplePermissionsCaller(this, pickMedia)
+            PermissionsRequester.requestMultiplePermissionsCaller(
+                this,
+                pickMedia,
+                photoMedia,
+                photoUri
+            )
 
         setContent {
             AppTheme {
@@ -116,6 +129,13 @@ class AddSharedPlanningPage : ComponentActivity() {
             )
         }
 
+        var photoOptions by remember { mutableStateOf(false) }
+        if (photoOptions) {
+            QPhotoDialog(requestMultiplePermissions, focusManager) {
+                photoOptions = false
+            }
+        }
+
         Box {
             Scaffold(
                 topBar = {
@@ -151,20 +171,7 @@ class AddSharedPlanningPage : ComponentActivity() {
                             uri = sharedPlanning.photo,
                             placeholder = Icons.Outlined.AddAPhoto,
                         ) {
-                            focusManager.clearFocus()
-                            requestMultiplePermissions.launch(
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                                    arrayOf(
-                                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                                        Manifest.permission.READ_MEDIA_IMAGES
-                                    )
-                                } else {
-                                    arrayOf(
-                                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                                        Manifest.permission.READ_EXTERNAL_STORAGE
-                                    )
-                                }
-                            )
+                            photoOptions = true
                         }
                         Spacer(modifier = Modifier.size(12.dp))
                         QTextForm(

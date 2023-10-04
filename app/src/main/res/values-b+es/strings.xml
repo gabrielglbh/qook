@@ -180,4 +180,9 @@
 
     <string name="share_recipe_description">¡Mira esta receta!</string>
     <string name="share_recipe">Compartir receta</string>
+
+    <string name="photo_title">Actualizar foto</string>
+    <string name="photo_content">¿Con qué quieres actualizar la foto?</string>
+    <string name="photo_gallery">Galería</string>
+    <string name="photo_camera">Cámara</string>
 </resources>

@@ -1,10 +1,9 @@
 package com.gabr.gabc.qook.presentation.addRecipePage.components
 
-import android.Manifest
-import android.os.Build
 import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,9 +15,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AddAPhoto
+import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.ReceiptLong
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -40,6 +43,7 @@ import com.gabr.gabc.qook.domain.recipe.Easiness
 import com.gabr.gabc.qook.presentation.addRecipePage.viewModel.AddRecipeViewModel
 import com.gabr.gabc.qook.presentation.shared.Validators
 import com.gabr.gabc.qook.presentation.shared.components.QImageContainer
+import com.gabr.gabc.qook.presentation.shared.components.QPhotoDialog
 import com.gabr.gabc.qook.presentation.shared.components.QTextForm
 import com.gabr.gabc.qook.presentation.shared.components.QTextTitle
 
@@ -55,6 +59,13 @@ fun RecipeMetadataForm(
 
     var nameFieldError by remember { mutableStateOf(false) }
     var timeFieldError by remember { mutableStateOf(false) }
+    var photoOptions by remember { mutableStateOf(false) }
+
+    if (photoOptions) {
+        QPhotoDialog(requestMultiplePermissions, focusManager) {
+            photoOptions = false
+        }
+    }
 
     Column(
         verticalArrangement = Arrangement.Top,
@@ -73,24 +84,26 @@ fun RecipeMetadataForm(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            QImageContainer(
-                uri = state.recipe.photo,
-                placeholder = Icons.Outlined.AddAPhoto,
+            Box(
+                contentAlignment = Alignment.BottomEnd
             ) {
-                focusManager.clearFocus()
-                requestMultiplePermissions.launch(
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        arrayOf(
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                            Manifest.permission.READ_MEDIA_IMAGES
-                        )
-                    } else {
-                        arrayOf(
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                            Manifest.permission.READ_EXTERNAL_STORAGE
-                        )
+                QImageContainer(
+                    uri = state.recipe.photo,
+                    placeholder = Icons.Outlined.AddAPhoto,
+                ) {
+                    photoOptions = true
+                }
+                IconButton(
+                    colors = IconButtonDefaults.filledIconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer,
+                        contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                    ),
+                    onClick = {
+                        viewModel.emptyPhoto()
                     }
-                )
+                ) {
+                    Icon(Icons.Outlined.Clear, "")
+                }
             }
             Spacer(modifier = Modifier.size(20.dp))
             QTextForm(

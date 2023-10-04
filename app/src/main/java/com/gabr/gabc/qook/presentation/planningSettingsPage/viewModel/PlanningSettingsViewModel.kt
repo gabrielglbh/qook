@@ -12,7 +12,6 @@ import com.gabr.gabc.qook.presentation.shared.ResizeImageUtil
 import com.gabr.gabc.qook.presentation.shared.providers.ContentResolverProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import java.util.Calendar
 import javax.inject.Inject
 
 @HiltViewModel
@@ -60,11 +59,7 @@ class PlanningSettingsViewModel @Inject constructor(
                 Uri.EMPTY
             } else if (uri.host != Globals.FIREBASE_HOST) {
                 Uri.fromFile(
-                    ResizeImageUtil.resizeImageToFile(
-                        uri,
-                        provider.contentResolver(),
-                        name = Calendar.getInstance().timeInMillis.toString()
-                    )
+                    ResizeImageUtil.resizeImageToFile(uri, provider.contentResolver())
                 )
             } else {
                 uri

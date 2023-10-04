@@ -1,6 +1,5 @@
 package com.gabr.gabc.qook.presentation.profilePage
 
-import android.Manifest
 import android.content.Intent
 import android.net.Uri
 import android.os.Build.VERSION
@@ -33,8 +32,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -51,6 +53,7 @@ import com.gabr.gabc.qook.presentation.shared.PermissionsRequester
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.shared.components.QAutoSizeText
 import com.gabr.gabc.qook.presentation.shared.components.QImageContainer
+import com.gabr.gabc.qook.presentation.shared.components.QPhotoDialog
 import com.gabr.gabc.qook.presentation.shared.components.QShimmer
 import com.gabr.gabc.qook.presentation.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -62,6 +65,7 @@ class ProfilePage : ComponentActivity() {
     private var hasChangedName = false
 
     private lateinit var pickMedia: ActivityResultLauncher<PickVisualMediaRequest>
+    private lateinit var photoMedia: ActivityResultLauncher<Uri>
     private lateinit var requestMultiplePermissions: ActivityResultLauncher<Array<String>>
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -76,6 +80,7 @@ class ProfilePage : ComponentActivity() {
 
         viewModel.setDataForLocalLoading(user)
 
+        val photoUri = PermissionsRequester.getPhotoUri(this)
         pickMedia =
             registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
                 if (uri != null) {
@@ -83,9 +88,20 @@ class ProfilePage : ComponentActivity() {
                     hasChangedProfilePicture = true
                 }
             }
+        photoMedia = registerForActivityResult(ActivityResultContracts.TakePicture()) {
+            if (it) {
+                viewModel.updateAvatar(photoUri)
+                hasChangedProfilePicture = true
+            }
+        }
 
         requestMultiplePermissions =
-            PermissionsRequester.requestMultiplePermissionsCaller(this, pickMedia)
+            PermissionsRequester.requestMultiplePermissionsCaller(
+                this,
+                pickMedia,
+                photoMedia,
+                photoUri
+            )
 
         setContent {
             AppTheme {
@@ -101,6 +117,7 @@ class ProfilePage : ComponentActivity() {
 
         val scope = rememberCoroutineScope()
         val snackbarHostState = remember { SnackbarHostState() }
+        var photoOptions by remember { mutableStateOf(false) }
 
         val isUserEmpty = state.user == User.EMPTY
 
@@ -114,6 +131,12 @@ class ProfilePage : ComponentActivity() {
                         snackbarHostState.showSnackbar(errorMessage)
                     }
                 }
+            }
+        }
+
+        if (photoOptions) {
+            QPhotoDialog(requestMultiplePermissions) {
+                photoOptions = false
             }
         }
 
@@ -171,19 +194,7 @@ class ProfilePage : ComponentActivity() {
                             placeholder = Icons.Outlined.AccountCircle,
                             onClick = if (!isUserEmpty) {
                                 {
-                                    requestMultiplePermissions.launch(
-                                        if (VERSION.SDK_INT >= VERSION_CODES.TIRAMISU) {
-                                            arrayOf(
-                                                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                                                Manifest.permission.READ_MEDIA_IMAGES
-                                            )
-                                        } else {
-                                            arrayOf(
-                                                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                                                Manifest.permission.READ_EXTERNAL_STORAGE
-                                            )
-                                        }
-                                    )
+                                    photoOptions = true
                                 }
                             } else {
                                 null

@@ -1,8 +1,7 @@
 package com.gabr.gabc.qook.presentation.planningSettingsPage
 
-import android.Manifest
 import android.content.Intent
-import android.os.Build
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -54,6 +53,7 @@ import com.gabr.gabc.qook.presentation.shared.components.QContentCard
 import com.gabr.gabc.qook.presentation.shared.components.QDialog
 import com.gabr.gabc.qook.presentation.shared.components.QImageContainer
 import com.gabr.gabc.qook.presentation.shared.components.QLoadingScreen
+import com.gabr.gabc.qook.presentation.shared.components.QPhotoDialog
 import com.gabr.gabc.qook.presentation.shared.components.QSelectableItem
 import com.gabr.gabc.qook.presentation.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -61,21 +61,34 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class PlanningSettingsPage : ComponentActivity() {
     private lateinit var pickMedia: ActivityResultLauncher<PickVisualMediaRequest>
+    private lateinit var photoMedia: ActivityResultLauncher<Uri>
     private lateinit var requestMultiplePermissions: ActivityResultLauncher<Array<String>>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val viewModel: PlanningSettingsViewModel by viewModels()
+
+        val photoUri = PermissionsRequester.getPhotoUri(this)
         pickMedia =
             registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
                 if (uri != null) {
                     viewModel.updateGroupPhoto(uri)
                 }
             }
+        photoMedia = registerForActivityResult(ActivityResultContracts.TakePicture()) {
+            if (it) {
+                viewModel.updateGroupPhoto(photoUri)
+            }
+        }
 
         requestMultiplePermissions =
-            PermissionsRequester.requestMultiplePermissionsCaller(this, pickMedia)
+            PermissionsRequester.requestMultiplePermissionsCaller(
+                this,
+                pickMedia,
+                photoMedia,
+                photoUri
+            )
 
         val groupId = intent.getStringExtra(SHARED_PLANNING_ID)
         groupId?.let { viewModel.loadSharedPlanning(it) }
@@ -130,6 +143,7 @@ class PlanningSettingsPage : ComponentActivity() {
         var showExitSharedPlanningDialog by remember { mutableStateOf(false) }
         var toBeRemovedUser by remember { mutableStateOf(User.EMPTY) }
         val sheetState = rememberModalBottomSheetState()
+        var photoOptions by remember { mutableStateOf(false) }
 
         if (showNameDialog)
             QChangeNameDialog(
@@ -217,6 +231,12 @@ class PlanningSettingsPage : ComponentActivity() {
             )
         }
 
+        if (photoOptions) {
+            QPhotoDialog(requestMultiplePermissions) {
+                photoOptions = false
+            }
+        }
+
         Column(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
@@ -225,19 +245,7 @@ class PlanningSettingsPage : ComponentActivity() {
                 uri = group.photo,
                 placeholder = Icons.Outlined.Group,
                 onClick = {
-                    requestMultiplePermissions.launch(
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                            arrayOf(
-                                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                                Manifest.permission.READ_MEDIA_IMAGES
-                            )
-                        } else {
-                            arrayOf(
-                                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                                Manifest.permission.READ_EXTERNAL_STORAGE
-                            )
-                        }
-                    )
+                    photoOptions = true
                 }
             )
             Spacer(modifier = Modifier.size(8.dp))

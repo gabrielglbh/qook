@@ -2,6 +2,7 @@ package com.gabr.gabc.qook.presentation.addRecipePage
 
 import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -72,6 +73,7 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class AddRecipePage : ComponentActivity() {
     private lateinit var pickMedia: ActivityResultLauncher<PickVisualMediaRequest>
+    private lateinit var photoMedia: ActivityResultLauncher<Uri>
     private lateinit var requestMultiplePermissions: ActivityResultLauncher<Array<String>>
 
     private val resultLauncher =
@@ -124,6 +126,12 @@ class AddRecipePage : ComponentActivity() {
             viewModel.loadLocalRecipe(it)
         }
 
+        val photoUri = PermissionsRequester.getPhotoUri(this)
+        photoMedia = registerForActivityResult(ActivityResultContracts.TakePicture()) {
+            if (it) {
+                viewModel.updateMetadata(photo = photoUri)
+            }
+        }
         pickMedia =
             registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
                 if (uri != null) {
@@ -132,7 +140,12 @@ class AddRecipePage : ComponentActivity() {
             }
 
         requestMultiplePermissions =
-            PermissionsRequester.requestMultiplePermissionsCaller(this, pickMedia)
+            PermissionsRequester.requestMultiplePermissionsCaller(
+                this,
+                pickMedia,
+                photoMedia,
+                photoUri
+            )
 
         setContent {
             AppTheme {

@@ -157,11 +157,12 @@ class RecipeRepositoryImpl @Inject constructor(
 
                 docRef.set(recipe.toDto()).await()
 
+                val recipePhotoPath = "${Globals.STORAGE_USERS}${it.uid}/${Globals.STORAGE_RECIPES}$recipeId.jpg"
                 if (recipe.photo.host != Globals.FIREBASE_HOST && recipe.photo != Uri.EMPTY) {
-                    storage.uploadImage(
-                        recipe.photo,
-                        "${Globals.STORAGE_USERS}${it.uid}/${Globals.STORAGE_RECIPES}$recipeId.jpg"
-                    )
+                    storage.uploadImage(recipe.photo, recipePhotoPath)
+                }
+                if ( recipe.photo == Uri.EMPTY) {
+                    storage.deleteImage(recipePhotoPath)
                 }
 
                 return Right(recipe)

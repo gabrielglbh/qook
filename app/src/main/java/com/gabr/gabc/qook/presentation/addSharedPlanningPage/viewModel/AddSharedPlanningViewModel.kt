@@ -11,7 +11,6 @@ import com.gabr.gabc.qook.presentation.shared.ResizeImageUtil
 import com.gabr.gabc.qook.presentation.shared.providers.ContentResolverProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import java.util.Calendar
 import javax.inject.Inject
 
 @HiltViewModel
@@ -49,8 +48,7 @@ class AddSharedPlanningViewModel @Inject constructor(
                         Uri.fromFile(
                             ResizeImageUtil.resizeImageToFile(
                                 sharedPlanning.photo,
-                                provider.contentResolver(),
-                                name = Calendar.getInstance().timeInMillis.toString()
+                                provider.contentResolver()
                             )
                         )
                     } else {
