@@ -55,16 +55,31 @@ const mealData = {
   "op": "",
 };
 
+const generateSubStrings = (input) => {
+  const subStrings = [];
+  let currentSubString = "";
+
+  for (const char of input) {
+    currentSubString += char.toLowerCase();
+    subStrings.push(currentSubString);
+  }
+
+  return subStrings;
+};
+
 exports.onCreateUser = functions.firestore
     .document("USERS/{uid}")
     .onCreate(async (snap, context) => {
       try {
         const userId = context.params.uid;
+        const user = database.collection("USERS").doc(userId);
+        const language = ((await user.get()).data()).language;
 
-        const planningRef = database.collection("USERS").doc(userId)
-            .collection("PLANNING");
-        const shoppingListRef = database.collection("USERS").doc(userId)
-            .collection("SHOPPING_LIST").doc("INGREDIENTS");
+        const recipesRef = user.collection("RECIPES");
+        const tagsRef = user.collection("TAGS");
+        const planningRef = user.collection("PLANNING");
+        const shoppingListRef = user.collection("SHOPPING_LIST")
+            .doc("INGREDIENTS");
 
         const batch = database.batch();
 
@@ -106,6 +121,98 @@ exports.onCreateUser = functions.firestore
         batch.set(
             shoppingListRef,
             {"list": {}},
+        );
+
+        const veggie = language == "ES" ? "Verduras" : "Vegetables";
+        batch.set(
+            tagsRef.doc(),
+            {
+              "color": -11102685,
+              "keywords": generateSubStrings(veggie),
+              "text": veggie,
+            },
+        );
+        const pasta = "Pasta";
+        batch.set(
+            tagsRef.doc(),
+            {
+              "color": -3886471,
+              "keywords": generateSubStrings(pasta),
+              "text": pasta,
+            },
+        );
+        const rice = language == "ES" ? "Arroces" : "Rice";
+        batch.set(
+            tagsRef.doc(),
+            {
+              "color": -8229780,
+              "keywords": generateSubStrings(rice),
+              "text": rice,
+            },
+        );
+        const fast = language == "ES" ? "Rápido" : "Fast";
+        batch.set(
+            tagsRef.doc(),
+            {
+              "color": -15572653,
+              "keywords": generateSubStrings(fast),
+              "text": fast,
+            },
+        );
+
+        const now = Date.now();
+        const leftovers = language == "ES" ? "Sobras" : "Leftovers";
+        batch.set(
+            recipesRef.doc(),
+            {
+              "creationDate": now,
+              "description": [],
+              "easiness": "EASY",
+              "hasPhoto": false,
+              "ingredients": [leftovers],
+              "keywords": generateSubStrings(leftovers),
+              "name": leftovers,
+              "recipeUrl": null,
+              "tagIds": [],
+              "time": "-",
+              "updateDate": now,
+            },
+        );
+        const outside = language == "ES" ?
+            "Comida fuera" : "Having lunch outside";
+        batch.set(
+            recipesRef.doc(),
+            {
+              "creationDate": now,
+              "description": [],
+              "easiness": "EASY",
+              "hasPhoto": false,
+              "ingredients": [outside],
+              "keywords": generateSubStrings(outside),
+              "name": outside,
+              "recipeUrl": null,
+              "tagIds": [],
+              "time": "-",
+              "updateDate": now,
+            },
+        );
+        const ordering = language == "ES" ?
+            "Pedir comida" : "Order food";
+        batch.set(
+            recipesRef.doc(),
+            {
+              "creationDate": now,
+              "description": [],
+              "easiness": "EASY",
+              "hasPhoto": false,
+              "ingredients": [ordering],
+              "keywords": generateSubStrings(ordering),
+              "name": ordering,
+              "recipeUrl": null,
+              "tagIds": [],
+              "time": "-",
+              "updateDate": now,
+            },
         );
 
         await batch.commit().then(() => {
