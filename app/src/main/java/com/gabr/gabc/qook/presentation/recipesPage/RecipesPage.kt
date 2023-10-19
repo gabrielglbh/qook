@@ -174,23 +174,29 @@ class RecipesPage : ComponentActivity() {
         var selectedRecipeForPlanning by remember { mutableStateOf(Recipe.EMPTY) }
 
         val lazyState = rememberLazyListState()
-        val loadMoreRecipes = remember {
+        var numberOfTimesThresholdReached by remember { mutableStateOf(1) }
+        var maxThreshold by remember { mutableStateOf(Globals.RECIPES_LIMIT.toInt()) }
+
+        val thresholdUpdate = remember {
             derivedStateOf {
                 val layoutInfo = lazyState.layoutInfo
                 val lastVisibleItemIndex =
                     (layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0) + 1
-                val isLastItemMultiple = lastVisibleItemIndex % Globals.RECIPES_LIMIT.toInt() == 0
-                val isLastItemNotAlreadyProvided = lastVisibleItemIndex > state.searchedRecipes.size
-                isLastItemMultiple && isLastItemNotAlreadyProvided
+                val isLastItemNotAlreadyProvided = lastVisibleItemIndex >= maxThreshold
+                isLastItemNotAlreadyProvided
             }
         }
 
-        LaunchedEffect(loadMoreRecipes) {
-            snapshotFlow { loadMoreRecipes.value }.distinctUntilChanged().collect {
-                val newViewModelInstance: RecipesViewModel by viewModels()
-                val recipes = newViewModelInstance.recipesState.value.searchedRecipes
-                if (recipes.isNotEmpty() && it) {
-                    viewModel.loadMoreRecipes()
+        LaunchedEffect(thresholdUpdate) {
+            snapshotFlow { thresholdUpdate.value }.distinctUntilChanged().collect {
+                if (it) {
+                    numberOfTimesThresholdReached++
+                    maxThreshold = Globals.RECIPES_LIMIT.toInt() * numberOfTimesThresholdReached
+                    val newViewModelInstance: RecipesViewModel by viewModels()
+                    val recipes = newViewModelInstance.recipesState.value.searchedRecipes
+                    if (recipes.isNotEmpty()) {
+                        viewModel.loadMoreRecipes()
+                    }
                 }
             }
         }
