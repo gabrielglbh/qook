@@ -197,7 +197,12 @@ class ShoppingListPage : ComponentActivity() {
                         .weight(1f)
                         .padding(top = 8.dp)
                 ) {
-                    items(viewModel.ingredients.toSortedMap().toList()) { ingredient ->
+                    items(
+                        viewModel.ingredients.toSortedMap().toList(),
+                        key = { index ->
+                            index
+                        }
+                    ) { ingredient ->
                         Surface(
                             onClick = {
                                 updateIngredient(ingredient)

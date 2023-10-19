@@ -132,7 +132,12 @@ class PlanningsPage : ComponentActivity() {
                             LazyColumn(
                                 modifier = modifier,
                                 content = {
-                                    itemsIndexed(groups) { x, group ->
+                                    itemsIndexed(
+                                        groups,
+                                        key = { _, group ->
+                                            group.id
+                                        }
+                                    ) { x, group ->
                                         Column {
                                             Surface(
                                                 shape = MaterialTheme.shapes.small,

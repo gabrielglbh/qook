@@ -382,7 +382,12 @@ class RecipesPage : ComponentActivity() {
                                     modifier = modifier,
                                     state = lazyState,
                                 ) {
-                                    itemsIndexed(state.searchedRecipes) { x, recipe ->
+                                    itemsIndexed(
+                                        state.searchedRecipes,
+                                        key = { _, recipe ->
+                                            recipe.id
+                                        }
+                                    ) { x, recipe ->
                                         Column {
                                             QRecipeItem(
                                                 recipe = recipe,
