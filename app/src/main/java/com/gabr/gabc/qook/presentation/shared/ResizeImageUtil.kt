@@ -8,6 +8,7 @@ import android.os.Environment
 import android.os.Environment.DIRECTORY_PICTURES
 import java.io.File
 import java.io.FileOutputStream
+import java.util.Calendar
 
 class ResizeImageUtil {
     companion object {
@@ -15,7 +16,7 @@ class ResizeImageUtil {
             uri: Uri,
             contentProvider: ContentResolver,
             requiredSize: Int = 250,
-            name: String = "photo"
+            name: String = Calendar.getInstance().timeInMillis.toString()
         ): File {
             val options = BitmapFactory.Options()
             options.inJustDecodeBounds = true
@@ -45,8 +46,7 @@ class ResizeImageUtil {
             val dir =
                 File("${Environment.getExternalStoragePublicDirectory(DIRECTORY_PICTURES).absolutePath}/qook")
             if (!dir.exists()) dir.mkdir()
-            val file = File(dir, "$name.jpg")
-            file.createNewFile()
+            val file = File.createTempFile(name, ".jpg", dir)
             val fOut = FileOutputStream(file)
 
             bitmap?.compress(Bitmap.CompressFormat.PNG, 90, fOut)

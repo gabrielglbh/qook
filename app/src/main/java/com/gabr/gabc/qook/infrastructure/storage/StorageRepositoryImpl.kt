@@ -39,17 +39,19 @@ class StorageRepositoryImpl @Inject constructor(
             }
             return Left(StorageFailure.NotAuthenticated(res.getString(R.string.err_storage_retrieval)))
         } catch (err: StorageException) {
-            return Left(StorageFailure.ImageUpdateFailed(res.getString(R.string.err_storage_retrieval)))
+            return Left(StorageFailure.ImagesRetrievalFailed(res.getString(R.string.err_storage_retrieval)))
         }
     }
 
     override suspend fun deleteImage(path: String): Either<StorageFailure, Unit> {
-        auth.currentUser?.let {
-            storage.reference.child(path).delete().await()
-            return Right(Unit)
+        try {
+            auth.currentUser?.let {
+                storage.reference.child(path).delete().await()
+                return Right(Unit)
+            }
+            return Left(StorageFailure.NotAuthenticated(res.getString(R.string.err_storage_delete)))
+        } catch (err: StorageException) {
+            return Left(StorageFailure.ImageDoesNotExist(res.getString(R.string.err_storage_delete)))
         }
-        return Left(StorageFailure.NotAuthenticated(res.getString(R.string.err_storage_delete)))
-
-
     }
 }

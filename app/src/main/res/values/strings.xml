@@ -181,4 +181,9 @@
 
     <string name="share_recipe_description">Check out this recipe!</string>
     <string name="share_recipe">Share recipe</string>
+
+    <string name="photo_title">Update photo</string>
+    <string name="photo_content">With which option do you want to update the photo?</string>
+    <string name="photo_gallery">Gallery</string>
+    <string name="photo_camera">Camera</string>
 </resources>

@@ -31,11 +31,11 @@ const intlMessagesSP = {
 const intlUpdateSharedPlanningMessages = {
   "EN": {
     "title": "{0} has been updated",
-    "body": "{0} has updated the planning for {1}. Look what has been added",
+    "body": "{0} added \"{1}\" on {2}",
   },
   "ES": {
     "title": "Se ha actualizado {0}",
-    "body": "{0} ha actualizado el planning para el {1}. Mira que ha añadido",
+    "body": "{0} ha añadido \"{1}\" para el {2}",
   },
 };
 const intlAddedOnSharedPlanningMessages = {
@@ -55,16 +55,42 @@ const mealData = {
   "op": "",
 };
 
+const generateSubStrings = (input) => {
+  const subStrings = [];
+  let currentSubString = "";
+
+  for (const char of input) {
+    currentSubString += char.toLowerCase();
+    subStrings.push(currentSubString);
+  }
+
+  return subStrings;
+};
+
+/**
+ * @param {string} sentence The string
+ * @param {string[]} params The params
+ * @return {string}
+ */
+const formatString = (sentence, params) => {
+  return sentence.replace(/{(\d+)}/g, (match, index) => {
+    return typeof params[index] != "undefined" ? params[index] : match;
+  });
+};
+
 exports.onCreateUser = functions.firestore
     .document("USERS/{uid}")
     .onCreate(async (snap, context) => {
       try {
         const userId = context.params.uid;
+        const user = database.collection("USERS").doc(userId);
+        const language = ((await user.get()).data()).language;
 
-        const planningRef = database.collection("USERS").doc(userId)
-            .collection("PLANNING");
-        const shoppingListRef = database.collection("USERS").doc(userId)
-            .collection("SHOPPING_LIST").doc("INGREDIENTS");
+        const recipesRef = user.collection("RECIPES");
+        const tagsRef = user.collection("TAGS");
+        const planningRef = user.collection("PLANNING");
+        const shoppingListRef = user.collection("SHOPPING_LIST")
+            .doc("INGREDIENTS");
 
         const batch = database.batch();
 
@@ -106,6 +132,98 @@ exports.onCreateUser = functions.firestore
         batch.set(
             shoppingListRef,
             {"list": {}},
+        );
+
+        const veggie = language == "ES" ? "Verduras" : "Vegetables";
+        batch.set(
+            tagsRef.doc(),
+            {
+              "color": -11102685,
+              "keywords": generateSubStrings(veggie),
+              "text": veggie,
+            },
+        );
+        const pasta = "Pasta";
+        batch.set(
+            tagsRef.doc(),
+            {
+              "color": -3886471,
+              "keywords": generateSubStrings(pasta),
+              "text": pasta,
+            },
+        );
+        const rice = language == "ES" ? "Arroces" : "Rice";
+        batch.set(
+            tagsRef.doc(),
+            {
+              "color": -8229780,
+              "keywords": generateSubStrings(rice),
+              "text": rice,
+            },
+        );
+        const fast = language == "ES" ? "Rápido" : "Fast";
+        batch.set(
+            tagsRef.doc(),
+            {
+              "color": -15572653,
+              "keywords": generateSubStrings(fast),
+              "text": fast,
+            },
+        );
+
+        const now = Date.now();
+        const leftovers = language == "ES" ? "Sobras" : "Leftovers";
+        batch.set(
+            recipesRef.doc(),
+            {
+              "creationDate": now,
+              "description": [],
+              "easiness": "EASY",
+              "hasPhoto": false,
+              "ingredients": [leftovers],
+              "keywords": generateSubStrings(leftovers),
+              "name": leftovers,
+              "recipeUrl": null,
+              "tagIds": [],
+              "time": "-",
+              "updateDate": now,
+            },
+        );
+        const outside = language == "ES" ?
+            "Comida fuera" : "Having lunch outside";
+        batch.set(
+            recipesRef.doc(),
+            {
+              "creationDate": now,
+              "description": [],
+              "easiness": "EASY",
+              "hasPhoto": false,
+              "ingredients": [outside],
+              "keywords": generateSubStrings(outside),
+              "name": outside,
+              "recipeUrl": null,
+              "tagIds": [],
+              "time": "-",
+              "updateDate": now,
+            },
+        );
+        const ordering = language == "ES" ?
+            "Pedir comida" : "Order food";
+        batch.set(
+            recipesRef.doc(),
+            {
+              "creationDate": now,
+              "description": [],
+              "easiness": "EASY",
+              "hasPhoto": false,
+              "ingredients": [ordering],
+              "keywords": generateSubStrings(ordering),
+              "name": ordering,
+              "recipeUrl": null,
+              "tagIds": [],
+              "time": "-",
+              "updateDate": now,
+            },
         );
 
         await batch.commit().then(() => {
@@ -439,8 +557,8 @@ exports.scheduleRestartSharedPlanningCron = functions.pubsub
                           intlMessagesSP.ES.title :
                           intlMessagesSP.EN.title,
                       body: userData.language == "ES" ?
-                          intlMessagesSP.ES.body.format(groupName) :
-                          intlMessagesSP.EN.body.format(groupName),
+                          formatString(intlMessagesSP.ES.body, [groupName]) :
+                          formatString(intlMessagesSP.EN.body, [groupName]),
                     },
                   };
                   notificationPromises.push(admin.messaging().send(payload));
@@ -474,8 +592,8 @@ exports.onUpdateSharedPlanning = functions.firestore
       const previousLunch = previousValue.lunch;
       const previousDinner = previousValue.dinner;
 
-      if ((previousLunch !== newLunch && newLunch.meal.isNotEmpty()) ||
-          (previousDinner !== newDinner && newDinner.meal.isNotEmpty())) {
+      if ((previousLunch !== newLunch && newLunch.meal.length > 0) ||
+          (previousDinner !== newDinner && newDinner.meal.length > 0)) {
         const groupCollection = database.collection("GROUPS");
         const usersCollection = database.collection("USERS");
 
@@ -487,7 +605,13 @@ exports.onUpdateSharedPlanning = functions.firestore
         const groupName = group.name;
         let updatedDp = dayPlanning.dayIndex;
 
-        const opData = (await usersCollection.doc(newLunch.op).get())
+        const opId = newLunch.op.length == 0 ? newDinner.op : newLunch.op;
+        const opMeal = newLunch.meal.length == 0 ?
+            newDinner.meal : newLunch.meal;
+        const opData = (await usersCollection.doc(opId).get())
+            .data();
+        const recipe = (await usersCollection.doc(opId)
+            .collection("RECIPES").doc(opMeal).get())
             .data();
 
         const notificationPromises = [];
@@ -496,7 +620,7 @@ exports.onUpdateSharedPlanning = functions.firestore
           const userData = (await usersCollection.doc(user).get())
               .data();
 
-          if (newLunch.op != user) {
+          if (newLunch.op != user || newDinner.op != user) {
             switch (updatedDp) {
               case 0:
                 updatedDp = userData.language == "ES" ? "Lunes" : "Monday";
@@ -526,13 +650,15 @@ exports.onUpdateSharedPlanning = functions.firestore
               token: userData.messagingToken,
               notification: {
                 title: userData.language == "ES" ?
-                    intlUpdateSharedPlanningMessages.ES.title.format(groupName):
-                    intlUpdateSharedPlanningMessages.EN.title.format(groupName),
+                    formatString(intlUpdateSharedPlanningMessages.ES.title,
+                        [groupName]) :
+                    formatString(intlUpdateSharedPlanningMessages.EN.title,
+                        [groupName]),
                 body: userData.language == "ES" ?
-                    intlUpdateSharedPlanningMessages.ES.body
-                        .format(opData.name, updatedDp) :
-                    intlUpdateSharedPlanningMessages.EN.body
-                        .format(opData.name, updatedDp),
+                    formatString(intlUpdateSharedPlanningMessages.ES.body,
+                        [opData.name, recipe.name, updatedDp]) :
+                    formatString(intlUpdateSharedPlanningMessages.EN.body,
+                        [opData.name, recipe.name, updatedDp]),
               },
             };
             notificationPromises.push(admin.messaging().send(payload));
@@ -576,8 +702,10 @@ exports.onIncludeUserOnSharedPlanning = functions.firestore
           token: userData.messagingToken,
           notification: {
             title: userData.language == "ES" ?
-                intlAddedOnSharedPlanningMessages.ES.title.format(groupName):
-                intlAddedOnSharedPlanningMessages.EN.title.format(groupName),
+                formatString(intlAddedOnSharedPlanningMessages.ES.title,
+                    [groupName]) :
+                formatString(intlAddedOnSharedPlanningMessages.EN.title,
+                    [groupName]),
             body: userData.language == "ES" ?
                 intlAddedOnSharedPlanningMessages.ES.body :
                 intlAddedOnSharedPlanningMessages.EN.body,

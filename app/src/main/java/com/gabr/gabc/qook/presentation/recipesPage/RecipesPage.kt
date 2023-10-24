@@ -40,13 +40,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
@@ -76,13 +74,13 @@ import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.shared.components.QDialog
 import com.gabr.gabc.qook.presentation.shared.components.QEmptyBox
 import com.gabr.gabc.qook.presentation.shared.components.QLoadingScreen
+import com.gabr.gabc.qook.presentation.shared.components.QPaginatedListTrigger
 import com.gabr.gabc.qook.presentation.shared.components.QRecipeItem
 import com.gabr.gabc.qook.presentation.shared.components.QShimmer
 import com.gabr.gabc.qook.presentation.shared.components.QTag
 import com.gabr.gabc.qook.presentation.shared.components.QTextForm
 import com.gabr.gabc.qook.presentation.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -174,24 +172,14 @@ class RecipesPage : ComponentActivity() {
         var selectedRecipeForPlanning by remember { mutableStateOf(Recipe.EMPTY) }
 
         val lazyState = rememberLazyListState()
-        val loadMoreRecipes = remember {
-            derivedStateOf {
-                val layoutInfo = lazyState.layoutInfo
-                val lastVisibleItemIndex =
-                    (layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0) + 1
-                val isLastItemMultiple = lastVisibleItemIndex % Globals.RECIPES_LIMIT.toInt() == 0
-                val isLastItemNotAlreadyProvided = lastVisibleItemIndex > state.searchedRecipes.size
-                isLastItemMultiple && isLastItemNotAlreadyProvided
-            }
-        }
-
-        LaunchedEffect(loadMoreRecipes) {
-            snapshotFlow { loadMoreRecipes.value }.distinctUntilChanged().collect {
-                val newViewModelInstance: RecipesViewModel by viewModels()
-                val recipes = newViewModelInstance.recipesState.value.searchedRecipes
-                if (recipes.isNotEmpty() && it) {
-                    viewModel.loadMoreRecipes()
-                }
+        QPaginatedListTrigger(
+            listState = lazyState,
+            initialThreshold = Globals.RECIPES_LIMIT.toInt()
+        ) {
+            val newViewModelInstance: RecipesViewModel by viewModels()
+            val recipes = newViewModelInstance.recipesState.value.searchedRecipes
+            if (recipes.isNotEmpty()) {
+                viewModel.loadMoreRecipes()
             }
         }
 
@@ -376,7 +364,12 @@ class RecipesPage : ComponentActivity() {
                                     modifier = modifier,
                                     state = lazyState,
                                 ) {
-                                    itemsIndexed(state.searchedRecipes) { x, recipe ->
+                                    itemsIndexed(
+                                        state.searchedRecipes,
+                                        key = { _, recipe ->
+                                            recipe.id
+                                        }
+                                    ) { x, recipe ->
                                         Column {
                                             QRecipeItem(
                                                 recipe = recipe,

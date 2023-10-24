@@ -106,7 +106,12 @@ fun RecipeTags(
                     .weight(1f)
                     .padding(top = 8.dp)
             ) {
-                items(state.searchedTags.size) { x ->
+                items(
+                    state.searchedTags.size,
+                    key = { index ->
+                        index
+                    }
+                ) { x ->
                     val tag = state.searchedTags[x]
                     val selected = state.recipe.tags.contains(tag)
 

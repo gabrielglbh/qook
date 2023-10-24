@@ -119,7 +119,12 @@ fun RecipeIngredients(
                     .weight(1f)
                     .padding(top = 8.dp)
             ) {
-                itemsIndexed(state.recipe.ingredients) { x, ingredient ->
+                itemsIndexed(
+                    state.recipe.ingredients,
+                    key = { index, _ ->
+                        index
+                    }
+                ) { x, ingredient ->
                     QIngredient(
                         ingredient = ingredient,
                         onClick = {

@@ -78,8 +78,7 @@ class AddRecipeViewModel @Inject constructor(
                 Uri.fromFile(
                     resizeImageToFile(
                         recipe.photo,
-                        provider.contentResolver(),
-                        name = Calendar.getInstance().timeInMillis.toString()
+                        provider.contentResolver()
                     )
                 )
             } else {
@@ -117,6 +116,12 @@ class AddRecipeViewModel @Inject constructor(
 
             withContext(Dispatchers.Main) { isLoading.value = false }
         }
+    }
+
+    fun emptyPhoto() {
+        _recipeState.value = _recipeState.value.copy(
+            recipe = _recipeState.value.recipe.copy(photo = Uri.EMPTY)
+        )
     }
 
     fun loadLocalRecipe(recipe: Recipe) {

@@ -1,7 +1,9 @@
 package com.gabr.gabc.qook.presentation.splashPage
 
 import android.annotation.SuppressLint
+import android.app.ActivityOptions
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -39,12 +41,32 @@ class SplashPage : ComponentActivity() {
         LaunchedEffect(key1 = Unit) {
             viewModel.checkIfUserIsSignedIn(
                 ifUserExists = {
-                    startActivity(Intent(this@SplashPage, HomePage::class.java))
-                    overridePendingTransition(R.anim.abc_fade_in, R.anim.abc_fade_out)
+                    val intent = Intent(this@SplashPage, HomePage::class.java)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        val options = ActivityOptions.makeCustomAnimation(
+                            baseContext,
+                            R.anim.abc_fade_in,
+                            R.anim.abc_fade_out
+                        )
+                        startActivity(intent, options.toBundle())
+                    } else {
+                        startActivity(intent)
+                        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+                    }
                 },
                 ifUserDoesNotExist = {
-                    startActivity(Intent(this@SplashPage, LoginPage::class.java))
-                    overridePendingTransition(R.anim.abc_fade_in, R.anim.abc_fade_out)
+                    val intent = Intent(this@SplashPage, LoginPage::class.java)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        val options = ActivityOptions.makeCustomAnimation(
+                            baseContext,
+                            R.anim.abc_fade_in,
+                            R.anim.abc_fade_out
+                        )
+                        startActivity(intent, options.toBundle())
+                    } else {
+                        startActivity(intent)
+                        overridePendingTransition(R.anim.abc_fade_in, R.anim.abc_fade_out)
+                    }
                 }
             )
         }
