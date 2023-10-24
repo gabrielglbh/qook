@@ -6,7 +6,7 @@ import com.gabr.gabc.qook.presentation.shared.Globals
 import com.google.firebase.firestore.DocumentId
 import com.google.firebase.firestore.PropertyName
 
-data class TagDto(
+data class TagDto constructor(
     @DocumentId val id: String = "",
     @PropertyName(Globals.OBJ_TAG_NAME) val text: String = "",
     @PropertyName(Globals.OBJ_TAG_KEYWORDS) val keywords: List<String> = listOf(),

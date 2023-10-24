@@ -4,7 +4,7 @@ import android.net.Uri
 import com.gabr.gabc.qook.domain.user.User
 import com.google.firebase.firestore.PropertyName
 
-data class UserDto(
+data class UserDto constructor(
     @PropertyName("id") val id: String = "",
     @PropertyName("name") val name: String = "",
     @PropertyName("email") val email: String = "",
