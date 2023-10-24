@@ -18,7 +18,7 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.Query
-import com.google.firebase.firestore.ktx.toObject
+import com.google.firebase.firestore.toObject
 import com.google.firebase.storage.StorageException
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject

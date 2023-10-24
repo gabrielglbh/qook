@@ -10,8 +10,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ListAlt
 import androidx.compose.material.icons.outlined.Clear
-import androidx.compose.material.icons.outlined.ListAlt
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -126,7 +126,7 @@ fun RecipeDescription(
         } else {
             QEmptyBox(
                 message = R.string.add_recipe_empty_description,
-                icon = Icons.Outlined.ListAlt,
+                icon = Icons.AutoMirrored.Outlined.ListAlt,
                 modifier = Modifier.weight(1f)
             )
         }
@@ -156,10 +156,6 @@ fun RecipeDescription(
         )
         Button(
             onClick = {
-                viewModel.updateMetadata(recipeUrl = recipeUrl)
-                if (state.recipe.description.isEmpty() && state.recipe.recipeUrl == null) {
-                    return@Button
-                }
                 onNavigate()
             },
             modifier = Modifier

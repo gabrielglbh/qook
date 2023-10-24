@@ -20,8 +20,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ExitToApp
 import androidx.compose.material.icons.outlined.AccountCircle
-import androidx.compose.material.icons.outlined.ExitToApp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -162,7 +162,7 @@ class ProfilePage : ComponentActivity() {
                                 startActivity(intent)
                             }
                         ) {
-                            Icon(Icons.Outlined.ExitToApp, "")
+                            Icon(Icons.AutoMirrored.Outlined.ExitToApp, "")
                         }
                     }
                 )

@@ -45,6 +45,7 @@ import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.HAS_UPDATED_R
 import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.RECIPE
 import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.RECIPE_FROM_DETAILS
 import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.RECIPE_OP
+import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.RECIPE_UPDATED
 import com.gabr.gabc.qook.presentation.shared.components.QActionBar
 import com.gabr.gabc.qook.presentation.shared.components.QDialog
 import com.gabr.gabc.qook.presentation.shared.components.QLoadingScreen
@@ -62,9 +63,9 @@ class RecipeDetailsPage : ComponentActivity() {
 
                 val viewModel: RecipeDetailsViewModel by viewModels()
                 val updatedRecipe = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    extras?.getParcelable(HAS_UPDATED_RECIPE, Recipe::class.java)
+                    extras?.getParcelable(RECIPE_UPDATED, Recipe::class.java)
                 } else {
-                    extras?.getParcelable(HAS_UPDATED_RECIPE)
+                    extras?.getParcelable(RECIPE_UPDATED)
                 }
 
                 updatedRecipe?.let {

@@ -14,9 +14,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ReceiptLong
 import androidx.compose.material.icons.outlined.AddAPhoto
 import androidx.compose.material.icons.outlined.Clear
-import androidx.compose.material.icons.outlined.ReceiptLong
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -110,7 +110,7 @@ fun RecipeMetadataForm(
                 labelId = R.string.add_recipe_name,
                 value = state.recipe.name,
                 isError = nameFieldError,
-                leadingIcon = Icons.Outlined.ReceiptLong,
+                leadingIcon = Icons.AutoMirrored.Outlined.ReceiptLong,
                 imeAction = ImeAction.Next,
                 onValueChange = {
                     viewModel.updateMetadata(name = it)
