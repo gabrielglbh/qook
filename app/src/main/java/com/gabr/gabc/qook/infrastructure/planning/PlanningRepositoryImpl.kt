@@ -5,7 +5,6 @@ import arrow.core.Either.Left
 import arrow.core.Either.Right
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.planning.DayPlanning
-import com.gabr.gabc.qook.domain.planning.MealData
 import com.gabr.gabc.qook.domain.planning.PlanningFailure
 import com.gabr.gabc.qook.domain.planning.PlanningRepository
 import com.gabr.gabc.qook.domain.planning.toDto
@@ -31,10 +30,10 @@ class PlanningRepositoryImpl @Inject constructor(
     private val res: StringResourcesProvider
 ) : PlanningRepository {
     private suspend fun getRecipesFrom(dto: DayPlanningDto): DayPlanning {
-        var lunch = MealData.fromMap(dto.lunch)
-        var dinner = MealData.fromMap(dto.dinner)
+        var lunch = dto.lunch.toDomain()
+        var dinner = dto.dinner.toDomain()
 
-        val lunchMeal = dto.lunch[Globals.OBJ_MEAL_DATA_MEAL]!!
+        val lunchMeal = dto.lunch.meal
         if (lunchMeal.isNotEmpty()) {
             val lunchRes = recipeRepository.getRecipe(lunchMeal, lunch.op)
             lunchRes.fold(
@@ -43,7 +42,7 @@ class PlanningRepositoryImpl @Inject constructor(
             )
         }
 
-        val dinnerMeal = dto.dinner[Globals.OBJ_MEAL_DATA_MEAL]!!
+        val dinnerMeal = dto.dinner.meal
         if (dinnerMeal.isNotEmpty()) {
             val dinnerRes = recipeRepository.getRecipe(dinnerMeal, dinner.op)
             dinnerRes.fold(

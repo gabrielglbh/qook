@@ -1,24 +1,4 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
-
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
-
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
-
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+## Custom classes rules
 -dontwarn org.bouncycastle.jsse.BCSSLParameters
 -dontwarn org.bouncycastle.jsse.BCSSLSocket
 -dontwarn org.bouncycastle.jsse.provider.BouncyCastleJsseProvider
@@ -29,29 +9,41 @@
 -dontwarn org.openjsse.javax.net.ssl.SSLSocket
 -dontwarn org.openjsse.net.ssl.OpenJSSE
 
--keep class com.gabr.gabc.qook.domain.tag.Tag { *; }
--keep class com.gabr.gabc.qook.domain.sharedPlanning.SharedPlanning { *; }
--keep class com.gabr.gabc.qook.domain.recipe.Recipe { *; }
--keep class com.gabr.gabc.qook.domain.planning.DayPlanning { *; }
--keep class com.gabr.gabc.qook.domain.planning.MealData { *; }
--keep class com.gabr.gabc.qook.domain.ingredients.Ingredients { *; }
--keep class com.gabr.gabc.qook.domain.user.User { *; }
+## Keep classes as they are for Deserialization from Firebase
+-keep class com.gabr.gabc.qook.infrastructure.user.UserDto { *; }
+-keep class com.gabr.gabc.qook.infrastructure.planning.DayPlanningDto { *; }
+-keep class com.gabr.gabc.qook.infrastructure.planning.MealDataDto { *; }
+-keep class com.gabr.gabc.qook.infrastructure.ingredient.IngredientsDto { *; }
+-keep class com.gabr.gabc.qook.infrastructure.recipe.RecipeDto { *; }
+-keep class com.gabr.gabc.qook.infrastructure.sharedPlanning.SharedPlanningDto { *; }
+-keep class com.gabr.gabc.qook.infrastructure.tag.TagDto { *; }
 
+## Maintain init empty constructor and fields as they are for Deserialization
 -keepclassmembers class com.gabr.gabc.qook.infrastructure.user.UserDto {
     <init>();
+    <fields>;
 }
 -keepclassmembers class com.gabr.gabc.qook.infrastructure.planning.DayPlanningDto {
     <init>();
+    <fields>;
+}
+-keepclassmembers class com.gabr.gabc.qook.infrastructure.planning.MealDataDto {
+    <init>();
+    <fields>;
 }
 -keepclassmembers class com.gabr.gabc.qook.infrastructure.ingredient.IngredientsDto {
     <init>();
+    <fields>;
 }
 -keepclassmembers class com.gabr.gabc.qook.infrastructure.recipe.RecipeDto {
     <init>();
+    <fields>;
 }
 -keepclassmembers class com.gabr.gabc.qook.infrastructure.sharedPlanning.SharedPlanningDto {
     <init>();
+    <fields>;
 }
 -keepclassmembers class com.gabr.gabc.qook.infrastructure.tag.TagDto {
     <init>();
+    <fields>;
 }

@@ -2,7 +2,7 @@ package com.gabr.gabc.qook.domain.planning
 
 import android.os.Parcelable
 import com.gabr.gabc.qook.domain.recipe.Recipe
-import com.gabr.gabc.qook.presentation.shared.Globals
+import com.gabr.gabc.qook.infrastructure.planning.MealDataDto
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -12,16 +12,12 @@ data class MealData(
 ) : Parcelable {
     companion object {
         val EMPTY = MealData(Recipe.EMPTY, "")
-
-        fun fromMap(map: Map<String, String>): MealData {
-            return MealData(Recipe.EMPTY, map[Globals.OBJ_MEAL_DATA_OP]!!)
-        }
     }
 }
 
-fun MealData.toMap(): Map<String, String> {
-    return mapOf(
-        Pair(Globals.OBJ_MEAL_DATA_MEAL, meal.id),
-        Pair(Globals.OBJ_MEAL_DATA_OP, op),
+fun MealData.toDto(): MealDataDto {
+    return MealDataDto(
+        meal.id,
+        op,
     )
 }

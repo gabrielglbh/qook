@@ -36,7 +36,7 @@ fun DayPlanning.toDto(): DayPlanningDto {
     return DayPlanningDto(
         id,
         dayIndex,
-        lunch.toMap(),
-        dinner.toMap()
+        lunch.toDto(),
+        dinner.toDto()
     )
 }

@@ -40,7 +40,9 @@ class SharedPlanningRepositoryImpl @Inject constructor(
                 val ref = db.collection(Globals.DB_GROUPS).document()
                 val planningId = ref.path.split("/").last()
 
-                ref.set(sharedPlanning.toDto().copy(users = listOf(it.uid), admin = it.uid)).await()
+                ref.set(
+                    sharedPlanning.toDto().copy(users = listOf(it.uid), admin = it.uid)
+                ).await()
 
                 if (sharedPlanning.photo.host != Globals.FIREBASE_HOST && sharedPlanning.photo != Uri.EMPTY) {
                     storage.uploadImage(
