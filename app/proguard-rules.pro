@@ -28,3 +28,30 @@
 -dontwarn org.openjsse.javax.net.ssl.SSLParameters
 -dontwarn org.openjsse.javax.net.ssl.SSLSocket
 -dontwarn org.openjsse.net.ssl.OpenJSSE
+
+-keep class com.gabr.gabc.qook.domain.tag.Tag { *; }
+-keep class com.gabr.gabc.qook.domain.sharedPlanning.SharedPlanning { *; }
+-keep class com.gabr.gabc.qook.domain.recipe.Recipe { *; }
+-keep class com.gabr.gabc.qook.domain.planning.DayPlanning { *; }
+-keep class com.gabr.gabc.qook.domain.planning.MealData { *; }
+-keep class com.gabr.gabc.qook.domain.ingredients.Ingredients { *; }
+-keep class com.gabr.gabc.qook.domain.user.User { *; }
+
+-keepclassmembers class com.gabr.gabc.qook.infrastructure.user.UserDto {
+    <init>();
+}
+-keepclassmembers class com.gabr.gabc.qook.infrastructure.planning.DayPlanningDto {
+    <init>();
+}
+-keepclassmembers class com.gabr.gabc.qook.infrastructure.ingredient.IngredientsDto {
+    <init>();
+}
+-keepclassmembers class com.gabr.gabc.qook.infrastructure.recipe.RecipeDto {
+    <init>();
+}
+-keepclassmembers class com.gabr.gabc.qook.infrastructure.sharedPlanning.SharedPlanningDto {
+    <init>();
+}
+-keepclassmembers class com.gabr.gabc.qook.infrastructure.tag.TagDto {
+    <init>();
+}
