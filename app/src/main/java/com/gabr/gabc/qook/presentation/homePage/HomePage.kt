@@ -58,6 +58,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.os.BundleCompat
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.planning.DayPlanning
 import com.gabr.gabc.qook.domain.recipe.Recipe
@@ -95,30 +96,33 @@ class HomePage : ComponentActivity() {
     private val resultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
-                val extras = result.data?.extras
-                val viewModel: HomeViewModel by viewModels()
+                result.data?.extras?.let { bundle ->
+                    val viewModel: HomeViewModel by viewModels()
 
-                val scope = CoroutineScope(Dispatchers.Main)
-                val snackbarHostState = SnackbarHostState()
+                    val scope = CoroutineScope(Dispatchers.Main)
+                    val snackbarHostState = SnackbarHostState()
 
-                if (extras?.getBoolean(HAS_UPDATED_PROFILE) == true) {
-                    viewModel.getUser { errorMessage ->
-                        scope.launch {
-                            snackbarHostState.showSnackbar(errorMessage)
+                    if (bundle.getBoolean(HAS_UPDATED_PROFILE)) {
+                        viewModel.getUser { errorMessage ->
+                            scope.launch {
+                                snackbarHostState.showSnackbar(errorMessage)
+                            }
                         }
                     }
-                }
 
-                val updatedPlanning = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    extras?.getParcelableArray(
-                        HAS_UPDATED_DAY_PLANNING,
-                        DayPlanning::class.java
-                    )
-                } else {
-                    extras?.getParcelableArray(HAS_UPDATED_DAY_PLANNING)
-                }
+                    val updatedPlanning =
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            BundleCompat.getParcelableArray(
+                                bundle,
+                                HAS_UPDATED_DAY_PLANNING,
+                                DayPlanning::class.java
+                            )
+                        } else {
+                            bundle.getParcelableArray(HAS_UPDATED_DAY_PLANNING)
+                        }
 
-                updatedPlanning?.let { p -> viewModel.updatePlanningLocally(p.map { it as DayPlanning }) }
+                    updatedPlanning?.let { p -> viewModel.updatePlanningLocally(p.map { it as DayPlanning }) }
+                }
             }
         }
 

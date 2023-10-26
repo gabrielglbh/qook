@@ -34,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.os.BundleCompat
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.recipe.Recipe
 import com.gabr.gabc.qook.domain.user.User
@@ -59,18 +60,18 @@ class RecipeDetailsPage : ComponentActivity() {
     private val resultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
-                val extras = result.data?.extras
+                result.data?.extras?.let { bundle ->
+                    val viewModel: RecipeDetailsViewModel by viewModels()
+                    val updatedRecipe = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        BundleCompat.getParcelable(bundle, RECIPE_UPDATED, Recipe::class.java)
+                    } else {
+                        bundle.getParcelable(RECIPE_UPDATED)
+                    }
 
-                val viewModel: RecipeDetailsViewModel by viewModels()
-                val updatedRecipe = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    extras?.getParcelable(RECIPE_UPDATED, Recipe::class.java)
-                } else {
-                    extras?.getParcelable(RECIPE_UPDATED)
-                }
-
-                updatedRecipe?.let {
-                    viewModel.updateRecipe(it)
-                    viewModel.isUpdating(true)
+                    updatedRecipe?.let {
+                        viewModel.updateRecipe(it)
+                        viewModel.isUpdating(true)
+                    }
                 }
             }
         }
@@ -81,7 +82,9 @@ class RecipeDetailsPage : ComponentActivity() {
         val viewModel: RecipeDetailsViewModel by viewModels()
 
         val recipeFromList = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent.getParcelableExtra(RECIPE, Recipe::class.java)
+            intent.extras?.let { bundle ->
+                BundleCompat.getParcelable(bundle, RECIPE, Recipe::class.java)
+            }
         } else {
             intent.getParcelableExtra(RECIPE)
         }
@@ -90,7 +93,9 @@ class RecipeDetailsPage : ComponentActivity() {
         recipeFromList?.let { viewModel.updateRecipe(it) }
 
         val op = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent.getParcelableExtra(RECIPE_OP, User::class.java)
+            intent.extras?.let { bundle ->
+                BundleCompat.getParcelable(bundle, RECIPE_OP, User::class.java)
+            }
         } else {
             intent.getParcelableExtra(RECIPE_OP)
         }

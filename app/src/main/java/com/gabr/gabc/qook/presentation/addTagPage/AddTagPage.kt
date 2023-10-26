@@ -32,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.os.BundleCompat
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.tag.Tag
 import com.gabr.gabc.qook.presentation.addTagPage.viewModel.AddTagViewModel
@@ -56,7 +57,9 @@ class AddTagPage : ComponentActivity() {
 
         val viewModel: AddTagViewModel by viewModels()
         val isUpdate = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent.getParcelableExtra(UPDATE_TAG, Tag::class.java)
+            intent.extras?.let { bundle ->
+                BundleCompat.getParcelable(bundle, UPDATE_TAG, Tag::class.java)
+            }
         } else {
             intent.getParcelableExtra(UPDATE_TAG)
         }

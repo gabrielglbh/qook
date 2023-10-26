@@ -41,6 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.os.BundleCompat
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.user.User
 import com.gabr.gabc.qook.presentation.loginPage.LoginPage
@@ -73,7 +74,9 @@ class ProfilePage : ComponentActivity() {
 
         val viewModel: ProfileViewModel by viewModels()
         val user = if (VERSION.SDK_INT >= VERSION_CODES.TIRAMISU) {
-            intent.getParcelableExtra(USER, User::class.java)
+            intent.extras?.let { bundle ->
+                BundleCompat.getParcelable(bundle, USER, User::class.java)
+            }
         } else {
             intent.getParcelableExtra(USER)
         }

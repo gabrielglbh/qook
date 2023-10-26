@@ -43,6 +43,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.os.BundleCompat
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -79,32 +80,37 @@ class AddRecipePage : ComponentActivity() {
     private val resultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
-                val extras = result.data
-                val viewModel: AddRecipeViewModel by viewModels()
+                result.data?.extras?.let { bundle ->
+                    val viewModel: AddRecipeViewModel by viewModels()
 
-                val updatedTag = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    extras?.getParcelableExtra(HAS_ALTERED_TAG, Tag::class.java)
-                } else {
-                    extras?.getParcelableExtra(HAS_ALTERED_TAG)
-                }
-                val mode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    extras?.getSerializableExtra(HAS_ALTERED_MODE, AlteredMode::class.java)
-                } else {
-                    extras?.getSerializableExtra(HAS_ALTERED_MODE)
-                }
+                    val updatedTag = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        BundleCompat.getParcelable(bundle, HAS_ALTERED_TAG, Tag::class.java)
+                    } else {
+                        bundle.getParcelable(HAS_ALTERED_TAG)
+                    }
+                    val mode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        BundleCompat.getParcelable(
+                            bundle,
+                            HAS_ALTERED_MODE,
+                            AlteredMode::class.java
+                        )
+                    } else {
+                        bundle.getSerializable(HAS_ALTERED_MODE)
+                    }
 
-                updatedTag?.let {
-                    when (mode) {
-                        AlteredMode.DELETE -> {
-                            viewModel.deleteTagForLocalLoading(it.id)
-                        }
+                    updatedTag?.let {
+                        when (mode) {
+                            AlteredMode.DELETE -> {
+                                viewModel.deleteTagForLocalLoading(it.id)
+                            }
 
-                        AlteredMode.UPDATE -> {
-                            viewModel.updateTagForLocalLoading(it)
-                        }
+                            AlteredMode.UPDATE -> {
+                                viewModel.updateTagForLocalLoading(it)
+                            }
 
-                        AlteredMode.CREATE -> {
-                            viewModel.createTagForLocalLoading(it)
+                            AlteredMode.CREATE -> {
+                                viewModel.createTagForLocalLoading(it)
+                            }
                         }
                     }
                 }
@@ -117,7 +123,9 @@ class AddRecipePage : ComponentActivity() {
         val viewModel: AddRecipeViewModel by viewModels()
 
         val recipeFromDetails = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent.getParcelableExtra(RECIPE_FROM_DETAILS, Recipe::class.java)
+            intent.extras?.let { bundle ->
+                BundleCompat.getParcelable(bundle, RECIPE_FROM_DETAILS, Recipe::class.java)
+            }
         } else {
             intent.getParcelableExtra(RECIPE_FROM_DETAILS)
         }

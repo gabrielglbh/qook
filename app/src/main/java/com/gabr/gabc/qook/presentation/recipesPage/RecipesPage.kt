@@ -51,6 +51,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.core.os.BundleCompat
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.planning.DayPlanning
 import com.gabr.gabc.qook.domain.recipe.Recipe
@@ -88,41 +89,44 @@ class RecipesPage : ComponentActivity() {
     private val resultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
-                val extras = result.data?.extras
-
-                val viewModel: RecipesViewModel by viewModels()
-                val updatedRecipe = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    extras?.getParcelable(HAS_UPDATED_RECIPE, Recipe::class.java)
-                } else {
-                    extras?.getParcelable(HAS_UPDATED_RECIPE)
-                }
-
-                // TODO: Maintain the scroll? --- possible with lazy loading?
-                if (updatedRecipe != null) {
-                    updatedRecipe.let {
-                        viewModel.updateRecipeLocally(it)
+                result.data?.extras?.let { bundle ->
+                    val viewModel: RecipesViewModel by viewModels()
+                    val updatedRecipe = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        BundleCompat.getParcelable(bundle, HAS_UPDATED_RECIPE, Recipe::class.java)
+                    } else {
+                        bundle.getParcelable(HAS_UPDATED_RECIPE)
                     }
-                } else {
-                    val toBeAddedRecipe =
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                            extras?.getParcelable(RECIPE_UPDATED, Recipe::class.java)
-                        } else {
-                            extras?.getParcelable(RECIPE_UPDATED)
+
+                    if (updatedRecipe != null) {
+                        updatedRecipe.let {
+                            viewModel.updateRecipeLocally(it)
                         }
+                    } else {
+                        val toBeAddedRecipe =
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                BundleCompat.getParcelable(
+                                    bundle,
+                                    RECIPE_UPDATED,
+                                    Recipe::class.java
+                                )
+                            } else {
+                                bundle.getParcelable(RECIPE_UPDATED)
+                            }
 
-                    toBeAddedRecipe?.let { recipe ->
-                        viewModel.addRecipeLocally(recipe)
+                        toBeAddedRecipe?.let { recipe ->
+                            viewModel.addRecipeLocally(recipe)
+                        }
                     }
-                }
 
-                val deletedRecipe = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    extras?.getParcelable(HAS_DELETED_RECIPE, Recipe::class.java)
-                } else {
-                    extras?.getParcelable(HAS_DELETED_RECIPE)
-                }
+                    val deletedRecipe = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        BundleCompat.getParcelable(bundle, HAS_DELETED_RECIPE, Recipe::class.java)
+                    } else {
+                        bundle.getParcelable(HAS_DELETED_RECIPE)
+                    }
 
-                deletedRecipe?.let {
-                    viewModel.deleteRecipeLocally(it)
+                    deletedRecipe?.let {
+                        viewModel.deleteRecipeLocally(it)
+                    }
                 }
             }
         }
@@ -133,7 +137,9 @@ class RecipesPage : ComponentActivity() {
         val viewModel: RecipesViewModel by viewModels()
 
         val dayPlanning = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent.getParcelableExtra(FROM_PLANNING, DayPlanning::class.java)
+            intent.extras?.let { bundle ->
+                BundleCompat.getParcelable(bundle, FROM_PLANNING, DayPlanning::class.java)
+            }
         } else {
             intent.getParcelableExtra(FROM_PLANNING)
         }
@@ -191,7 +197,9 @@ class RecipesPage : ComponentActivity() {
 
         LaunchedEffect(key1 = Unit, block = {
             val recipes = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                intent.getParcelableArrayExtra(RECIPES_LIST, Recipe::class.java)
+                intent.extras?.let { bundle ->
+                    BundleCompat.getParcelableArray(bundle, RECIPES_LIST, Recipe::class.java)
+                }
             } else {
                 intent.getParcelableArrayExtra(RECIPES_LIST)
             }

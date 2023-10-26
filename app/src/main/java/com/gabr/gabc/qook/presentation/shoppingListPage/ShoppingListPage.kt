@@ -41,6 +41,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.core.os.BundleCompat
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.planning.DayPlanning
 import com.gabr.gabc.qook.presentation.shared.IntentVars.Companion.PLANNING
@@ -76,7 +77,9 @@ class ShoppingListPage : ComponentActivity() {
 
         LaunchedEffect(key1 = Unit, block = {
             val planning = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                intent.getParcelableArrayExtra(PLANNING, DayPlanning::class.java)
+                intent.extras?.let { bundle ->
+                    BundleCompat.getParcelableArray(bundle, PLANNING, DayPlanning::class.java)
+                }
             } else {
                 intent.getParcelableArrayExtra(PLANNING)
             }

@@ -44,6 +44,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.core.os.BundleCompat
 import com.gabr.gabc.qook.R
 import com.gabr.gabc.qook.domain.planning.DayPlanning
 import com.gabr.gabc.qook.domain.planning.MealData
@@ -80,40 +81,45 @@ class PlanningPage : ComponentActivity() {
     private val resultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
-                val extras = result.data?.extras
-
-                val isGroupDeleted =
-                    extras?.getBoolean(HAS_REMOVED_SHARED_PLANNING) ?: false
-                if (isGroupDeleted) {
-                    finish()
-                }
-
-                val viewModel: PlanningViewModel by viewModels()
-
-                val updatedPlanning = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    extras?.getParcelable(HAS_UPDATED_DAY_PLANNING, DayPlanning::class.java)
-                } else {
-                    extras?.getParcelable(HAS_UPDATED_DAY_PLANNING)
-                }
-                val updatedRecipeForPlanning =
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        extras?.getParcelable(
-                            HAS_UPDATED_DAY_PLANNING_WITH_RECIPE,
-                            Recipe::class.java
-                        )
-                    } else {
-                        extras?.getParcelable(HAS_UPDATED_DAY_PLANNING_WITH_RECIPE)
+                result.data?.extras?.let { bundle ->
+                    val isGroupDeleted = bundle.getBoolean(HAS_REMOVED_SHARED_PLANNING)
+                    if (isGroupDeleted) {
+                        finish()
                     }
-                val isLunch = extras?.getBoolean(IS_LUNCH) ?: false
-                updatedPlanning?.let { dayPlanning ->
-                    updatedRecipeForPlanning?.let { recipe ->
-                        viewModel.updatePlanningLocally(
-                            if (isLunch) {
-                                dayPlanning.copy(lunch = dayPlanning.lunch.copy(meal = recipe))
-                            } else {
-                                dayPlanning.copy(dinner = dayPlanning.dinner.copy(meal = recipe))
-                            }
-                        )
+
+                    val viewModel: PlanningViewModel by viewModels()
+
+                    val updatedPlanning =
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            BundleCompat.getParcelable(
+                                bundle,
+                                HAS_UPDATED_DAY_PLANNING,
+                                DayPlanning::class.java
+                            )
+                        } else {
+                            bundle.getParcelable(HAS_UPDATED_DAY_PLANNING)
+                        }
+                    val updatedRecipeForPlanning =
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            BundleCompat.getParcelable(
+                                bundle,
+                                HAS_UPDATED_DAY_PLANNING_WITH_RECIPE,
+                                Recipe::class.java
+                            )
+                        } else {
+                            bundle.getParcelable(HAS_UPDATED_DAY_PLANNING_WITH_RECIPE)
+                        }
+                    val isLunch = bundle.getBoolean(IS_LUNCH)
+                    updatedPlanning?.let { dayPlanning ->
+                        updatedRecipeForPlanning?.let { recipe ->
+                            viewModel.updatePlanningLocally(
+                                if (isLunch) {
+                                    dayPlanning.copy(lunch = dayPlanning.lunch.copy(meal = recipe))
+                                } else {
+                                    dayPlanning.copy(dinner = dayPlanning.dinner.copy(meal = recipe))
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -164,7 +170,9 @@ class PlanningPage : ComponentActivity() {
 
         LaunchedEffect(key1 = Unit, block = {
             val loadedPlanning = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                intent.getParcelableArrayExtra(PLANNING, DayPlanning::class.java)
+                intent.extras?.let { bundle ->
+                    BundleCompat.getParcelableArray(bundle, PLANNING, DayPlanning::class.java)
+                }
             } else {
                 intent.getParcelableArrayExtra(PLANNING)
             }
