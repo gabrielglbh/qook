@@ -88,15 +88,9 @@ class AddRecipePage : ComponentActivity() {
                     } else {
                         bundle.getParcelable(HAS_ALTERED_TAG)
                     }
-                    val mode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        BundleCompat.getParcelable(
-                            bundle,
-                            HAS_ALTERED_MODE,
-                            AlteredMode::class.java
-                        )
-                    } else {
-                        bundle.getSerializable(HAS_ALTERED_MODE)
-                    }
+                    val mode = AlteredMode.valueOf(
+                        bundle.getString(HAS_ALTERED_MODE) ?: AlteredMode.CREATE.name
+                    )
 
                     updatedTag?.let {
                         when (mode) {
