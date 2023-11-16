@@ -251,14 +251,6 @@ class AddRecipePage : ComponentActivity() {
                         verticalArrangement = Arrangement.SpaceAround,
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        RecipeProgressBar(
-                            navController = navController,
-                            colorBar2 = bar2Color,
-                            colorBar3 = bar3Color,
-                            colorBar4 = bar4Color,
-                            colorBar5 = bar5Color
-                        )
-                        Spacer(modifier = Modifier.size(12.dp))
                         NavHost(
                             navController = navController,
                             startDestination = RecipeStep.DATA.name,
@@ -342,7 +334,13 @@ class AddRecipePage : ComponentActivity() {
                                 )
                             }
                         }
-                        Spacer(modifier = Modifier.size(8.dp))
+                        RecipeProgressBar(
+                            navController = navController,
+                            colorBar2 = bar2Color,
+                            colorBar3 = bar3Color,
+                            colorBar4 = bar4Color,
+                            colorBar5 = bar5Color
+                        )
                     }
                 }
             }
@@ -361,7 +359,7 @@ class AddRecipePage : ComponentActivity() {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceAround,
-            modifier = Modifier.padding(start = 12.dp, end = 12.dp, top = 12.dp)
+            modifier = Modifier.padding(start = 32.dp, end = 32.dp, top = 12.dp, bottom = 24.dp)
         ) {
             Bar(
                 modifier = Modifier.weight(1f),
