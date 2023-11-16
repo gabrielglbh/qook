@@ -92,7 +92,7 @@ class AddTagPage : ComponentActivity() {
         fun successCallback(tag: Tag, mode: AlteredMode) {
             val resultIntent = Intent()
             resultIntent.putExtra(HAS_ALTERED_TAG, tag)
-            resultIntent.putExtra(HAS_ALTERED_MODE, mode)
+            resultIntent.putExtra(HAS_ALTERED_MODE, mode.name)
             setResult(RESULT_OK, resultIntent)
             finish()
         }
