@@ -60,7 +60,7 @@ class RecipeRepositoryImpl @Inject constructor(
                     )
                 }
 
-                return Right(recipe)
+                return Right(recipe.copy(id = recipeId))
             }
             return Left(RecipeFailure.NotAuthenticated(res.getString(R.string.error_user_not_auth)))
         } catch (err: FirebaseFirestoreException) {
