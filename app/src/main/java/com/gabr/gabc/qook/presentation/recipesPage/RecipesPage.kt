@@ -260,20 +260,16 @@ class RecipesPage : ComponentActivity() {
                     QActionBar(
                         title = R.string.recipes_title,
                         onBack = { finish() },
-                        actions = if (planningState.dayPlanning == DayPlanning.EMPTY) {
-                            listOf {
-                                IconButton(
-                                    onClick = {
-                                        val intent =
-                                            Intent(this@RecipesPage, AddRecipePage::class.java)
-                                        resultLauncher.launch(intent)
-                                    }
-                                ) {
-                                    Icon(Icons.Outlined.PostAdd, "")
+                        actions = listOf {
+                            IconButton(
+                                onClick = {
+                                    val intent =
+                                        Intent(this@RecipesPage, AddRecipePage::class.java)
+                                    resultLauncher.launch(intent)
                                 }
+                            ) {
+                                Icon(Icons.Outlined.PostAdd, "")
                             }
-                        } else {
-                            null
                         }
                     )
                 },
