@@ -5,7 +5,9 @@ export default {
     "./src/**/*.tsx"
   ],
   theme: {
-    extend: {},
+   container: {
+      center: true,
+    },
   },
   plugins: [],
 }
