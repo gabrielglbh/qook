@@ -13,11 +13,11 @@ App made with native Kotlin with Jetpack Compose for Android. Using coroutines, 
 ## Screenshots
 
 <p align="center">
-  <img src="documentation/dashboard.png" width="20%">
-  <img src="documentation/planning.png" width="20%">
-  <img src="documentation/recipes.png" width="20%">
-  <img src="documentation/details.png" width="20%">
-  <img src="documentation/add_recipe.png" width="20%">
+  <img src="android/documentation/dashboard.png" width="20%">
+  <img src="android/documentation/planning.png" width="20%">
+  <img src="android/documentation/recipes.png" width="20%">
+  <img src="android/documentation/details.png" width="20%">
+  <img src="android/documentation/add_recipe.png" width="20%">
 </p>
 
 ## Description
