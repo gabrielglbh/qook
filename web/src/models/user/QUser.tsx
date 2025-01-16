@@ -9,7 +9,7 @@ class QUser {
   name: string;
   email: string;
   resetDay: number;
-  photo: URL;
+  photo: string;
   language: string;
   messagingToken: string;
   hasPhoto: boolean;
@@ -19,7 +19,7 @@ class QUser {
     name: string = "",
     email: string = "",
     resetDay: number = 1,
-    photo: URL = new URL(""),
+    photo: string = "",
     language: string = "",
     messagingToken: string = "",
     hasPhoto: boolean = false,

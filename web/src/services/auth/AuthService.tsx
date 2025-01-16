@@ -1,9 +1,10 @@
 import { setDoc, doc, updateDoc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase.config';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth';
-import { DB_USER, FIREBASE_HOST } from '../../components/Globals';
+import { DB_USER, FIREBASE_HOST, STORAGE_AVATAR, STORAGE_USERS } from '../../components/Globals';
 import QUser from '../../models/user/QUser';
 import UserDto from '../../models/user/QUserDto';
+import { getImageDownloadURL, uploadImage } from '../storage/StorageService';
 
 export const signInUser = async (email: string, password: string): Promise<string | number> => {
     return await signInWithEmailAndPassword(auth, email, password)
@@ -43,13 +44,15 @@ export const createUserInDB = async (user: QUser): Promise<null | string> => {
 export const updateUser = async (user: QUser): Promise<QUser | string> => {
     const currentUser = auth.currentUser; 
     return await updateDoc(doc(db, DB_USER, currentUser!.uid), user.toDto().toMap(null))
-        .then((_) => {
-            if (user.photo.host != FIREBASE_HOST && user.photo != new URL("")) {
-                // TODO: uploadImage in storage
-                /*storage.uploadImage(
-                    user.photo,
-                    "${STORAGE_USERS}${user.id}/${STORAGE_AVATAR}"
-                )*/
+        .then(async (_) => {
+            if (user.photo.includes(FIREBASE_HOST) && user.photo != "") {
+                await uploadImage(user.photo, `${STORAGE_USERS}${user.id}/${STORAGE_AVATAR}`)
+                    .then((_) => {
+                        return user;
+                    })
+                    .catch((error) => {
+                        return error.message;
+                    });
             }
             return user;
         })
@@ -61,17 +64,20 @@ export const updateUser = async (user: QUser): Promise<QUser | string> => {
 export const getUser = async (): Promise<QUser | string> => {
     const currentUser = auth.currentUser; 
     return await getDoc(doc(db, DB_USER, currentUser!.uid))
-        .then((res) => {
+        .then(async (res) => {
             const userDto = res.data() as UserDto;
             const user = userDto.toDomain();
             if (user.hasPhoto) {
-                // TODO: get the download url from storage
-                /*val result =
-                    storage.getDownloadUrl("${STORAGE_USERS}${it.uid}/${STORAGE_AVATAR}")
-                result.fold(
-                    ifLeft = {},
-                    ifRight = { uri -> user = user.copy(photo = uri) }
-                )*/
+                await getImageDownloadURL(`${STORAGE_USERS}${user.id}/${STORAGE_AVATAR}`)
+                    .then((url) => {
+                        return {
+                            ...user,
+                            photo: url,
+                        }
+                    })
+                    .catch((error) => {
+                        return error.message;
+                    });
             }
             return user;
         })

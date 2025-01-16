@@ -28,4 +28,4 @@ IngredientsDto.prototype.toMap = function() {
   }
 }
 
-export default Ingredients;
+export default IngredientsDto;

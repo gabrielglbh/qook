@@ -8,16 +8,13 @@ interface Tag {
 class Tag {
   id: string;
   text: string;
-  color: string;
 
   constructor(
     id: string,
     text: string,
-    color: string,
   ) {
     this.id = id;
     this.text = text;
-    this.color = color;
   }
 }
 
@@ -30,7 +27,6 @@ Tag.prototype.toDto = function() {
     this.id,
     this.text,
     keywords,
-    -1, // TODO: toArgb()
   );
 }
 

@@ -10,30 +10,30 @@ interface RecipeDto {
 class RecipeDto {
   id: string;
   name: string;
-  keywords: Array<string>;
+  keywords: string[];
   creationDate: number;
   updateDate: number;
   easiness: string;
   time: string;
   hasPhoto: boolean;
   recipeUrl: string | null;
-  description: Array<string>;
-  ingredients: Array<string>;
-  tagIds: Array<string>;
+  description: string[];
+  ingredients: string[];
+  tagIds: string[];
 
   constructor(
     id: string =  "",
     name: string = "",
-    keywords: Array<string> = [],
+    keywords: string[] = [],
     creationDate: number = 0,
     updateDate: number = 0,
     easiness: string = "",
     time: string = "",
     hasPhoto: boolean = false,
     recipeUrl: string | null = null,
-    description: Array<string> = [],
-    ingredients: Array<string> = [],
-    tagIds: Array<string> = [],
+    description: string[] = [],
+    ingredients: string[] = [],
+    tagIds: string[] = [],
   ) {
     this.id = id;
     this.name = name;
@@ -58,7 +58,7 @@ RecipeDto.prototype.toDomain = function() {
     new Date(this.updateDate),
     stringToEasiness(this.easiness),
     this.time,
-    new URL(""),
+    "",
     this.recipeUrl,
     this.description,
     this.ingredients,

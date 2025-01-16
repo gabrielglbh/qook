@@ -39,7 +39,7 @@ UserDto.prototype.toDomain = function() {
     this.name,
     this.email,
     this.resetDay,
-    new URL(""),
+    "",
     this.language,
     this.messagingToken,
     this.hasPhoto,

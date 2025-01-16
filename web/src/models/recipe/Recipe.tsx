@@ -14,11 +14,11 @@ class Recipe {
   updateDate: Date;
   easiness: Easiness;
   time: string;
-  photo: URL;
+  photo: string;
   recipeUrl: string | null;
-  description: Array<string>;
-  ingredients: Array<string>;
-  tags: Array<Tag>;
+  description: string[];
+  ingredients: string[];
+  tags: Tag[];
 
   constructor(
     id: string,
@@ -27,11 +27,11 @@ class Recipe {
     updateDate: Date,
     easiness: Easiness,
     time: string,
-    photo: URL = new URL(""),
+    photo: string = "",
     recipeUrl: string | null,
-    description: Array<string>,
-    ingredients: Array<string>,
-    tags: Array<Tag>,
+    description: string[],
+    ingredients: string[],
+    tags: Tag[],
   ) {
     this.id = id;
     this.name = name;
@@ -72,7 +72,7 @@ Recipe.prototype.toDto = function() {
     this.updateDate.getMilliseconds(),
     getEasinessName(this.easiness),
     this.time,
-    this.photo != new URL(""),
+    this.photo != "",
     this.recipeUrl,
     this.description,
     this.ingredients,
