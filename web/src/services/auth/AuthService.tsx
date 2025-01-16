@@ -2,8 +2,8 @@ import { setDoc, doc, updateDoc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase.config';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { DB_USER, FIREBASE_HOST, STORAGE_AVATAR, STORAGE_USERS } from '../../components/Globals';
-import QUser from '../../models/user/QUser';
-import UserDto from '../../models/user/QUserDto';
+import QUser, { userToDto } from '../../models/user/QUser';
+import UserDto, { userDtoToDomain, userDtoToMap } from '../../models/user/QUserDto';
 import { getImageDownloadURL, uploadImage } from '../storage/StorageService';
 
 export const signInUser = async (email: string, password: string): Promise<string | number> => {
@@ -32,7 +32,7 @@ export const signUserOut = async () => {
 
 export const createUserInDB = async (user: QUser): Promise<null | string> => {
     const currentUser = auth.currentUser; 
-    return await setDoc(doc(db, DB_USER, currentUser!.uid), user.toDto().toMap(currentUser!.uid))
+    return await setDoc(doc(db, DB_USER, currentUser!.uid), userDtoToMap(userToDto(user), currentUser!.uid))
         .then((_) => {
             return null;
         })
@@ -43,7 +43,7 @@ export const createUserInDB = async (user: QUser): Promise<null | string> => {
 
 export const updateUser = async (user: QUser): Promise<QUser | string> => {
     const currentUser = auth.currentUser; 
-    return await updateDoc(doc(db, DB_USER, currentUser!.uid), user.toDto().toMap(null))
+    return await updateDoc(doc(db, DB_USER, currentUser!.uid), userDtoToMap(userToDto(user), null))
         .then(async (_) => {
             if (user.photo.includes(FIREBASE_HOST) && user.photo != "") {
                 await uploadImage(user.photo, `${STORAGE_USERS}${user.id}/${STORAGE_AVATAR}`)
@@ -66,7 +66,7 @@ export const getUser = async (): Promise<QUser | string> => {
     return await getDoc(doc(db, DB_USER, currentUser!.uid))
         .then(async (res) => {
             const userDto = res.data() as UserDto;
-            const user = userDto.toDomain();
+            const user = userDtoToDomain(userDto);
             if (user.hasPhoto) {
                 await getImageDownloadURL(`${STORAGE_USERS}${user.id}/${STORAGE_AVATAR}`)
                     .then((url) => {

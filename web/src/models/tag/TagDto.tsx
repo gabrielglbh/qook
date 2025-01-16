@@ -1,12 +1,6 @@
 import { OBJ_TAG_KEYWORDS, OBJ_TAG_NAME } from "../../components/Globals";
 import Tag from "./Tag";
 
-interface TagDto {
-  toDomain(): Tag;
-  toMap(): {};
-}
-
-
 class TagDto {
   id: string;
   text: string;
@@ -26,18 +20,18 @@ class TagDto {
   }
 }
 
-TagDto.prototype.toDomain = function() {
+export const tagDtoToDomain = (dto: TagDto) => {
   return new Tag(
-    this.id,
-    this.text,
+    dto.id,
+    dto.text,
   );
 }
 
-TagDto.prototype.toMap = function() {
+export const tagDtoToMap = (dto: TagDto) => {
   return {
-    "id": this.id,
-    [OBJ_TAG_NAME]: this.text,
-    [OBJ_TAG_KEYWORDS]: this.keywords,
+    "id": dto.id,
+    [OBJ_TAG_NAME]: dto.text,
+    [OBJ_TAG_KEYWORDS]: dto.keywords,
     "color": -1,
   };
 }

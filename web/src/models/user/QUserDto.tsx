@@ -1,10 +1,5 @@
 import QUser from "./QUser";
 
-interface UserDto {
-  toDomain(): QUser;
-  toMap(uid: string | null): {};
-}
-
 class UserDto {
   id: string;
   name: string;
@@ -33,28 +28,28 @@ class UserDto {
   }
 }
 
-UserDto.prototype.toDomain = function() {
+export const userDtoToDomain = (dto: UserDto) => {
   return new QUser(
-    this.id,
-    this.name,
-    this.email,
-    this.resetDay,
+    dto.id,
+    dto.name,
+    dto.email,
+    dto.resetDay,
     "",
-    this.language,
-    this.messagingToken,
-    this.hasPhoto,
+    dto.language,
+    dto.messagingToken,
+    dto.hasPhoto,
   );
 }
 
-UserDto.prototype.toMap = function(uid: string | null) {
+export const userDtoToMap = (dto: UserDto, uid: string | null) => {
     return  {
-      "id": uid ?? this.id,
-      "name": this.name,
-      "email": this.email,
-      "resetDay": this.resetDay,
-      "language": this.language,
-      "messagingToken": this.messagingToken,
-      "hasPhoto": this.hasPhoto,
+      "id": uid ?? dto.id,
+      "name": dto.name,
+      "email": dto.email,
+      "resetDay": dto.resetDay,
+      "language": dto.language,
+      "messagingToken": dto.messagingToken,
+      "hasPhoto": dto.hasPhoto,
     };
 }
 

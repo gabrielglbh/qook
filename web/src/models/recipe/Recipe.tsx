@@ -3,10 +3,6 @@ import Tag from "../tag/Tag";
 import { Easiness, getEasinessName } from "./Easiness";
 import RecipeDto from "./RecipeDto";
 
-interface Recipe {
-  toDto(): RecipeDto;
-}
-
 class Recipe {
   id: string;
   name: string;
@@ -47,10 +43,10 @@ class Recipe {
   }
 }
 
-Recipe.prototype.toDto = function() {
+export const recipeToDto = (recipe: Recipe) => {
   const keywords: string[] = [];
 
-  this.ingredients.forEach((ingredient) => {
+  recipe.ingredients.forEach((ingredient) => {
     const keywords = StringFormatters.generateSubStrings(ingredient);
     const each = ingredient.split(' ').map((word) => word.toLowerCase());
     keywords.push(...each);
@@ -58,25 +54,25 @@ Recipe.prototype.toDto = function() {
   });
 
   const nameKeywords: string[] = [
-    ...this.name.split(' ').map((word) => word.toLowerCase()),
-    ...StringFormatters.generateSubStrings(this.name),
+    ...recipe.name.split(' ').map((word) => word.toLowerCase()),
+    ...StringFormatters.generateSubStrings(recipe.name),
   ];
 
   keywords.push(...nameKeywords);
 
   return new RecipeDto(
-    this.id,
-    this.name,
+    recipe.id,
+    recipe.name,
     keywords,
-    this.creationDate.getMilliseconds(),
-    this.updateDate.getMilliseconds(),
-    getEasinessName(this.easiness),
-    this.time,
-    this.photo != "",
-    this.recipeUrl,
-    this.description,
-    this.ingredients,
-    this.tags.map((e) => e.id),
+    recipe.creationDate.getMilliseconds(),
+    recipe.updateDate.getMilliseconds(),
+    getEasinessName(recipe.easiness),
+    recipe.time,
+    recipe.photo != "",
+    recipe.recipeUrl,
+    recipe.description,
+    recipe.ingredients,
+    recipe.tags.map((e) => e.id),
   );
 }
 

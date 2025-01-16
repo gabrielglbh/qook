@@ -1,10 +1,6 @@
 import { StringFormatters } from "../../components/StringFormatters";
 import TagDto from "./TagDto";
 
-interface Tag {
-  toDto(): TagDto;
-}
-
 class Tag {
   id: string;
   text: string;
@@ -18,14 +14,14 @@ class Tag {
   }
 }
 
-Tag.prototype.toDto = function() {
+export const tagToDto = (tag: Tag) => {
   const keywords: string[] = [];
-  keywords.push(...this.text.split(' ').map(e => e.toLowerCase()));
-  keywords.push(...StringFormatters.generateSubStrings(this.text)); 
+  keywords.push(...tag.text.split(' ').map(e => e.toLowerCase()));
+  keywords.push(...StringFormatters.generateSubStrings(tag.text)); 
     
   return new TagDto(
-    this.id,
-    this.text,
+    tag.id,
+    tag.text,
     keywords,
   );
 }

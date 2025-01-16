@@ -1,11 +1,6 @@
 import { OBJ_SHOPPING_LIST } from "../../components/Globals";
 import Ingredients from "./Ingredients";
 
-interface IngredientsDto {
-  toDomain(): Ingredients;
-  toMap(): {};
-}
-
 class IngredientsDto {
   list: Map<string, boolean>;
 
@@ -16,15 +11,15 @@ class IngredientsDto {
   }
 }
 
-IngredientsDto.prototype.toDomain = function() {
+export const ingredientsDtoToDomain = (dto: IngredientsDto) => {
   return new Ingredients(
-    this.list
+    dto.list
   );
 }
 
-IngredientsDto.prototype.toMap = function() {
+export const ingredientsDtoToMap = (dto: IngredientsDto) => {
   return {
-    [OBJ_SHOPPING_LIST]: this.list,
+    [OBJ_SHOPPING_LIST]: dto.list,
   }
 }
 

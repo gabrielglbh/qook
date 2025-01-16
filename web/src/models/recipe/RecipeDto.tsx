@@ -2,11 +2,6 @@ import { OBJ_RECIPE_CREATION, OBJ_RECIPE_DESCRIPTION, OBJ_RECIPE_EASINESS, OBJ_R
 import { stringToEasiness } from "./Easiness";
 import Recipe from "./Recipe";
 
-interface RecipeDto {
-  toDomain(): Recipe;
-  toMap(): {};
-}
-
 class RecipeDto {
   id: string;
   name: string;
@@ -50,35 +45,35 @@ class RecipeDto {
   }
 }
 
-RecipeDto.prototype.toDomain = function() {
+export const recipeDtoToDomain = (dto: RecipeDto) => {
   return new Recipe(
-    this.id,
-    this.name,
-    new Date(this.creationDate),
-    new Date(this.updateDate),
-    stringToEasiness(this.easiness),
-    this.time,
+    dto.id,
+    dto.name,
+    new Date(dto.creationDate),
+    new Date(dto.updateDate),
+    stringToEasiness(dto.easiness),
+    dto.time,
     "",
-    this.recipeUrl,
-    this.description,
-    this.ingredients,
+    dto.recipeUrl,
+    dto.description,
+    dto.ingredients,
     [],
   );
 }
 
-RecipeDto.prototype.toMap = function() {
+export const recipeDtoToMap = (dto: RecipeDto) => {
   return {
-    "id": this.id,
-    [OBJ_RECIPE_NAME]: this.name,
-    [OBJ_RECIPE_KEYWORDS]: this.keywords,
-    [OBJ_RECIPE_CREATION]: new Date(this.creationDate),
-    [OBJ_RECIPE_UPDATE]: new Date(this.updateDate),
-    [OBJ_RECIPE_EASINESS]: stringToEasiness(this.easiness),
-    "time": this.time,
-    [OBJ_RECIPE_HAS_PHOTO]: this.hasPhoto,
-    [OBJ_RECIPE_URL]: this.recipeUrl,
-    [OBJ_RECIPE_DESCRIPTION]: this.description,
-    [OBJ_RECIPE_INGREDIENTS]: this.ingredients,
+    "id": dto.id,
+    [OBJ_RECIPE_NAME]: dto.name,
+    [OBJ_RECIPE_KEYWORDS]: dto.keywords,
+    [OBJ_RECIPE_CREATION]: new Date(dto.creationDate),
+    [OBJ_RECIPE_UPDATE]: new Date(dto.updateDate),
+    [OBJ_RECIPE_EASINESS]: stringToEasiness(dto.easiness),
+    "time": dto.time,
+    [OBJ_RECIPE_HAS_PHOTO]: dto.hasPhoto,
+    [OBJ_RECIPE_URL]: dto.recipeUrl,
+    [OBJ_RECIPE_DESCRIPTION]: dto.description,
+    [OBJ_RECIPE_INGREDIENTS]: dto.ingredients,
     [OBJ_RECIPE_TAG_IDS]: [],
   };
 }

@@ -1,8 +1,8 @@
 import { deleteField, doc, FieldValue, getDoc, updateDoc } from "firebase/firestore";
 import { auth, db } from "../firebase.config";
 import { DB_INGREDIENTS, DB_SHOPPING_LIST, DB_USER, OBJ_SHOPPING_LIST } from "../../components/Globals";
-import IngredientsDto from "../../models/ingredients/IngredientsDto";
-import Ingredients from "../../models/ingredients/Ingredients";
+import IngredientsDto, { ingredientsDtoToDomain, ingredientsDtoToMap } from "../../models/ingredients/IngredientsDto";
+import Ingredients, { ingredientsToDto } from "../../models/ingredients/Ingredients";
 
 export const getIngredientsOfShoppingList = async (): Promise<Ingredients> => {
     const currentUser = auth.currentUser; 
@@ -10,7 +10,7 @@ export const getIngredientsOfShoppingList = async (): Promise<Ingredients> => {
     return await getDoc(ref)
         .then((res) => {
             const data = res.data() as IngredientsDto;
-            return data.toDomain();
+            return ingredientsDtoToDomain(data);
         })
         .catch((_) => {
             return new Ingredients(new Map());
@@ -31,11 +31,11 @@ export const removeIngredient = async (ingredient: Ingredients) => {
 export const updateIngredients = async (ingredient: Ingredients) => {
     const currentUser = auth.currentUser; 
     const ref = doc(db, DB_USER, currentUser!.uid, DB_SHOPPING_LIST, DB_INGREDIENTS);
-    await updateDoc(ref, ingredient.toDto().toMap())
+    await updateDoc(ref, ingredientsDtoToMap(ingredientsToDto(ingredient)))
 }
 
 export const resetIngredients = async () => {
     const currentUser = auth.currentUser; 
     const ref = doc(db, DB_USER, currentUser!.uid, DB_SHOPPING_LIST, DB_INGREDIENTS);
-    await updateDoc(ref, new Ingredients(new Map()).toDto().toMap())
+    await updateDoc(ref, {})
 }

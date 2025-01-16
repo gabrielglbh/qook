@@ -1,9 +1,9 @@
-import { collection, deleteDoc, doc, getDoc, getDocs, limit, query, setDoc, where } from "firebase/firestore";
-import Recipe from "../../models/recipe/Recipe";
+import { collection, deleteDoc, doc, getDoc, getDocs, limit, query, setDoc, where, orderBy, OrderByDirection } from "firebase/firestore";
+import Recipe, { recipeToDto } from "../../models/recipe/Recipe";
 import { auth, db, storage } from "../firebase.config";
-import { DB_RECIPES, DB_USER, FIREBASE_HOST, OBJ_RECIPE_KEYWORDS, OBJ_RECIPE_NAME, OBJ_RECIPE_TAG_IDS, RECIPES_LIMIT, STORAGE_RECIPES, STORAGE_USERS } from "../../components/Globals";
+import { DB_RECIPES, DB_USER, FIREBASE_HOST, OBJ_RECIPE_CREATION, OBJ_RECIPE_KEYWORDS, OBJ_RECIPE_NAME, OBJ_RECIPE_TAG_IDS, RECIPES_LIMIT, STORAGE_RECIPES, STORAGE_USERS } from "../../components/Globals";
 import { deleteObject, getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import RecipeDto from "../../models/recipe/RecipeDto";
+import RecipeDto, { recipeDtoToDomain, recipeDtoToMap } from "../../models/recipe/RecipeDto";
 import { getTagsForRecipe } from "./TagService";
 
 export const createRecipe = async (recipe: Recipe): Promise<Recipe | string> => {
@@ -20,7 +20,7 @@ export const createRecipe = async (recipe: Recipe): Promise<Recipe | string> => 
     const recipeId = docRef.id;
 
     const uploadedRecipe = { ...recipe, id: recipeId };
-    await setDoc(docRef, uploadedRecipe);
+    await setDoc(docRef, recipeToDto(uploadedRecipe));
 
     if (recipe.photo !== "" && recipe.photo !== FIREBASE_HOST) {
       const storageRef = ref(storage, `${STORAGE_USERS}${currentUser!.uid}/${STORAGE_RECIPES}${recipeId}.jpg`);
@@ -35,7 +35,6 @@ export const createRecipe = async (recipe: Recipe): Promise<Recipe | string> => 
 }
 
 export const getRecipes = async (
-    orderBy: string,
     queryText: string | null,
     tagId: string | null,
     lastRecipeId: string
@@ -57,26 +56,27 @@ export const getRecipes = async (
             // TODO: q = startAfter(lastDocSnapshot);
         }
 
-        const querySnapshot = await getDocs(query(q, limit(RECIPES_LIMIT)));
+        // TODO: orderBy(OBJ_RECIPE_CREATION, "desc"),
+        const querySnapshot = await getDocs(query(q, limit(2)));
 
         const recipes: Recipe[] = [];
         querySnapshot.forEach(async (doc) => {
-        const recipeDto = doc.data() as RecipeDto;
-        if (recipeDto) {
-            const recipe = { ...recipeDto, id: doc.id }.toDomain();
+            const recipeDto = { ...doc.data() as RecipeDto, id: doc.id }
+            if (recipeDto) {
+                const recipe = recipeDtoToDomain({ ...recipeDto, id: doc.id });
 
-            if (recipeDto.hasPhoto) {
-            const photoRef = await getDownloadURL(
-                ref(storage, `${STORAGE_USERS}${uid}/${STORAGE_RECIPES}${recipeDto.id}.jpg`)
-            );
-            recipe.photo = photoRef;
+                if (recipeDto.hasPhoto) {
+                const photoRef = await getDownloadURL(
+                    ref(storage, `${STORAGE_USERS}${uid}/${STORAGE_RECIPES}${recipeDto.id}.jpg`)
+                );
+                recipe.photo = photoRef;
+                }
+
+                const tags = await getTagsForRecipe(recipeDto, uid);
+                recipe.tags = tags;
+
+                recipes.push(recipe);
             }
-
-            const tags = await getTagsForRecipe(recipeDto, uid);
-            recipe.tags = tags;
-
-            recipes.push(recipe);
-        }
         });
 
         return recipes
@@ -89,7 +89,7 @@ export const updateRecipe = async (recipe: Recipe): Promise<Recipe | string> => 
     try {
         const docRef = doc(collection(db, DB_USER, auth.currentUser?.uid!, DB_RECIPES), recipe.id);
 
-        await setDoc(docRef, recipe.toDto().toMap()); 
+        await setDoc(docRef, recipeDtoToMap(recipeToDto(recipe))); 
 
         const recipePhotoPath = `${STORAGE_USERS}${auth.currentUser?.uid}/${STORAGE_RECIPES}${recipe.id}.jpg`;
 
@@ -131,10 +131,10 @@ export const getRecipeFromUser = async (recipeId: string, userId: string): Promi
 
         const recipeDto = docSnapshot.data() as RecipeDto;
 
-        const recipe = {
-            ...recipeDto.toDomain(),
+        const recipe = recipeDtoToDomain({
+            ...recipeDto,
             id: recipeId,
-        };
+        });
 
         if (recipeDto.hasPhoto) {
             const photoRef = ref(storage, `${STORAGE_USERS}${userId}/${STORAGE_RECIPES}${recipeId}.jpg`);

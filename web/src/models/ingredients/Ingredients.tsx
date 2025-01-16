@@ -1,9 +1,5 @@
 import IngredientsDto from "./IngredientsDto";
 
-interface Ingredients {
-  toDto(): IngredientsDto;
-}
-
 class Ingredients {
   list: Map<string, boolean>;
 
@@ -14,10 +10,8 @@ class Ingredients {
   }
 }
 
-Ingredients.prototype.toDto = function() {
-  return new IngredientsDto(
-    this.list
-  );
+export const ingredientsToDto = (ingredients: Ingredients) => {
+  return new IngredientsDto(ingredients.list);
 }
 
 export default Ingredients;

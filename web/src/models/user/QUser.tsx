@@ -1,9 +1,5 @@
 import UserDto from "./QUserDto";
 
-interface QUser {
-  toDto(): UserDto;
-}
-
 class QUser {
   id: string;
   name: string;
@@ -35,15 +31,15 @@ class QUser {
   }
 }
 
-QUser.prototype.toDto = function() {
+export const userToDto = (user: QUser) => {
   return new UserDto(
-    this.id,
-    this.name,
-    this.email,
-    this.resetDay,
-    this.language,
-    this.messagingToken,
-    this.hasPhoto,
+    user.id,
+    user.name,
+    user.email,
+    user.resetDay,
+    user.language,
+    user.messagingToken,
+    user.hasPhoto,
   );
 }
 
